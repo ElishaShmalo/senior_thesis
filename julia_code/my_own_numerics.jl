@@ -6,25 +6,6 @@ using Random
 using LinearAlgebra
 using Plots
 
-prefs_dir = "/Users/elishashmalo/.julia/prefs/"
-mkpath(prefs_dir)
-write(joinpath(prefs_dir, "GR.toml"), "use_jll_binary = false\n")
-
-using PyPlot
-
-# Set the interactive backend for matplotlib
-matplotlib.use("TkAgg")
-
-x = 1:10
-y = rand(10)
-
-plot(x, y)
-xlabel("x-axis")
-ylabel("y-axis")
-title("My first PyPlot!")
-
-show()
-
 # Set plotting theme
 theme(:dark)
 
