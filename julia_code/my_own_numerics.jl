@@ -7,47 +7,57 @@ using LinearAlgebra
 using Plots
 
 # Set plotting theme
-theme(:dark)
+Plots.theme(:dark)
 
 # General Variables
 L = 4 * 60  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
-J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
+J_vec = J .* normalize([rand([-1, 1]), rand([-1, 1]), 1])
 
 # Time step for evolution
 Tau_F = 1 / J
 
+# Number of spins pushed each time
+N_push = div(L, 10)
+
 # Evolve until
 t = L
 
-# --- Defining Initial States ---
+# --- Defining functions to make Initial States ---
 
 # Random spin state
 function make_random_state(n::Int=L)
-    state = [normalize(rand(3)) for _ in 1:n]
-    return reduce(hcat, state)'  # make it an n x 3 array
+    return [normalize(rand(3)) for _ in 1:n]
 end
 
 # Uniform spin state along z
 function make_uniform_state(n::Int=L, z_dir::Int=1)
-    state = [[0.0, 0.0, z_dir] for _ in 1:n]
-    return reduce(hcat, state)'
+    return [[0.0, 0.0, z_dir] for _ in 1:n]
 end
 
 # Spiral spin state
 function make_spiral_state(n::Int=L, spiral_angle::Float64=π/4, phi::Float64=0.0)
-    state = [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
-    return reduce(hcat, state)'
+    return [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
 end
 
 # --- Equation of Motion ---
 
-function differential_s(state::Matrix{Float64})
+function differential_s(state::Vector{Vector{Float64}}, periodic=false)
     n = size(state, 1)
-    dstate_dt = [cross(-(J * state[mod1(i-1, n), :] + J * state[mod1(i+1, n), :]), state[i, :]) for i in 1:n]
-    return reduce(hcat, dstate_dt)'
+
+    to_cross = [[0., 0., 0.] for _ in 1:n]
+
+    for i in 1:n
+        prev = (i == 1)    ? (periodic ? state[end] : [0.,0.,0.]) : state[i - 1]
+        next = (i == n)    ? (periodic ? state[1]  : [0.,0.,0.]) : state[i + 1]
+        to_cross[i] = -((prev .* J_vec) + (next .* J_vec))
+    end
+
+    differential = [cross(to_cross[i], state[i]) for i in 1:n] 
+
+    return differential
 end
 
 function evolve_differential(state::Matrix{Float64}, dstate_dt::Matrix{Float64}, dt::Float64)
@@ -55,20 +65,39 @@ function evolve_differential(state::Matrix{Float64}, dstate_dt::Matrix{Float64},
 end
 
 # --- Testing differential_s ---
+# Shiftable s_naught for local push functionality
+shiftable_s_naught = make_spiral_state(L)
 
-s_naught = make_spiral_state(L)
-
-println(differential_s(s_naught))
+println(differential_s(shiftable_s_naught))
 
 # Define s_naught as a constant
-const S_NAUGHT = make_spiral_state(L)
+S_NAUGHT = make_spiral_state(L)
 
 # --- Control Push ---
-
-function control_push(spin::Matrix{Float64}, a::Float64)
-    numerator = (1-a) .* S_NAUGHT .+ a .* spin
-    denominator = sqrt.(sum(numerator.^2, dims=2))
+map(norm, (0 .* S_NAUGHT) + test_spin)
+function control_push(state::Vector{Vector{Float64}}, a::Float64)
+    numerator = ((1-a) .* S_NAUGHT) .+ (a .* state)
+    println(typeof(numerator))
+    denominator = map(norm, numerator)
     return numerator ./ denominator
+end
+
+function local_control_push(state::Vector{Vector{Float64}}, a::Float64, N::Int64=N_push)
+    numerator = (1-a) .* shiftable_s_naught[1:N] .+ a .* state[1:N]
+    denominator = map(norm, numerator)
+    return numerator ./ denominator
+end
+
+function shift_array_in_place(X, N)
+    temp = X[length(X)-(N-1): length(X)]
+    X[N+1:length(X)] = X[1:length(X)-(N)]
+    X[1:N] = temp
+end
+
+function shift_state(state::Vector{Vector{Float64}}, N::Int64=N_push)
+    # Doesn't return anything, shifts state and shiftable_s_naught in place
+    shift_array_in_place(state, N)
+    shift_array_in_place(shiftable_s_naught, N)
 end
 
 # --- Test Control Push ---
@@ -76,8 +105,8 @@ end
 test_spin = make_random_state(L)
 
 println(test_spin[1, :], norm(test_spin[1, :]))
-controlled_test = control_push(test_spin, 0.0)
-println(controlled_test[1, :], norm(controlled_test[1, :]))
+controlled_test = global_control_push(test_spin, 0.0)
+println(controlled_test, norm(test_spin[1, :]))
 
 # --- Weighted Spin Difference ---
 
