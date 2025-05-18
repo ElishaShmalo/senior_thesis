@@ -19,8 +19,9 @@ J_vec = J .* normalize([rand([-1, 1]), rand([-1, 1]), 1])
 # Time step for evolution
 Tau_F = 1 / J
 
-# Number of spins pushed each time
-N_push = div(L, 10)
+# Number of spins pushed each local control push
+local_N_push = div(L, 10)
+local_control_index = 1
 
 # Evolve until
 t = L
@@ -65,39 +66,27 @@ function evolve_differential(state::Matrix{Float64}, dstate_dt::Matrix{Float64},
 end
 
 # --- Testing differential_s ---
-# Shiftable s_naught for local push functionality
-shiftable_s_naught = make_spiral_state(L)
-
-println(differential_s(shiftable_s_naught))
-
 # Define s_naught as a constant
 S_NAUGHT = make_spiral_state(L)
 
 # --- Control Push ---
-map(norm, (0 .* S_NAUGHT) + test_spin)
-function control_push(state::Vector{Vector{Float64}}, a::Float64)
+function global_control_push(state::Vector{Vector{Float64}}, a::Float64)
     numerator = ((1-a) .* S_NAUGHT) .+ (a .* state)
-    println(typeof(numerator))
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-function local_control_push(state::Vector{Vector{Float64}}, a::Float64, N::Int64=N_push)
-    numerator = (1-a) .* shiftable_s_naught[1:N] .+ a .* state[1:N]
+function local_control_push(state::Vector{Vector{Float64}}, a::Float64, N::Int64=N_push, start_index::Int64=1)
+    # Returns a new state with a control push done to the N spins after (and including) start index in "state"
+    local_indexes = [((start_index+i-1) % length(S_NAUGHT)) + 1 for i in 0:N_push-1]
+    
+    numerator = ((1-a) .* S_NAUGHT[local_indexes]) .+ (a .* state[local_indexes])
     denominator = map(norm, numerator)
-    return numerator ./ denominator
-end
 
-function shift_array_in_place(X, N)
-    temp = X[length(X)-(N-1): length(X)]
-    X[N+1:length(X)] = X[1:length(X)-(N)]
-    X[1:N] = temp
-end
+    local_pushed_state = copy(state)
+    local_pushed_state[local_indexes] = numerator ./ denominator
 
-function shift_state(state::Vector{Vector{Float64}}, N::Int64=N_push)
-    # Doesn't return anything, shifts state and shiftable_s_naught in place
-    shift_array_in_place(state, N)
-    shift_array_in_place(shiftable_s_naught, N)
+    return local_pushed_state
 end
 
 # --- Test Control Push ---
@@ -105,8 +94,11 @@ end
 test_spin = make_random_state(L)
 
 println(test_spin[1, :], norm(test_spin[1, :]))
+
 controlled_test = global_control_push(test_spin, 0.0)
 println(controlled_test, norm(test_spin[1, :]))
+
+println(local_control_push(test_spin, 0., local_N_push, 10) - test_spin)
 
 # --- Weighted Spin Difference ---
 
