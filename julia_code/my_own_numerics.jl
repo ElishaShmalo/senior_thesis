@@ -32,31 +32,52 @@ t = L
 
 # Random spin state
 function make_random_state(n::Int=L)
-    return [SVector{3, Float64}(normalize(rand(3))) for _ in 1:n]
+    return [normalize(rand(3)) for _ in 1:n]
 end
 
 # Uniform spin state along z
 function make_uniform_state(n::Int=L, z_dir::Int=1)
-    return [SVector{3, Float64}([0.0, 0.0, z_dir]) for _ in 1:n]
+    return [[0.0, 0.0, z_dir] for _ in 1:n]
 end
 
 # Spiral spin state
 function make_spiral_state(n::Int=L, spiral_angle::Float64=π/4, phi::Float64=0.0)
-    return [SVector{3, Float64}([0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)]) for i in 0:(n-1)]
+    return [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
 end
 
-# --- Equation of Motion ---
+# --- Equation of Motion and Utils for Runge Kutta ---
 
-function evolve_spin(state::Vector{SVector{3, Float64}}, t_span, periodic=false)
+# Unroll state into a flat vector
+# We need to do this to use runge kutta
+function flatten_state(state::Vector{Vector{Float64}})
+    return vcat(state...)
+end
+
+# Turn the flattened state (vec) back into an actual Vec{Vec{3, Float64}}
+function unflatten_state(vec::Vector{Float64})
+    return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
+end
+
+function evolve_spin(state::Vector{Vector{Float64}}, t_span, periodic=false)
     n = size(state, 1)
-
+    
+    # Define the ODE
     function spin_ode!(du, u, p, t)
+        state = unflatten_state(u)
+        n = length(state)
+        to_cross = Vector{Vector{Float64}}(undef, n)
+
+        J_vec[1] *= -1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= -1
+
         for i in 1:n
-            prev = (i == 1) ? (periodic ? u[end] : SVector(0.0, 0.0, 0.0)) : u[i - 1]
-            next = (i == n) ? (periodic ? u[1]  : SVector(0.0, 0.0, 0.0)) : u[i + 1]
-            to_cross = -((prev .* J_vec) + (next .* J_vec))
-            du[i] = cross(to_cross, u[i])
+            prev = (i == 1) ? (periodic ? state[end] : zeros(3)) : state[i - 1]
+            next = (i == n) ? (periodic ? state[1]  : zeros(3)) : state[i + 1]
+            to_cross[i] = -((prev .* J_vec) + (next .* J_vec))
         end
+
+        dstate = [cross(to_cross[i], state[i]) for i in 1:n]
+        du .= flatten_state(dstate)
     end
 
     prob = ODEProblem(spin_ode!, state, t_span)
@@ -70,13 +91,13 @@ end
 S_NAUGHT = make_spiral_state(L)
 
 # --- Control Push ---
-function global_control_push(state::Vector{SVector{3, Float64}}, a::Float64)
+function global_control_push(state::Vector{Vector{Float64}}, a::Float64)
     numerator = ((1-a) .* S_NAUGHT) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-function local_control_push(state::Vector{SVector{3, Float64}}, a::Float64, N::Int64=local_N_push, start_index::Int64=1)
+function local_control_push(state::Vector{Vector{Float64}}, a::Float64, N::Int64=local_N_push, start_index::Int64=1)
     # Returns a new state with a control push done to the N spins after (and including) start index in "state"
     local_indexes = [((start_index+i-1) % length(S_NAUGHT)) + 1 for i in 0:N-1]
     
@@ -102,7 +123,7 @@ println(local_control_push(test_spin, 0., local_N_push, L+10) - test_spin)
 
 # --- Weighted Spin Difference ---
 
-function weighted_spin_difference(spin_chain::Vector{SVector{3, Float64}}, s_0::Vector{SVector{3, Float64}})
+function weighted_spin_difference(spin_chain::Vector{Vector{Float64}}, s_0::Vector{Vector{Float64}})
     delta_spin_chain = norm(spin_chain .- s_0, 1)
     return delta_spin_chain / length(spin_chain)
 end
@@ -115,6 +136,55 @@ println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin,
 
 # --- First Tests of Dynamics ---
 
+# Evolve to time T with global_control_push
+function global_control_evolve(original_state, a_val, T, t_step)
+    t = 0.0
+    states_of_time = Float64[]
+
+    current_state = deepcopy(original_state)
+    push!(states_of_time, current_state)
+
+    while t < T
+        current_state = evolve_spin(current_state, (0, t_step))
+        current_state = global_control_push(current_state, a_val)
+        push!(states_of_time, current_state)
+
+        t += t_step
+    end
+    return states_of_time
+end
+
+# Evolve to time T with local_control_push
+function local_control_evolve(original_state, a_val, T, t_step)
+    t = 0.0
+    states_of_time = Float64[]
+    local_control_index = 1
+
+    current_state = deepcopy(original_state)
+    push!(states_of_time, current_state)
+
+    while t < T
+        current_state = evolve_spin(current_state, (0, t_step))
+        current_state = local_control_push(current_state, a_val, local_N_push, local_control_index)
+        local_control_index += local_N_push
+        local_control_index = ((local_control_index-1) % L) + 1
+        push!(states_of_time, current_state)
+
+        t += t_step
+    end
+    return states_of_time
+end
+
+# Test with a = 0.5
+original_random = make_random_state(L)
+returned_states = global_control_evolve(original_random, 0.5, L*J, Tau_F)
+
+S_diffs_of_time = [weighted_spin_difference(state, S_NAUGHT) for state in returned_states]
+
+plot([i for i in 1:length(S_diffs_of_time)], S_diffs_of_time, xlabel="Time", ylabel="S_diff", title="a = 0.5")
+
+
+# --- Trying to Replecate Results ---
 a_vals = [0.6, 0.7, 0.716]
 
 original_random = make_random_state()
@@ -122,23 +192,7 @@ original_random = make_random_state()
 S_diffs = Dict{Float64, Vector{Float64}}()
 
 for a_val in a_vals
-    t = 0.0
-    current_S_diffs = Float64[]
-    local_control_index = 1
-    push!(current_S_diffs, weighted_spin_difference(original_random, S_NAUGHT))
-
-    current_state = deepcopy(original_random)
-
-    while t < L-Tau_F
-        current_state = evolve_spin(current_state, (0, Tau_F))
-        current_state = local_control_push(current_state, a_val, local_N_push, local_control_index)
-        local_control_index += local_N_push
-        local_control_index = ((local_control_index-1) % L) + 1
-        push!(current_S_diffs, weighted_spin_difference(current_state, S_NAUGHT))
-
-        t += Tau_F
-    end
-    S_diffs[a_val] = current_S_diffs
+    
 end
 
 # --- Plotting the Dynamics ---
