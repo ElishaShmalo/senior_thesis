@@ -1,4 +1,3 @@
+X = VectorOfArray([[1, 2, 3], [3, 4,5]])
 
-using LinearAlgebra
-
-((100-1) % 10) + 1
+println(X)
