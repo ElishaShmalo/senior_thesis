@@ -2,7 +2,8 @@ using DifferentialEquations
 using StaticArrays
 using LinearAlgebra  # for cross
 using Plots
+using Statistics
 
-X = [[1, 2], [3, 4]]
 
-println(log.(X))
+X = [Float64[] for _ in 1:5]
+println(X)
