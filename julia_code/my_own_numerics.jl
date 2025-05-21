@@ -12,7 +12,7 @@ using StaticArrays
 Plots.theme(:dark)
 
 # General Variables
-L = 4 * 60  # number of spins
+L = 250  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -91,20 +91,17 @@ S_NAUGHT = make_spiral_state(L)
 FLATTENED_S_NAUGHT = flatten_state(S_NAUGHT)
 
 # --- Control Push ---
-function global_control_push(state, a::Float64; flattened::Bool=true)
-    s_0 = flattened ? FLATTENED_S_NAUGHT : S_NAUGHT
-    numerator = ((1-a) .* s_0) .+ (a .* state)
+function global_control_push(state, a::Float64)
+    numerator = ((1-a) .* S_NAUGHT) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-function local_control_push(state, a::Float64, N::Int64=local_N_push, start_index::Int64=1; flattened::Bool=true)
+function local_control_push(state, a::Float64, N::Int64=local_N_push, start_index::Int64=1)
     # Returns a new state with a control push done to the N spins after (and including) start index in "state"
-    s_0 = flattened ? FLATTENED_S_NAUGHT : S_NAUGHT
-    N = flattened ? N*3 : N
-    local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
+    local_indexes = [((start_index+i-1) % length(S_NAUGHT)) + 1 for i in 0:N-1]
     
-    numerator = ((1-a) .* s_0[local_indexes]) .+ (a .* state[local_indexes])
+    numerator = ((1-a) .* S_NAUGHT[local_indexes]) .+ (a .* state[local_indexes])
     denominator = map(norm, numerator)
 
     local_pushed_state = copy(state)
@@ -119,10 +116,10 @@ test_spin = make_random_state(L)
 
 println(test_spin[1, :], norm(test_spin[1, :]))
 
-controlled_test = global_control_push(test_spin, 0.0, flattened=false)
+controlled_test = global_control_push(test_spin, 0.0)
 println(controlled_test, norm(test_spin[1, :]))
 
-println(local_control_push(test_spin, 0., local_N_push, L+10, flattened=false) - test_spin)
+println(local_control_push(test_spin, 0., local_N_push, L+10) - test_spin)
 
 # --- Weighted Spin Difference ---
 
@@ -134,8 +131,8 @@ end
 # --- Test Weighted Spin Difference ---
 
 println("No control: ", weighted_spin_difference(test_spin, S_NAUGHT))
-println("Push of a=1/2: ", weighted_spin_difference(global_control_push(test_spin, 0.5, flattened=false), S_NAUGHT))
-println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin, 0.0, flattened=false), S_NAUGHT))
+println("Push of a=1/2: ", weighted_spin_difference(global_control_push(test_spin, 0.5), S_NAUGHT))
+println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin, 0.0), S_NAUGHT))
 
 # --- First Tests of Dynamics ---
 
@@ -153,7 +150,7 @@ function global_control_evolve(original_state, a_val, T, t_step)
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (0, t_step))
-        current_u = global_control_push(current_u, a_val, flattened=true)
+        current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val))
         push!(us_of_time, current_u)
     
         t += t_step
@@ -176,7 +173,7 @@ function local_control_evolve(original_state, a_val, T, t_step)
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (0, t_step))
-        current_u = local_control_push(current_u, a_val, local_N_push, local_control_index, flattened=true)
+        current_u = local_control_push(unflatten_state(current_u), a_val, local_N_push, local_control_index)
         local_control_index += local_N_push
         local_control_index = ((local_control_index-1) % L) + 1
         push!(us_of_time, current_u)
@@ -186,24 +183,27 @@ function local_control_evolve(original_state, a_val, T, t_step)
     return [unflatten_state(u) for u in us_of_time]
 end
 
-# Test with a = 0.5
+# Test with a = 0.6
 original_random = make_random_state(L)
-returned_states = global_control_evolve(original_random, 0.5, L*J, Tau_F)
+returned_states = global_control_evolve(original_random, 0.6, L*J, Tau_F)
 
 S_diffs_of_time = [weighted_spin_difference(state, S_NAUGHT) for state in returned_states]
 
-plot([i for i in 1:length(S_diffs_of_time)], S_diffs_of_time, xlabel="Time", ylabel="S_diff", title="a = 0.5")
+plot([i for i in 1:length(S_diffs_of_time)], S_diffs_of_time, xlabel="Time", ylabel="S_diff", title="a = 0.6")
 
+savefig("s_diff_plot_a_0p6.png")
 
 # --- Trying to Replecate Results ---
-a_vals = [0.6, 0.7, 0.716]
+a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766]
 
 original_random = make_random_state()
 
 S_diffs = Dict{Float64, Vector{Float64}}()
 
 for a_val in a_vals
-    
+    returned_states = global_control_evolve(original_random, a_val, L*J, Tau_F)
+
+    S_diffs[a_val] = [weighted_spin_difference(state, S_NAUGHT) for state in returned_states]
 end
 
 # --- Plotting the Dynamics ---
@@ -219,3 +219,5 @@ xlabel!("time")
 ylabel!("S_diff")
 title!("Spin Dynamics")
 display(plt)
+
+savefig("s_diff_plot_diffrent_a_vals.jpeg")
