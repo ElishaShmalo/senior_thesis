@@ -26,7 +26,7 @@ local_N_push = div(L, 10)
 local_control_index = 1
 
 # Evolve until
-t = L
+T = L
 
 # --- Defining functions to make Initial States ---
 
