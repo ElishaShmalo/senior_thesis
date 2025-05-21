@@ -58,50 +58,53 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
-function evolve_spin(state::Vector{Vector{Float64}}, t_span, periodic=false)
-    n = size(state, 1)
+function evolve_spin(u::Vector{Float64}, t_span, periodic=false) 
+    # Expects and returns a flattened version of the state at the end of t_span
     
     # Define the ODE
     function spin_ode!(du, u, p, t)
         state = unflatten_state(u)
         n = length(state)
-        to_cross = Vector{Vector{Float64}}(undef, n)
+        to_cross = Vector{SVector{3, Float64}}(undef, n)
 
-        J_vec[1] *= -1 # Randomly choosing signs for Jx and Jy to remove solitons
-        J_vec[2] *= -1
+        zero_vec = SVector{3, Float64}(0.0, 0.0, 0.0)
 
-        for i in 1:n
-            prev = (i == 1) ? (periodic ? state[end] : zeros(3)) : state[i - 1]
-            next = (i == n) ? (periodic ? state[1]  : zeros(3)) : state[i + 1]
-            to_cross[i] = -((prev .* J_vec) + (next .* J_vec))
+        @inbounds for i in 1:n
+            prev = (i == 1)  ? (periodic ? state[end] : zero_vec) : state[i - 1]
+            next = (i == n)  ? (periodic ? state[1]  : zero_vec) : state[i + 1]
+            to_cross[i] = -J_vec .* (prev + next)
         end
 
         dstate = [cross(to_cross[i], state[i]) for i in 1:n]
         du .= flatten_state(dstate)
     end
 
-    prob = ODEProblem(spin_ode!, state, t_span)
+    prob = ODEProblem(spin_ode!, u, t_span)
     sol = solve(prob, RK4(), dt=0.01)
 
-    return sol.u[length(sol.u)]
+    return sol.u[end]
 end
 
 # --- Testing differential_s ---
 # Define s_naught as a constant
 S_NAUGHT = make_spiral_state(L)
+FLATTENED_S_NAUGHT = flatten_state(S_NAUGHT)
 
 # --- Control Push ---
-function global_control_push(state::Vector{Vector{Float64}}, a::Float64)
-    numerator = ((1-a) .* S_NAUGHT) .+ (a .* state)
+function global_control_push(state, a::Float64; flattened::Bool=true)
+    s_0 = flattened ? FLATTENED_S_NAUGHT : S_NAUGHT
+    numerator = ((1-a) .* s_0) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-function local_control_push(state::Vector{Vector{Float64}}, a::Float64, N::Int64=local_N_push, start_index::Int64=1)
+function local_control_push(state, a::Float64, N::Int64=local_N_push, start_index::Int64=1; flattened::Bool=true)
     # Returns a new state with a control push done to the N spins after (and including) start index in "state"
-    local_indexes = [((start_index+i-1) % length(S_NAUGHT)) + 1 for i in 0:N-1]
+    s_0 = flattened ? FLATTENED_S_NAUGHT : S_NAUGHT
+    N = flattened ? N*3 : N
+    local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
     
-    numerator = ((1-a) .* S_NAUGHT[local_indexes]) .+ (a .* state[local_indexes])
+    numerator = ((1-a) .* s_0[local_indexes]) .+ (a .* state[local_indexes])
     denominator = map(norm, numerator)
 
     local_pushed_state = copy(state)
@@ -116,10 +119,10 @@ test_spin = make_random_state(L)
 
 println(test_spin[1, :], norm(test_spin[1, :]))
 
-controlled_test = global_control_push(test_spin, 0.0)
+controlled_test = global_control_push(test_spin, 0.0, flattened=false)
 println(controlled_test, norm(test_spin[1, :]))
 
-println(local_control_push(test_spin, 0., local_N_push, L+10) - test_spin)
+println(local_control_push(test_spin, 0., local_N_push, L+10, flattened=false) - test_spin)
 
 # --- Weighted Spin Difference ---
 
@@ -131,48 +134,56 @@ end
 # --- Test Weighted Spin Difference ---
 
 println("No control: ", weighted_spin_difference(test_spin, S_NAUGHT))
-println("Push of a=1/2: ", weighted_spin_difference(global_control_push(test_spin, 0.5), S_NAUGHT))
-println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin, 0.0), S_NAUGHT))
+println("Push of a=1/2: ", weighted_spin_difference(global_control_push(test_spin, 0.5, flattened=false), S_NAUGHT))
+println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin, 0.0, flattened=false), S_NAUGHT))
 
 # --- First Tests of Dynamics ---
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step)
     t = 0.0
-    states_of_time = Float64[]
+    us_of_time = Vector{Vector{Float64}}([])
 
-    current_state = deepcopy(original_state)
-    push!(states_of_time, current_state)
+    current_u = flatten_state(original_state)
+    push!(us_of_time, current_u)
 
     while t < T
-        current_state = evolve_spin(current_state, (0, t_step))
-        current_state = global_control_push(current_state, a_val)
-        push!(states_of_time, current_state)
 
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (0, t_step))
+        current_u = global_control_push(current_u, a_val, flattened=true)
+        push!(us_of_time, current_u)
+    
         t += t_step
     end
-    return states_of_time
+    return [unflatten_state(u) for u in us_of_time]
 end
 
 # Evolve to time T with local_control_push
 function local_control_evolve(original_state, a_val, T, t_step)
     t = 0.0
-    states_of_time = Float64[]
+    us_of_time = Vector{Vector{Float64}}([])
     local_control_index = 1
 
-    current_state = deepcopy(original_state)
-    push!(states_of_time, current_state)
+    current_u = flatten_state(original_state)
+    push!(us_of_time, current_u)
 
     while t < T
-        current_state = evolve_spin(current_state, (0, t_step))
-        current_state = local_control_push(current_state, a_val, local_N_push, local_control_index)
+
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (0, t_step))
+        current_u = local_control_push(current_u, a_val, local_N_push, local_control_index, flattened=true)
         local_control_index += local_N_push
         local_control_index = ((local_control_index-1) % L) + 1
-        push!(states_of_time, current_state)
+        push!(us_of_time, current_u)
 
         t += t_step
     end
-    return states_of_time
+    return [unflatten_state(u) for u in us_of_time]
 end
 
 # Test with a = 0.5
