@@ -85,10 +85,8 @@ function evolve_spin(u::Vector{Float64}, t_span, periodic=false)
     return sol.u[end]
 end
 
-# --- Testing differential_s ---
 # Define s_naught as a constant
 S_NAUGHT = make_spiral_state(L)
-FLATTENED_S_NAUGHT = flatten_state(S_NAUGHT)
 
 # --- Control Push ---
 function global_control_push(state, a::Float64)
