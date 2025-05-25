@@ -41,7 +41,7 @@ function make_uniform_state(n::Int=L, z_dir::Int=1)
 end
 
 # Spiral spin state
-function make_spiral_state(n::Int=L, spiral_angle::Float64=π/4, phi::Float64=0.0)
+function make_spiral_state(n::Int=L, spiral_angle::Float64=π/2, phi::Float64=0.0)
     return [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
 end
 
@@ -58,7 +58,7 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
-function evolve_spin(u::Vector{Float64}, t_span, periodic=false) 
+function evolve_spin(u::Vector{Float64}, t_span, periodic=true) 
     # Expects and returns a flattened version of the state at the end of t_span
     
     # Define the ODE
@@ -132,12 +132,33 @@ println("No control: ", weighted_spin_difference(test_spin, S_NAUGHT))
 println("Push of a=1/2: ", weighted_spin_difference(global_control_push(test_spin, 0.5), S_NAUGHT))
 println("Push of a=0: ", weighted_spin_difference(global_control_push(test_spin, 0.0), S_NAUGHT))
 
-# --- First Tests of Dynamics ---
+# --- Functions for Dynamics ---
+
+# Evolve to time T, no control push
+function no_control_evolve(original_state, T, t_step)
+    t = 0.0
+    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
+
+    current_u = flatten_state(original_state)
+    push!(us_of_time, current_u)
+
+    while t < T
+
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (0, t_step))
+        push!(us_of_time, current_u)
+    
+        t += t_step
+    end
+    return [unflatten_state(u) for u in us_of_time]
+end
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step)
     t = 0.0
-    us_of_time = Vector{Vector{Float64}}([])
+    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
 
     current_u = flatten_state(original_state)
     push!(us_of_time, current_u)
@@ -159,7 +180,7 @@ end
 # Evolve to time T with local_control_push
 function local_control_evolve(original_state, a_val, T, t_step)
     t = 0.0
-    us_of_time = Vector{Vector{Float64}}([])
+    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
     local_control_index = 1
 
     current_u = flatten_state(original_state)
@@ -181,18 +202,47 @@ function local_control_evolve(original_state, a_val, T, t_step)
     return [unflatten_state(u) for u in us_of_time]
 end
 
-# Test with a = 0.6
+
+# --- Lets check that S_NAUGHT is actually stable ---
+num_init_cond_spiral = 1
+spiral_angle = pi / 2
+original_spiral = make_spiral_state(L, spiral_angle)
+
+S_diffs_spiral_per_ic = [Float64[] for _ in 1:num_init_cond_spiral]
+
+for i in 1:num_init_cond_spiral
+    current_returned_states = global_control_evolve(original_spiral, 1., L*J, Tau_F)
+    
+    S_diffs_spiral_per_ic[i] = [weighted_spin_difference(state, S_NAUGHT) for state in current_returned_states]
+end
+
+S_diffs_spiral = sum(S_diffs_spiral_per_ic) / num_init_cond_spiral
+
+plot([i for i in 1:length(S_diffs_spiral)], S_diffs_spiral, xlabel="Time", ylabel="S_diff", title="spiral_state: $spiral_angle")
+
+savefig("s_diff_spiral_plot_$(replace(string(round(spiral_angle, digits=3)), "." => "p")).png")
+
+# --- Test with a = x ---
+num_init_cond_test = 1
+a_val_test = 1.
 original_random = make_random_state(L)
-returned_states = global_control_evolve(original_random, 0.6, L*J, Tau_F)
 
-S_diffs_of_time = [weighted_spin_difference(state, S_NAUGHT) for state in returned_states]
+S_diffs_test_per_ic = [Float64[] for _ in 1:num_init_cond_test]
 
-plot([i for i in 1:length(S_diffs_of_time)], S_diffs_of_time, xlabel="Time", ylabel="S_diff", title="a = 0.6")
+for i in 1:num_init_cond_test
+    current_returned_states = global_control_evolve(original_random, a_val_test, L*J, Tau_F)
 
-savefig("s_diff_plot_a_0p6.png")
+    S_diffs_test_per_ic[i] = [weighted_spin_difference(state, S_NAUGHT) for state in current_returned_states]
+end
+
+S_diffs_test = sum(S_diffs_test_per_ic) / num_init_cond_test
+
+plot([i for i in 1:length(S_diffs_test)], S_diffs_test, xlabel="Time", ylabel="S_diff", title="a = $a_val_test")
+
+savefig("s_diff_plot_$(replace(string(a_val_test), "." => "p")).png")
 
 # --- Trying to Replecate Results ---
-num_init_cond = 500 # We are avraging over 8 initial conditions
+num_init_cond = 100 # We are avraging over x initial conditions
 a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766]
 
 original_random = make_random_state()
@@ -227,4 +277,4 @@ ylabel!("S_diff")
 title!("Spin Dynamics")
 display(plt)
 
-savefig("s_diff_plot_diffrent_a_vals.png")
+savefig("s_diff_plot_diffrent_a_vals$num_init_cond.png")
