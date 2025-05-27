@@ -9,4 +9,4 @@ push!(X, x)
 
 println(X)
 
-x[1:2]
+x[end-1]

@@ -12,11 +12,11 @@ using StaticArrays
 Plots.theme(:dark)
 
 # General Variables
-L = 500  # number of spins
+L = 4*64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
-J_vec = J .* normalize([rand([-1, 1]), rand([-1, 1]), 1])
+J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
 
 # Time step for evolution
 Tau_F = 1 / J
@@ -58,7 +58,7 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
-function evolve_spin(u_::Vector{Float64}, t_span, periodic=true) 
+function evolve_spin(u_::Vector{Float64}, t_span) 
     # Expects and returns a flattened version of the state at the end of t_span
     zero_vec = SVector{3, Float64}(0.0, 0.0, 0.0)
 
@@ -70,9 +70,13 @@ function evolve_spin(u_::Vector{Float64}, t_span, periodic=true)
         
         to_cross = Vector{SVector{3, Float64}}(undef, n)
 
-        @inbounds for i in 1:n
-            prev = (i == 1)  ? (periodic ? state[end] : zero_vec) : state[i - 1]
-            next = (i == n)  ? (periodic ? state[1]  : zero_vec) : state[i + 1]
+        # Handle periodic B.C.
+        to_cross[1] = -J_vec .* (state[end] + state[2])
+        to_cross[end] = -J_vec .* (state[end-1] + state[1])
+
+        @inbounds for i in 2:n-1
+            prev = state[i - 1]
+            next = state[i + 1]
             to_cross[i] = -J_vec .* (prev + next)
         end
 
@@ -214,7 +218,7 @@ original_spiral = make_spiral_state(L, spiral_angle)
 S_diffs_spiral_per_ic = [Float64[] for _ in 1:num_init_cond_spiral]
 
 for i in 1:num_init_cond_spiral
-    current_returned_states = global_control_evolve(original_spiral, 1., L*J, Tau_F)
+    current_returned_states = no_control_evolve(original_spiral, L*J, Tau_F)
     
     S_diffs_spiral_per_ic[i] = [weighted_spin_difference(state, S_NAUGHT) for state in current_returned_states]
 end
