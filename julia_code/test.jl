@@ -8,3 +8,5 @@ x = [4, 5, 6]
 push!(X, x)
 
 println(X)
+
+x[1:2]

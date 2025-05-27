@@ -12,7 +12,7 @@ using StaticArrays
 Plots.theme(:dark)
 
 # General Variables
-L = 250  # number of spins
+L = 500  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -204,6 +204,8 @@ function local_control_evolve(original_state, a_val, T, t_step)
 end
 
 
+plot_amount = 250
+
 # --- Lets check that S_NAUGHT is actually stable ---
 num_init_cond_spiral = 1
 spiral_angle = pi / 2
@@ -224,8 +226,8 @@ plot([i for i in 1:length(S_diffs_spiral)], S_diffs_spiral, xlabel="Time", ylabe
 savefig("s_diff_spiral_plot_$(replace(string(round(spiral_angle, digits=3)), "." => "p")).png")
 
 # --- Test with a = x ---
-num_init_cond_test = 1
-a_val_test = 1.
+num_init_cond_test = 10
+a_val_test = 0.66
 original_random = make_random_state(L)
 
 S_diffs_test_per_ic = [Float64[] for _ in 1:num_init_cond_test]
@@ -238,13 +240,13 @@ end
 
 S_diffs_test = sum(S_diffs_test_per_ic) / num_init_cond_test
 
-plot([i for i in 1:length(S_diffs_test)], S_diffs_test, xlabel="Time", ylabel="S_diff", title="a = $a_val_test")
+plot([i for i in 1:plot_amount], S_diffs_test[1:plot_amount], xlabel="Time", ylabel="S_diff", title="a = $a_val_test")
 
 savefig("s_diff_plot_$(replace(string(a_val_test), "." => "p")).png")
 
 # --- Trying to Replecate Results ---
 num_init_cond = 100 # We are avraging over x initial conditions
-a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9, 0.913, 0.966]
+a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 
 original_random = make_random_state()
 
@@ -266,11 +268,11 @@ end
 
 # --- Plotting the Dynamics ---
 
-ts = [i * Tau_F for i in 0:length(S_diffs[a_vals[1]])-1]
+ts = [i * Tau_F for i in 0:plot_amount-1]
 
 plt = plot()
 for a_val in a_vals
-    plot!(ts, S_diffs[a_val], label="a = $(a_val)")
+    plot!(ts, S_diffs[a_val][1:plot_amount], label="a = $(a_val)")
 end
 
 xlabel!("time")
