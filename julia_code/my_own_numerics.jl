@@ -58,16 +58,17 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
-function evolve_spin(u::Vector{Float64}, t_span, periodic=true) 
+function evolve_spin(u_::Vector{Float64}, t_span, periodic=true) 
     # Expects and returns a flattened version of the state at the end of t_span
-    
+    zero_vec = SVector{3, Float64}(0.0, 0.0, 0.0)
+
     # Define the ODE
     function spin_ode!(du, u, p, t)
         state = unflatten_state(u)
-        n = length(state)
-        to_cross = Vector{SVector{3, Float64}}(undef, n)
 
-        zero_vec = SVector{3, Float64}(0.0, 0.0, 0.0)
+        n = length(state)
+        
+        to_cross = Vector{SVector{3, Float64}}(undef, n)
 
         @inbounds for i in 1:n
             prev = (i == 1)  ? (periodic ? state[end] : zero_vec) : state[i - 1]
@@ -79,8 +80,8 @@ function evolve_spin(u::Vector{Float64}, t_span, periodic=true)
         du .= flatten_state(dstate)
     end
 
-    prob = ODEProblem(spin_ode!, u, t_span)
-    sol = solve(prob, RK4(), dt=0.01)
+    prob = ODEProblem(spin_ode!, u_, t_span)
+    sol = solve(prob, RK4(), dt=0.001)
 
     return sol.u[end]
 end
@@ -147,7 +148,7 @@ function no_control_evolve(original_state, T, t_step)
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
-        current_u = evolve_spin(current_u, (0, t_step))
+        current_u = evolve_spin(current_u, (t, t_step+t))
         push!(us_of_time, current_u)
     
         t += t_step
@@ -168,7 +169,7 @@ function global_control_evolve(original_state, a_val, T, t_step)
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
-        current_u = evolve_spin(current_u, (0, t_step))
+        current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val))
         push!(us_of_time, current_u)
     
@@ -191,7 +192,7 @@ function local_control_evolve(original_state, a_val, T, t_step)
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
-        current_u = evolve_spin(current_u, (0, t_step))
+        current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = local_control_push(unflatten_state(current_u), a_val, local_N_push, local_control_index)
         local_control_index += local_N_push
         local_control_index = ((local_control_index-1) % L) + 1
@@ -243,7 +244,7 @@ savefig("s_diff_plot_$(replace(string(a_val_test), "." => "p")).png")
 
 # --- Trying to Replecate Results ---
 num_init_cond = 100 # We are avraging over x initial conditions
-a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766]
+a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9, 0.913, 0.966]
 
 original_random = make_random_state()
 
