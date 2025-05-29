@@ -18,6 +18,3 @@ function make_spiral_state(n::Int=L, spiral_angle::Float64=π/2, phi::Float64=0.
 end
 
 
-function say_hi()
-    println("hi")
-end

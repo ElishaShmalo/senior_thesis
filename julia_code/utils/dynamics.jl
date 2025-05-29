@@ -11,6 +11,27 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
+# --- Control Push ---
+
+function global_control_push(state, a::Float64, s_0)
+    numerator = ((1-a) .* s_0) .+ (a .* state)
+    denominator = map(norm, numerator)
+    return numerator ./ denominator
+end
+
+function local_control_push(state, a::Float64, N::Int64=local_N_push, start_index::Int64=1, s_0)
+    # Returns a new state with a control push done to the N spins after (and including) start index in "state"
+    local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
+    
+    numerator = ((1-a) .* s_0[local_indexes]) .+ (a .* state[local_indexes])
+    denominator = map(norm, numerator)
+
+    local_pushed_state = copy(state)
+    local_pushed_state[local_indexes] = numerator ./ denominator
+
+    return local_pushed_state
+end
+
 # Define the ODE
 function spin_ode!(du, u, p, t)
     state = unflatten_state(u)
@@ -65,7 +86,7 @@ function no_control_evolve(original_state, T, t_step)
 end
 
 # Evolve to time T with global_control_push
-function global_control_evolve(original_state, a_val, T, t_step)
+function global_control_evolve(original_state, a_val, T, t_step, s_0)
     t = 0.0
     us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
 
@@ -78,7 +99,7 @@ function global_control_evolve(original_state, a_val, T, t_step)
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (t, t_step+t))
-        current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val))
+        current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
         push!(us_of_time, current_u)
     
         t += t_step
@@ -87,7 +108,7 @@ function global_control_evolve(original_state, a_val, T, t_step)
 end
 
 # Evolve to time T with local_control_push
-function local_control_evolve(original_state, a_val, T, t_step)
+function local_control_evolve(original_state, a_val, T, t_step, s_0)
     t = 0.0
     us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
     local_control_index = 1
@@ -101,7 +122,7 @@ function local_control_evolve(original_state, a_val, T, t_step)
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (t, t_step+t))
-        current_u = local_control_push(unflatten_state(current_u), a_val, local_N_push, local_control_index)
+        current_u = flatten_state(local_control_push(unflatten_state(current_u), a_val, local_N_push, local_control_index, s_0))
         local_control_index += local_N_push
         local_control_index = ((local_control_index-1) % L) + 1
         push!(us_of_time, current_u)

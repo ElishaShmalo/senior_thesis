@@ -8,7 +8,6 @@ using StaticArrays
 # Other files
 include("utils/make_spins.jl")
 include("utils/dynamics.jl")
-include("utils/control_pushs.jl")
 include("analytics/spin_diffrences.jl")
 
 # Set plotting theme
@@ -62,7 +61,7 @@ original_random = make_random_state(L)
 S_diffs_test_per_ic = [Float64[] for _ in 1:num_init_cond_test]
 
 for i in 1:num_init_cond_test
-    current_returned_states = global_control_evolve(original_random, a_val_test, L*J, Tau_F)
+    current_returned_states = global_control_evolve(original_random, a_val_test, L*J, Tau_F, S_NAUGHT)
 
     S_diffs_test_per_ic[i] = [weighted_spin_difference(state, S_NAUGHT) for state in current_returned_states]
 end
