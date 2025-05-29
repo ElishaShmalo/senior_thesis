@@ -58,31 +58,30 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
+# Define the ODE
+function spin_ode!(du, u, p, t)
+    state = unflatten_state(u)
+
+    n = length(state)
+    
+    to_cross = Vector{SVector{3, Float64}}(undef, n)
+
+    # Handle periodic B.C.
+    to_cross[1] = -J_vec .* (state[end] + state[2])
+    to_cross[end] = -J_vec .* (state[end-1] + state[1])
+
+    @inbounds for i in 2:n-1
+        prev = state[i - 1]
+        next = state[i + 1]
+        to_cross[i] = -J_vec .* (prev + next)
+    end
+
+    dstate = [cross(to_cross[i], state[i]) for i in 1:n]
+    du .= flatten_state(dstate)
+end
+
 function evolve_spin(u_::Vector{Float64}, t_span) 
     # Expects and returns a flattened version of the state at the end of t_span
-    zero_vec = SVector{3, Float64}(0.0, 0.0, 0.0)
-
-    # Define the ODE
-    function spin_ode!(du, u, p, t)
-        state = unflatten_state(u)
-
-        n = length(state)
-        
-        to_cross = Vector{SVector{3, Float64}}(undef, n)
-
-        # Handle periodic B.C.
-        to_cross[1] = -J_vec .* (state[end] + state[2])
-        to_cross[end] = -J_vec .* (state[end-1] + state[1])
-
-        @inbounds for i in 2:n-1
-            prev = state[i - 1]
-            next = state[i + 1]
-            to_cross[i] = -J_vec .* (prev + next)
-        end
-
-        dstate = [cross(to_cross[i], state[i]) for i in 1:n]
-        du .= flatten_state(dstate)
-    end
 
     prob = ODEProblem(spin_ode!, u_, t_span)
     sol = solve(prob, RK4(), dt=0.001)
@@ -207,9 +206,6 @@ function local_control_evolve(original_state, a_val, T, t_step)
     return [unflatten_state(u) for u in us_of_time]
 end
 
-
-plot_amount = 250
-
 # --- Lets check that S_NAUGHT is actually stable ---
 num_init_cond_spiral = 1
 spiral_angle = pi / 2
@@ -244,7 +240,7 @@ end
 
 S_diffs_test = sum(S_diffs_test_per_ic) / num_init_cond_test
 
-plot([i for i in 1:plot_amount], S_diffs_test[1:plot_amount], xlabel="Time", ylabel="S_diff", title="a = $a_val_test")
+plot([i for i in 1:length(S_diffs_test)], S_diffs_test, xlabel="Time", ylabel="S_diff", title="a = $a_val_test")
 
 savefig("s_diff_plot_$(replace(string(a_val_test), "." => "p")).png")
 
@@ -272,11 +268,11 @@ end
 
 # --- Plotting the Dynamics ---
 
-ts = [i * Tau_F for i in 0:plot_amount-1]
+ts = [i * Tau_F for i in 0:length(S_diffs[a_vals[1]])-1]
 
 plt = plot()
 for a_val in a_vals
-    plot!(ts, S_diffs[a_val][1:plot_amount], label="a = $(a_val)")
+    plot!(ts, S_diffs[a_val], label="a = $(a_val)")
 end
 
 xlabel!("time")
