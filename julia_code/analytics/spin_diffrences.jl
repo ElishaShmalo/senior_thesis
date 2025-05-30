@@ -10,3 +10,7 @@ function weighted_spin_difference(spin_chain::Vector{Vector{Float64}}, s_0::Vect
     return delta_spin_chain / length(spin_chain)
 end
 
+function delta_spin(spin_chain1::Vector{Vector{Float64}}, spin_chain2::Vector{Vector{Float64}})
+    return map(norm, spin_chain1-spin_chain2)
+end
+

@@ -13,13 +13,13 @@ end
 
 # --- Control Push ---
 
-function global_control_push(state, a::Float64, s_0)
+function global_control_push(state, a::Float64, s_0::Vector{Vector{Float64}})
     numerator = ((1-a) .* s_0) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-function local_control_push(state, a::Float64, N::Int64=local_N_push, start_index::Int64=1, s_0)
+function local_control_push(state, a::Float64, N::Int64, start_index::Int64, s_0::Vector{Vector{Float64}})
     # Returns a new state with a control push done to the N spins after (and including) start index in "state"
     local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
     

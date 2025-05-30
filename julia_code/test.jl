@@ -1,12 +1,3 @@
 
-x = [1, 2, 3]
-X = []
+using LinearAlgebra
 
-push!(X, x)
-
-x = [4, 5, 6]
-push!(X, x)
-
-println(X)
-
-x[end-1]
