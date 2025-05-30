@@ -83,6 +83,6 @@ savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
 
 results_file_name = "results_with_a_vals_" * replace(join(["$(a_val)" for a_val in a_vals], "_"), "." => "p")
 
-open("data/evolved_spins" * results_file_name * ".dat", "w") do io
+open("data/evolved_spins/" * results_file_name * ".dat", "w") do io
     serialize(io, all_returned_states)
 end
