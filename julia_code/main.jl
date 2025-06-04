@@ -8,12 +8,12 @@ using Plots
 using DifferentialEquations
 using StaticArrays
 using Serialization
+using Statistics
 
 # Other files   
 include("utils/make_spins.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
-include("utils/saving_and_loading_data.jl")
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -41,12 +41,9 @@ S_NAUGHT = make_spiral_state(L)
 
 # --- Trying to Replecate Results ---
 num_init_cond = 500 # We are avraging over x initial conditions
-# a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
-a_vals = [0.6]
+a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 
 original_random = make_random_state()
-
-S_diffs = Dict{Float64, Vector{Float64}}()
 
 # We will use an array to store the results of the simulation for each a_val. 
 # First dimention represents the particular initial condition, Second is the time, third is the state at that time, 
@@ -57,35 +54,27 @@ num_timesteps = L
 
 for a_val in a_vals
 
-    current_S_diffs = [Vector{Float64}([]) for _ in 1:num_init_cond]
-
-    evolved_states = Array{Float64}(undef, num_init_cond, num_timesteps, L, 3)
+    current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond]
 
     for i in 1:num_init_cond
         returned_states = global_control_evolve(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
-        current_S_diffs[i] = [weighted_spin_difference(state, S_NAUGHT) for state in returned_states]
-        # Transfer returned_states to array
-        for t in eachindex(returned_states)
-            for l in eachindex(returned_states[t])
-                for d in eachindex(returned_states[t][l])
-                    evolved_states[i, t, l, d] = returned_states[t][l][d]
-                end
-            end
-        end
+        current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
+        
     end
 
-    S_diffs[a_val] = sum(current_S_diffs) / num_init_cond
+    # saving avrage of δs for future ref
+    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
 
-    # Lets save the results such that we don't have to run the simulation every time
-    results_file_name = "results_with_a_val_" * replace("$a_val", "." => "p")
-
-    open("data/evolved_spins/" * results_file_name * ".dat", "w") do io
-        serialize(io, Float64.(evolved_states))
+    open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
+        serialize(io, sum(current_spin_delta)/num_init_cond)
+    end
+    open("data/delta_evolved_spins/" * results_file_name * ".dat", "w") do io
+        serialize(io, Vector{Vector{Float32}}(current_spin_delta))
     end
 end
 
-# --- Plotting the Dynamics of S_NAUGHT ---
+# --- Plotting the Dynamics of S_diif ---
 
 ts = [i * Tau_F for i in 0:length(S_diffs[a_vals[1]])-1]
 
@@ -100,18 +89,6 @@ title!("Spin Dynamics")
 display(plt)
 
 savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
-
-# --- Analyzing the avraged results ---
-
-results_file_name = "results_with_a_val_" * replace("$(0.6)", "." => "p")
-
-evolved_states = open("data/evolved_spins/" * results_file_name * ".dat", "r") do io
-    deserialize(io)
-end
-
-open("data/evolved_spins/" * results_file_name * ".dat", "w") do io
-    serialize(io, Float16.(evolved_states))
-end
 
 # Examining the delta spin evolution of the avrage trajectory
 

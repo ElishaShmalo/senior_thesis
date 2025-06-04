@@ -72,7 +72,7 @@ function no_control_evolve(original_state, T, t_step)
     current_u = flatten_state(original_state)
     push!(us_of_time, current_u)
 
-    while t < T
+    while t < T - 2
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
@@ -93,7 +93,7 @@ function global_control_evolve(original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     push!(us_of_time, current_u)
 
-    while t < T-2
+    while t < T - 2
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
@@ -116,7 +116,7 @@ function local_control_evolve(original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     push!(us_of_time, current_u)
 
-    while t < T
+    while t < T -2
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
