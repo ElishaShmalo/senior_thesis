@@ -70,17 +70,25 @@ for a_val in a_vals
         serialize(io, sum(current_spin_delta)/num_init_cond)
     end
     open("data/delta_evolved_spins/" * results_file_name * ".dat", "w") do io
-        serialize(io, Vector{Vector{Float32}}(current_spin_delta))
+        serialize(io, current_spin_delta)
     end
 end
 
 # --- Plotting the Dynamics of S_diif ---
 
-ts = [i * Tau_F for i in 0:length(S_diffs[a_vals[1]])-1]
-
 plt = plot()
 for a_val in a_vals
-    plot!(ts, S_diffs[a_val], label="a = $(a_val)")
+    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
+
+    delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
+        deserialize(io)
+    end
+
+    ts = [i * Tau_F for i in 0:size(delta_spins)[1]-1]
+
+    S_diff = get_spin_diffrence_from_delta(delta_spins)
+
+    plot!(ts, S_diff, label="a = $(a_val)")
 end
 
 xlabel!("time")
