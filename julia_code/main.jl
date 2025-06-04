@@ -13,6 +13,7 @@ using Serialization
 include("utils/make_spins.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
+include("utils/saving_and_loading_data.jl")
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -40,7 +41,8 @@ S_NAUGHT = make_spiral_state(L)
 
 # --- Trying to Replecate Results ---
 num_init_cond = 500 # We are avraging over x initial conditions
-a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
+# a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
+a_vals = [0.6]
 
 original_random = make_random_state()
 
@@ -76,10 +78,10 @@ for a_val in a_vals
     S_diffs[a_val] = sum(current_S_diffs) / num_init_cond
 
     # Lets save the results such that we don't have to run the simulation every time
-    results_file_name = "results_with_a_vals_" * replace("$a_val", "." => "p")
+    results_file_name = "results_with_a_val_" * replace("$a_val", "." => "p")
 
     open("data/evolved_spins/" * results_file_name * ".dat", "w") do io
-        serialize(io, evolved_states)
+        serialize(io, Float64.(evolved_states))
     end
 end
 
@@ -101,10 +103,14 @@ savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
 
 # --- Analyzing the avraged results ---
 
-results_file_name = "results_with_a_vals_" * replace(join(["$(a_val)" for a_val in a_vals], "_"), "." => "p")
+results_file_name = "results_with_a_val_" * replace("$(0.6)", "." => "p")
 
-avraged_evolved_states = open("data/evolved_spins/" * results_file_name * ".dat", "r") do io
+evolved_states = open("data/evolved_spins/" * results_file_name * ".dat", "r") do io
     deserialize(io)
+end
+
+open("data/evolved_spins/" * results_file_name * ".dat", "w") do io
+    serialize(io, Float16.(evolved_states))
 end
 
 # Examining the delta spin evolution of the avrage trajectory
