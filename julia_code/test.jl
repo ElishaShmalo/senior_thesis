@@ -1,9 +1,7 @@
 
 using LinearAlgebra
 
-num_t = 5
-num_x = 4
-num_u = 2
-X = Float64[j for i in 1:4, j in 1:4]
+X = [1, 2, 3, 2 * ℯ]
 
-println(mean(X, dims=2))
+println(sum(map(log, X ./ 2)))
+println(map(log, X ./ 2))

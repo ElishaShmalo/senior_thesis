@@ -87,7 +87,7 @@ end
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step, s_0)
-    t = 0.0
+    t = 0
     us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
 
     current_u = flatten_state(original_state)
