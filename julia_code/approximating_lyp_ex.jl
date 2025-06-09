@@ -44,7 +44,7 @@ end
 function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val)
     L = length(S_A)
 
-    thing_to_add = (epsilon_val / L) .* ((S_B .- S_A) / map(norm, S_B .- S_A))
+    thing_to_add = ((epsilon_val / L) .* ((S_B .- S_A)) ./ map(norm, S_B .- S_A))
 
     return S_A .+ thing_to_add
 end
@@ -56,26 +56,23 @@ function calculate_lambda(spin_dists, tau_val, epsilon_val)
 end
 
 # --- Trying to Replecate Results ---
-num_init_cond = 500 # We are avraging over x initial conditions
+num_initial_conds = 500 # We are avraging over x initial conditions
 a_vals = [0.55, 0.6, 0.65, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 N_vals = [4, 6, 7, 8, 9, 10]
 
 epsilon = 10^(-5)
-
-num_initial_conds = 10
 
 collected_lambdas = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: N_val, Float64: a_val, Vec{Float64}: lambda for each initilal cond
 
 for N_val in N_vals
 
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(L, (2 * pi) / N)
+    S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
 
     collected_lambdas[N_val] = Dict(a => zeros(num_initial_conds) for a in a_vals)
 
     for a_val in a_vals
-        for init_cond in 1:num_init_cond
-
+        for init_cond in 1:num_initial_conds
             spin_chain_A = make_random_state() # Essentially our S_A
             spin_chain_B = spin_chain_A .+ (epsilon .* make_random_state())
             
@@ -87,8 +84,8 @@ for N_val in N_vals
             # Do n pushes 
             while current_n < n
                 # evolve both to time t' = t + tau with control
-                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, tau, S_NAUGHT)
-                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, tau, S_NAUGHT)
+                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, tau, S_NAUGHT)[end]
+                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, tau, S_NAUGHT)[end]
 
                 t += tau
 
@@ -103,7 +100,7 @@ for N_val in N_vals
             collected_lambdas[N_val][a_val][init_cond] = calculate_lambda(current_spin_dists, tau, epsilon)
         end
 
-        sub_filename = "N$(replace("$N_val", "." => "p"))_a_val" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
+        sub_filename = "N$(replace("$N_val", "." => "p"))_a_val" * replace("$a_val", "." => "p") * "_IC$(num_initial_conds)"
 
         open("data/spin_chain_lambdas/" * sub_filename * "_avg.dat", "w") do io
             serialize(io, collected_lambdas[N_val][a_val])
@@ -112,7 +109,7 @@ for N_val in N_vals
 
     end
 
-    filename = "N$(replace("$N_val", "." => "p"))" * "_IC$(num_init_cond)"
+    filename = "N$(replace("$N_val", "." => "p"))" * "_IC$(num_initial_conds)"
 
     open("data/spin_chain_lambdas/" * filename * "_avg.dat", "w") do io
         serialize(io, collected_lambdas[N_val])

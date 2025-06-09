@@ -93,7 +93,10 @@ function global_control_evolve(original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     push!(us_of_time, current_u)
 
-    while t < T - 2
+    at_least_one = true
+
+    while t < T - 2 || at_least_one
+        at_least_one = false
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
