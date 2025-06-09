@@ -40,6 +40,7 @@ function calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vecto
     return sqrt(sum(2 .* (1 .- dotted)))
 end
 
+# Bring S_B closer to S_A with factor epsilon_val
 function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val)
     L = length(S_A)
 
@@ -48,6 +49,7 @@ function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, e
     return S_A .+ thing_to_add
 end
 
+# Calculates Lyapunov val given list of spin distences
 function calculate_lambda(spin_dists, tau_val, epsilon_val)
     n_val = length(spin_dists)
     return (1/(n_val * tau_val)) * sum(map(log, spin_dists ./ epsilon_val))
@@ -56,7 +58,7 @@ end
 # --- Trying to Replecate Results ---
 num_init_cond = 500 # We are avraging over x initial conditions
 a_vals = [0.55, 0.6, 0.65, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
-N_vals = [4]
+N_vals = [4, 6, 7, 8, 9, 10]
 
 epsilon = 10^(-5)
 
@@ -91,12 +93,30 @@ for N_val in N_vals
                 t += tau
 
                 d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
-
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
+
+                current_spin_dists[current_n] = d_abs
 
                 current_n += 1
             end
+
+            collected_lambdas[N_val][a_val][init_cond] = calculate_lambda(current_spin_dists, tau, epsilon)
         end
+
+        sub_filename = "N$(replace("$N_val", "." => "p"))_a_val" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
+
+        open("data/spin_chain_lambdas/" * sub_filename * "_avg.dat", "w") do io
+            serialize(io, collected_lambdas[N_val][a_val])
+            println("Saved file $sub_filename")
+        end
+
+    end
+
+    filename = "N$(replace("$N_val", "." => "p"))" * "_IC$(num_init_cond)"
+
+    open("data/spin_chain_lambdas/" * filename * "_avg.dat", "w") do io
+        serialize(io, collected_lambdas[N_val])
+        println("Saved file $filename")
     end
 
 end
