@@ -19,7 +19,7 @@ include("analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-L = 4*64  # number of spins
+L = 64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -64,7 +64,7 @@ for a_val in a_vals
     end
 
     # saving avrage of δs for future ref
-    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
+    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
         serialize(io, sum(current_spin_delta)/num_init_cond)
@@ -98,11 +98,22 @@ display(plt)
 
 savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
 
-# Examining the delta spin evolution of the avrage trajectory
+# Heat map of delta_spins
 
-# delta_spins = Dict{Float64, Vector{Vector{Float64}}}()
+plt = plot()
+a_val = 0.8
+results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
 
-# for a_val in keys(avraged_evolved_states)
-#     for t in avraged_evolved_states
-#     println(delta_spin(avraged_evolved_states[a_val][1], S_NAUGHT))
-# end
+delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
+    deserialize(io)
+end
+
+heatmap!(delta_spins, colorbar_title="δS", c=:rainbow)
+
+# plot!(ts, S_diff, label="a = $(a_val)")
+
+xlabel!("x")
+ylabel!("t")
+title!("a = $a_val")
+display(plt)
+

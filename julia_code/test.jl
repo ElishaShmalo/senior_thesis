@@ -1,7 +1,6 @@
 
 using LinearAlgebra
 
-X = [1, 2, 3, 2 * ℯ]
+d = Dict(3.0 => 9.0, 1.0 => 10.0, 2.0 => 4.0)
 
-println(sum(map(log, X ./ 2)))
-println(map(log, X ./ 2))
+println(sort(d))
