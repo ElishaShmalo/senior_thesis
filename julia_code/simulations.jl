@@ -65,7 +65,7 @@ for a_val in a_vals
     end
 
     # saving avrage of δs for future ref
-    results_file_name = "N$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+    results_file_name = "N$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
         serialize(io, sum(current_spin_delta)/num_init_cond)
@@ -76,7 +76,7 @@ end
 
 plt = plot()
 for a_val in a_vals
-    results_file_name = "N_$(N)a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+    results_file_name = "N_$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
         deserialize(io)
@@ -94,5 +94,5 @@ ylabel!("S_diff")
 title!("Spin Dynamics")
 display(plt)
 
-savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
+savefig("figs/N$N/s_diff_plot_diffrent_a_vals_N$(N)_IC$(num_init_cond)_L$(L).png")
 

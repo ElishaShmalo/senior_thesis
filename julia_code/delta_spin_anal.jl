@@ -16,13 +16,13 @@ include("analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 # General Variables
 L = 4*64  # number of spins
-
+N = 4
 num_init_cond = 1
 
 # Heat map of delta_spins
 plt = plot()
 a_val = 0.7
-results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)" * "_L$L"
+results_file_name = "N$N/a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)" * "_L$L"
 
 delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
     deserialize(io)

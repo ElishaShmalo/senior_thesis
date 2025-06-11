@@ -42,9 +42,7 @@ end
 
 # Bring S_B closer to S_A with factor epsilon_val
 function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val)
-    L = length(S_A)
-
-    thing_to_add = ((epsilon_val / L) .* ((S_B .- S_A)) ./ map(norm, S_B .- S_A))
+    thing_to_add = ((epsilon_val) .* ((S_B .- S_A)) ./ map(norm, S_B .- S_A))
 
     return S_A .+ thing_to_add
 end
@@ -62,6 +60,11 @@ a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86]
 N_vals = [6]
 
 epsilon = 0.1
+
+
+# --- Lambda(t) (We are checking how long it takes for our lambda's to stabalize to a coherent value) ---   
+
+# --- Calculating Lambdas ---
 
 collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Vec{Float64}: lambda for each initilal cond
 
@@ -106,7 +109,7 @@ for N_val in N_vals
         collected_lambdas[N_val][a_val] = mean(current_lambdas)
     end
 
-    filename = "N$(replace("$N_val", "." => "p"))" * "_IC$(num_initial_conds)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)"
 
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
@@ -117,7 +120,7 @@ end
 plt = plot()
 
 for N_val in N_vals
-    filename = "N$(replace("$N_val", "." => "p"))" * "_IC$(num_initial_conds)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)"
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
         deserialize(io)
     end
@@ -127,6 +130,3 @@ end
 xlabel!("a")
 ylabel!("λ")
 display(plt)
-
-println(collected_lambdas[4])
-println([val for val in values(collected_lambdas[4])])
