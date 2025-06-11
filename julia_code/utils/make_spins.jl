@@ -17,4 +17,6 @@ function make_spiral_state(n::Int=L, spiral_angle::Float64=π/2, phi::Float64=0.
     return [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
 end
 
-
+function make_random_spin(size = 1)
+    return size * normalize(rand(3))
+end

@@ -57,15 +57,19 @@ end
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 50 # We are avraging over x initial conditions
-a_vals = [0.55, 0.6, 0.65, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
+a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86]
 # N_vals = [4, 6, 7, 8, 9, 10]
-N_vals = [4]
+N_vals = [6]
 
-epsilon = 10^(-5)
+epsilon = 0.1
 
 collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Vec{Float64}: lambda for each initilal cond
 
 for N_val in N_vals
+    state_evolve_func = global_control_evolve
+    if N_val == 4
+        state_evolve_func = random_global_control_evolve
+    end
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
@@ -75,8 +79,12 @@ for N_val in N_vals
     for a_val in a_vals
         current_lambdas = zeros(num_initial_conds)
         for init_cond in 1:num_initial_conds
-            spin_chain_A = make_random_state() # Essentially our S_A
-            spin_chain_B = spin_chain_A .+ (epsilon .* make_random_state())
+            spin_chain_A = make_random_state(L) # Essentially our S_A
+
+            # Making spin_chain_B to be spin_chain_A with the middle spin modified
+            to_add = make_uniform_state(L, 0)
+            to_add[div(length(to_add), 2)] = make_random_spin(epsilon)
+            spin_chain_B = spin_chain_A .+ to_add
             spin_chain_B = spin_chain_B ./ map(norm, spin_chain_B)
 
             current_spin_dists = zeros(n)
@@ -84,8 +92,8 @@ for N_val in N_vals
             # Do n pushes 
             for current_n in 1:n
                 # evolve both to time t' = t + tau with control
-                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
-                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
                 d_abs = calculate_spin_distence(spin_chain_A ./ map(norm, spin_chain_A), spin_chain_B ./ map(norm, spin_chain_B))
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)

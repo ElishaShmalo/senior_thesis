@@ -34,8 +34,10 @@ local_control_index = 1
 # Evolve until
 T = L
 
+# The kind of spiral we are doing
+N = 4
 # Define s_naught as a constant
-S_NAUGHT = make_spiral_state(L)
+S_NAUGHT = make_spiral_state(L, 2 * π / 4)
 
 
 # --- Trying to Replecate Results ---
@@ -56,14 +58,14 @@ for a_val in a_vals
     current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond]
 
     for i in 1:num_init_cond
-        returned_states = global_control_evolve(original_random, a_val, L*J, Tau_F, S_NAUGHT)
+        returned_states = random_global_control_evolve(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
         current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
         
     end
 
     # saving avrage of δs for future ref
-    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+    results_file_name = "N$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
         serialize(io, sum(current_spin_delta)/num_init_cond)
@@ -74,7 +76,7 @@ end
 
 plt = plot()
 for a_val in a_vals
-    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+    results_file_name = "N_$(N)a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
         deserialize(io)
