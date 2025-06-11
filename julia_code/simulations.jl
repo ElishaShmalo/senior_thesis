@@ -17,7 +17,6 @@ include("analytics/spin_diffrences.jl")
 
 # Set plotting theme
 Plots.theme(:dark)
-
 # General Variables
 L = 64  # number of spins
 J = 1       # energy factor
@@ -40,7 +39,7 @@ S_NAUGHT = make_spiral_state(L)
 
 
 # --- Trying to Replecate Results ---
-num_init_cond = 500 # We are avraging over x initial conditions
+num_init_cond = 1 # We are avraging over x initial conditions
 a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 
 original_random = make_random_state()
@@ -69,16 +68,13 @@ for a_val in a_vals
     open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
         serialize(io, sum(current_spin_delta)/num_init_cond)
     end
-    open("data/delta_evolved_spins/" * results_file_name * ".dat", "w") do io
-        serialize(io, current_spin_delta)
-    end
 end
 
 # --- Plotting the Dynamics of S_diif ---
 
 plt = plot()
 for a_val in a_vals
-    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
+    results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
     delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
         deserialize(io)
@@ -97,23 +93,4 @@ title!("Spin Dynamics")
 display(plt)
 
 savefig("figs/s_diff_plot_diffrent_a_vals_IC$(num_init_cond)_L$(L).png")
-
-# Heat map of delta_spins
-
-plt = plot()
-a_val = 0.8
-results_file_name = "a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)"
-
-delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
-    deserialize(io)
-end
-
-heatmap!(delta_spins, colorbar_title="δS", c=:rainbow)
-
-# plot!(ts, S_diff, label="a = $(a_val)")
-
-xlabel!("x")
-ylabel!("t")
-title!("a = $a_val")
-display(plt)
 
