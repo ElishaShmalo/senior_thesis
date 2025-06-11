@@ -25,14 +25,14 @@ J = 1       # energy factor
 J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
 
 # Time to evolve until push back to S_A
-tau = 5 * J
+tau = 3 * J
 
 # Number of spins pushed each local control push
 local_N_push = div(L, 10)
 local_control_index = 1
 
 # number of pushes we are going to do
-n = 20
+n = 200
 
 # function for calculating d_i
 function calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}})
@@ -59,7 +59,7 @@ end
 num_initial_conds = 50 # We are avraging over x initial conditions
 a_vals = [0.55, 0.6, 0.65, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 # N_vals = [4, 6, 7, 8, 9, 10]
-N_vals = [6]
+N_vals = [4]
 
 epsilon = 10^(-5)
 
