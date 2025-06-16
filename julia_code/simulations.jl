@@ -18,7 +18,7 @@ include("analytics/spin_diffrences.jl")
 # Set plotting theme
 Plots.theme(:dark)
 # General Variables
-L = 64  # number of spins
+L = 4 * 64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -31,7 +31,7 @@ Tau_F = 1 / J
 T = L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 200 # We are avraging over x initial conditions
+num_init_cond = 100 # We are avraging over x initial conditions
 a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
 
 original_random = make_random_state()
@@ -44,17 +44,24 @@ original_random = make_random_state()
 num_timesteps = L
 
 N_vals = [4, 6, 7, 8, 9, 10]
+# N_vals = [7, 8, 9, 10]
 
 for N in N_vals
     println("N: $N")
     # Define s_naught as a constant
     S_NAUGHT = make_spiral_state(L, 2 * π / N)
+
+    state_evolve_func = global_control_evolve
+    if N == 4 # Need to evolve with randomized J_vec for N=4
+        state_evolve_func = random_global_control_evolve
+    end
+
     for a_val in a_vals
         println("N: $N | a_val $a_val")
         current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond]
 
         for i in 1:num_init_cond
-            returned_states = random_global_control_evolve(original_random, a_val, L*J, Tau_F, S_NAUGHT)
+            returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
             current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
             
@@ -74,7 +81,7 @@ end
 for N in N_vals
     plt = plot()
     for a_val in a_vals
-        results_file_name = "Nwd$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+        results_file_name = "N$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
         delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
             deserialize(io)

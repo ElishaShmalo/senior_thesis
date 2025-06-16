@@ -32,7 +32,7 @@ if typeof(delta_spins) == Vector{Vector{Float64}}
     delta_spins = hcat(delta_spins...)'
 end
 
-heatmap!(delta_spins[1:64, 1:64], colorbar_title="δS")
+heatmap!(delta_spins[1:256, 1:256], colorbar_title="δS")
 
 xlabel!("x")
 ylabel!("t")

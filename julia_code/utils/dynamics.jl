@@ -87,41 +87,38 @@ end
 
 # Evolve to time T with global_control_push
 function random_global_control_evolve(original_state, a_val, T, t_step, s_0)
-    t = 0
-    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
-
     current_u = flatten_state(original_state)
-    push!(us_of_time, current_u)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
-    while t < T
+    us_of_time[1] = current_u
+    t = t_step
+    while t < T + t_step
+        t += t_step
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
-        push!(us_of_time, current_u)
-    
-        t += t_step
+        
+        us_of_time[Int(div(t, t_step))] = current_u 
     end
     return [unflatten_state(u) for u in us_of_time]
 end
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step, s_0)
-
-    t = 0
-    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
-
     current_u = flatten_state(original_state)
-    push!(us_of_time, current_u)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
-    while t < T
+    us_of_time[1] = current_u
 
+    t = t_step
+    while t < T + t_step
+        t += t_step
         current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
-        push!(us_of_time, current_u)
-    
-        t += t_step
+        
+        us_of_time[Int(div(t, t_step))] = current_u
     end
     return [unflatten_state(u) for u in us_of_time]
 end

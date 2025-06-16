@@ -1,11 +1,7 @@
 # function for calculating d_i
 function calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}})
     dotted = map(dot, S_A, S_B)
-    return sum(map(sqrt, 2 .* map(abs, 1 .- dotted)))
-end
-
-function my_calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}})
-    return sum(map(norm, S_A - S_B)) / length(S_A)
+    return sqrt(2 * sum(1 .- dotted))
 end
 
 # Bring S_B closer to S_A with factor epsilon_val
@@ -17,12 +13,10 @@ function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, e
 end
 
 # Calculates Lyapunov val given list of spin distences
-function calculate_lambda(spin_dists, tau_val, epsilon_val)
-    n_val = length(spin_dists)
+function calculate_lambda(spin_dists, tau_val, epsilon_val, n_val)
     return (1/(n_val * tau_val)) * sum(map(log, spin_dists ./ epsilon_val))
 end
 
-function calculate_lambda_is(spin_dists, tau_val, epsilon_val)
-    n_val = length(spin_dists)
+function calculate_lambda_per_time(spin_dists, tau_val, epsilon_val, n_val)
     return (1/(n_val * tau_val)) .* map(log, spin_dists ./ epsilon_val)
 end

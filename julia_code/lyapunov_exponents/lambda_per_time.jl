@@ -20,22 +20,21 @@ include("../analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-L = 4*64  # number of spins
+L = 32 # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
 J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
 
 # Time to evolve until push back to S_A
-tau = 1 * J
+tau = J
 
 # number of pushes we are going to do
-n = div(L,tau) # This way the total time evolved is L
+n = max(div(L,tau), 50) # This way the total time evolved is at least L
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 2 # We are avraging over x initial conditions
+num_initial_conds = 5 # We are avraging over x initial conditions
 a_vals = [0.4, 0.5, 0.6, 0.7, 0.8, 1]
-# N_vals = [4, 6, 7, 8, 9, 10]
 N_vals = [4, 6]
 
 epsilon = 0.1
@@ -76,12 +75,11 @@ for N_val in N_vals
 
             # Do n pushes 
             for current_n in 1:n
-                # evolve both to time t' = t + tau with control
 
                 spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
                 spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
-                d_abs = my_calculate_spin_distence(spin_chain_A, spin_chain_B)
+                d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
 
                 current_spin_dists[current_n] = d_abs
@@ -91,9 +89,30 @@ for N_val in N_vals
 
         avrage_spin_dists ./= num_initial_conds
 
-        lambda_of_times[N_val][a_val] = calculate_lambda_is(avrage_spin_dists, tau, epsilon)
+        lambda_of_times[N_val][a_val] = calculate_lambda_per_time(avrage_spin_dists, tau, epsilon, n)
 
         plot!(lambda_of_times[N_val][a_val], label="a = $(a_val)")
+    end
+    xlabel!("time")
+    ylabel!("λ")
+    title!("λ(t) for N = $N_val")
+
+    savefig("figs/N$N_val/lambda_per_time_" * filename * ".png")
+
+    open("data/lambda_per_time/N$N_val/" * filename * ".dat", "w") do io
+            serialize(io, lambda_of_times[N_val])
+        end
+end
+
+
+
+
+for N_val in N_vals
+    x_min = 50
+    filename = "N$(N_val)_L$(L)_IC$(num_initial_conds)_xmin$x_min"
+    plt = plot()
+    for a_val in a_vals
+        plot!([i for i in x_min:length(lambda_of_times[N_val][a_val])], lambda_of_times[N_val][a_val][x_min:end] , label="a = $(a_val)")
     end
     xlabel!("time")
     ylabel!("λ")
