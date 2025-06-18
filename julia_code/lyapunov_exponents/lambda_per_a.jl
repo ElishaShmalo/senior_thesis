@@ -69,18 +69,21 @@ for N_val in N_vals
             # Making spin_chain_B to be spin_chain_A with the middle spin modified
             spin_chain_B = copy(spin_chain_A)
             new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
-            spin_chain_B[div(length(spin_chain_B), 2)] = map(normalize, new_mid_spin_val)
+            spin_chain_B[div(length(spin_chain_B), 2)] = normalize(new_mid_spin_val)
 
             current_spin_dists = zeros(n)
 
             # Do n pushes 
             for current_n in 1:n
+                J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+                J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
                 # evolve both to time t' = t + tau with control
                 spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
                 spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
                 d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
-                spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
+                spin_chain_B = test_push_back(spin_chain_A, spin_chain_B, epsilon)
 
                 current_spin_dists[current_n] = d_abs
             end

@@ -1,0 +1,339 @@
+# --- Defining functions to make Initial States ---
+
+# The states have the form state = [[S_1x, S_1y, S_1z], [S_2x, S_2y, S_2z],... ]
+
+# Random spin state
+function make_random_state(n::Int=L)
+    return [normalize(rand(3)) for _ in 1:n]
+end
+
+# Uniform spin state along z
+function make_uniform_state(n::Int=L, z_dir::Int=1)
+    return [[0.0, 0.0, z_dir] for _ in 1:n]
+end
+
+# Spiral spin state
+function make_spiral_state(n::Int=L, spiral_angle::Float64=π/2, phi::Float64=0.0)
+    return [[0.0, cos(i * spiral_angle + phi), sin(i * spiral_angle + phi)] for i in 0:(n-1)]
+end
+
+function make_random_spin(size = 1)
+    return size * normalize(rand(3))
+end
+
+# --- Equation of Motion and Utils for Runge Kutta ---
+
+# Unroll state into a flat vector
+# We need to do this to use runge kutta
+function flatten_state(state::Vector{Vector{Float64}})
+    return vcat(state...)
+end
+
+# Turn the flattened state (vec) back into an actual Vec{Vec{3, Float64}}
+function unflatten_state(vec::Vector{Float64})
+    return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
+end
+
+# --- Control Push ---
+
+function global_control_push(state, a::Float64, s_0::Vector{Vector{Float64}})
+    numerator = ((1-a) .* s_0) .+ (a .* state)
+    denominator = map(norm, numerator)
+    return numerator ./ denominator
+end
+
+function local_control_push(state, a::Float64, N::Int64, start_index::Int64, s_0::Vector{Vector{Float64}})
+    # Returns a new state with a control push done to the N spins after (and including) start index in "state"
+    local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
+    
+    numerator = ((1-a) .* s_0[local_indexes]) .+ (a .* state[local_indexes])
+    denominator = map(norm, numerator)
+
+    local_pushed_state = copy(state)
+    local_pushed_state[local_indexes] = numerator ./ denominator
+
+    return local_pushed_state
+end
+
+# Define the ODE
+function spin_ode!(du, u, p, t)
+    state = unflatten_state(u)
+
+    n = length(state)
+    
+    to_cross = Vector{SVector{3, Float64}}(undef, n)
+
+    # Handle periodic B.C.
+    to_cross[1] = -J_vec .* (state[end] + state[2])
+    to_cross[end] = -J_vec .* (state[end-1] + state[1])
+
+    @inbounds for i in 2:n-1
+        prev = state[i - 1]
+        next = state[i + 1]
+        to_cross[i] = -J_vec .* (prev + next)
+    end
+
+    dstate = [cross(to_cross[i], state[i]) for i in 1:n]
+    du .= flatten_state(dstate)
+end
+
+function evolve_spin(u_::Vector{Float64}, t_span) 
+    # Expects and returns a flattened version of the state at the end of t_span
+
+    prob = ODEProblem(spin_ode!, u_, t_span)
+    sol = solve(prob, RK4(), dt=0.0001)
+
+    return sol.u[end]
+end
+
+# --- Deffrent Evolutions ---
+# Evolve to time T, no control push
+function no_control_evolve(original_state, T, t_step)
+    t = 0.0
+    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
+
+    current_u = flatten_state(original_state)
+    push!(us_of_time, current_u)
+
+    while t < T - 2
+
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (t, t_step+t))
+        push!(us_of_time, current_u)
+    
+        t += t_step
+    end
+    return [unflatten_state(u) for u in us_of_time]
+end
+
+# Evolve to time T with global_control_push
+function random_global_control_evolve(original_state, a_val, T, t_step, s_0)
+    current_u = flatten_state(original_state)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
+
+    us_of_time[1] = current_u
+    t = t_step
+    while t < T + t_step
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (t, t_step+t))
+        current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
+        
+        t += t_step
+        us_of_time[Int(div(t, t_step))] = current_u 
+    end
+    return [unflatten_state(u) for u in us_of_time]
+end
+
+# Evolve to time T with global_control_push
+function global_control_evolve(original_state, a_val, T, t_step, s_0)
+    current_u = flatten_state(original_state)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
+
+    us_of_time[1] = current_u
+
+    t = t_step
+    while t < T + t_step
+        current_u = evolve_spin(current_u, (t, t_step+t))
+        current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
+        
+        t += t_step
+        us_of_time[Int(div(t, t_step))] = current_u
+    end
+    return [unflatten_state(u) for u in us_of_time]
+end
+
+# Evolve to time T with local_control_push
+function local_control_evolve(original_state, a_val, T, t_step, s_0)
+    t = 0.0
+    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
+    local_control_index = 1
+
+    current_u = flatten_state(original_state)
+    push!(us_of_time, current_u)
+
+    while t < T -2
+
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_u = evolve_spin(current_u, (t, t_step+t))
+        current_u = flatten_state(local_control_push(unflatten_state(current_u), a_val, local_N_push, local_control_index, s_0))
+        local_control_index += local_N_push
+        local_control_index = ((local_control_index-1) % L) + 1
+        push!(us_of_time, current_u)
+
+        t += t_step
+    end
+    return [unflatten_state(u) for u in us_of_time]
+end
+
+# function for calculating d_i
+function calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}})
+    diff = S_A .- S_B
+    dotted = map(dot, diff, diff)
+    return sqrt(sum(dotted))
+end
+
+# Bring S_B closer to S_A with factor epsilon_val
+function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val)
+    L = length(S_A)
+    spin_diff = S_B .- S_A
+    thing_to_add = (epsilon_val) .* (map(normalize, spin_diff))
+
+    return S_A .+ thing_to_add
+end
+
+# Calculates Lyapunov val given list of spin distences
+function calculate_lambda(spin_dists, tau_val, epsilon_val, n_val)
+    return sum(map(log, spin_dists ./ epsilon_val)) / (n_val * tau_val) 
+end
+
+function calculate_lambda_per_time(spin_dists, tau_val, epsilon_val, n_val)
+    return map(log, spin_dists ./ epsilon_val) / (n_val * tau_val)
+end
+
+# --- Weighted Spin Difference ---
+
+using Statistics
+
+function weighted_spin_difference(spin_chain::Vector{Vector{Float64}}, s_0::Vector{Vector{Float64}})
+    delta_spin_chain = norm(spin_chain .- s_0, 1)
+    return delta_spin_chain / length(spin_chain)
+end
+
+function get_delta_spin(spin_chain1::Vector{Vector{Float64}}, spin_chain2::Vector{Vector{Float64}})
+    return map(norm, spin_chain1-spin_chain2)
+end
+
+function get_spin_diffrence_from_delta(delta_chain::Vector{Vector{Float64}})
+    return map(mean, delta_chain)
+end
+
+# This functions handles the case wherin the deltas are in Matrix form
+function get_spin_diffrence_from_delta(delta_chain::Matrix{Float64})
+    return mean(delta_chain, dims=2)
+end
+
+# In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
+
+# Imports
+using Random
+using LinearAlgebra
+using Plots
+using DifferentialEquations
+using StaticArrays
+using Serialization
+using Statistics
+
+# Other files   
+include("../utils/make_spins.jl")
+include("../utils/dynamics.jl")
+include("../utils/lyapunov.jl")
+include("../analytics/spin_diffrences.jl")
+
+# Set plotting theme
+Plots.theme(:dark)
+
+# General Variables
+L = 4*64  # number of spins
+J = 1       # energy factor
+
+# J vector with some randomness
+J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
+
+# Time to evolve until push back to S_A
+tau = 1 * J
+
+# number of pushes we are going to do
+n = L
+num_skip = 75 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
+
+# --- Trying to Replecate Results ---
+num_initial_conds = 5 # We are avraging over x initial conditions
+a_vals = [0.01, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.68, 0.7, 0.71, 0.725, 0.75, 0.78, 0.8, 0.85, 0.875, 0.9]
+# N_vals = [3, 4, 6]
+N_vals = [4]
+
+epsilon = 0.01
+
+# --- Calculating Lambdas ---
+
+collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda by each initilal cond
+
+for N_val in N_vals
+    println("N_val: $N_val")
+
+    state_evolve_func = global_control_evolve
+    if N_val == 4 # Need to evolve with randomized J_vec for N=4
+        state_evolve_func = random_global_control_evolve
+    end
+
+    # Define s_naught to be used during control step
+    S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
+
+    collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
+
+    for a_val in a_vals
+        println("N_val: $N_val | a_val: $a_val")
+        current_lambdas = zeros(num_initial_conds)
+
+        for init_cond in 1:num_initial_conds
+            println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
+
+            spin_chain_A = make_random_state(L) # our S_A
+
+            # Making spin_chain_B to be spin_chain_A with the middle spin modified
+            spin_chain_B = copy(spin_chain_A)
+            new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
+            spin_chain_B[div(length(spin_chain_B), 2)] = map(normalize, new_mid_spin_val)
+
+            current_spin_dists = zeros(n)
+
+            # Do n pushes 
+            for current_n in 1:n
+                # evolve both to time t' = t + tau with control
+                spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
+
+                d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
+                spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
+
+                current_spin_dists[current_n] = d_abs
+            end
+            current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
+        end
+
+        collected_lambdas[N_val][a_val] = mean(current_lambdas)
+    end
+
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
+
+    open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
+        serialize(io, collected_lambdas[N_val])
+        println("Saved file $filename")
+    end
+end
+
+plt = plot()
+plot_name = "lambda_per_a_Ns$(join(N_vals))_IC$(num_initial_conds)_L$L"
+for N_val in N_vals
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
+    collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
+        deserialize(io)
+    end
+    plot!(sort(a_vals), [val for val in values(sort(collected_lambdas[N_val]))], marker = :circle, label="N=$N_val")
+end
+
+x_vals = range(0.01, stop = 1, length = 1000)
+
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)")
+
+xlabel!("a")
+ylabel!("λ")
+display(plt)
+
+savefig("figs/" * plot_name * ".png")

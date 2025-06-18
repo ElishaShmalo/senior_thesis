@@ -14,6 +14,24 @@ function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, e
     return S_A .+ thing_to_add
 end
 
+# Bring S_B closer to S_A with fixed vector norm ε across the entire chain
+function test_push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val::Float64)
+    # Flatten both spin chains into one long vector
+    flat_A = reduce(vcat, S_A)
+    flat_B = reduce(vcat, S_B)
+
+    # Compute difference and normalize it
+    diff_vec = flat_B - flat_A
+    diff_norm = norm(diff_vec)
+
+    # Rescale difference to have norm epsilon_val
+    pushed_vec = flat_A + (epsilon_val / diff_norm) * diff_vec
+
+    # Reshape back into Vector{Vector{Float64}}
+    return [pushed_vec[3i-2:3i] for i in 1:length(S_A)]
+end
+
+
 # Calculates Lyapunov val given list of spin distences
 function calculate_lambda(spin_dists, tau_val, epsilon_val, n_val)
     return sum(map(log, spin_dists ./ epsilon_val)) / (n_val * tau_val) 
