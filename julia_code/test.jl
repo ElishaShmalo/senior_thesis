@@ -1,3 +1,6 @@
-X = [1, 2, 3]
-Y = 1
-sum(1 .- X)
+
+X = [[1, 2, 3], [2, 3, 4]]
+Y = [1]
+
+println(map(normalize, X))
+println(X ./ map(norm, X))

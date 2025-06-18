@@ -26,18 +26,19 @@ J = 1       # energy factor
 J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
 
 # Time to evolve until push back to S_A
-tau = 3 * J
+tau = 1 * J
 
 # number of pushes we are going to do
 n = L
+num_skip = 75 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 50 # We are avraging over x initial conditions
-a_vals = [0.1, 0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86]
-# N_vals = [4, 6, 7, 8, 9, 10]
-N_vals = [6]
+num_initial_conds = 5 # We are avraging over x initial conditions
+a_vals = [0.01, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.68, 0.7, 0.71, 0.725, 0.75, 0.78, 0.8, 0.85, 0.875, 0.9]
+# N_vals = [3, 4, 6]
+N_vals = [4]
 
-epsilon = 0.1
+epsilon = 0.01
 
 # --- Calculating Lambdas ---
 
@@ -63,13 +64,12 @@ for N_val in N_vals
         for init_cond in 1:num_initial_conds
             println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
-            spin_chain_A = make_random_state(L) # Essentially our S_A
+            spin_chain_A = make_random_state(L) # our S_A
 
             # Making spin_chain_B to be spin_chain_A with the middle spin modified
-            to_add = make_uniform_state(L, 0)
-            to_add[div(length(to_add), 2)] = make_random_spin(epsilon)
-            spin_chain_B = spin_chain_A .+ to_add
-            spin_chain_B = spin_chain_B ./ map(norm, spin_chain_B)
+            spin_chain_B = copy(spin_chain_A)
+            new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
+            spin_chain_B[div(length(spin_chain_B), 2)] = map(normalize, new_mid_spin_val)
 
             current_spin_dists = zeros(n)
 
@@ -79,18 +79,18 @@ for N_val in N_vals
                 spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
                 spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
-                d_abs = calculate_spin_distence(spin_chain_A ./ map(norm, spin_chain_A), spin_chain_B ./ map(norm, spin_chain_B))
+                d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
 
                 current_spin_dists[current_n] = d_abs
             end
-            current_lambdas[init_cond] = mean(calculate_lambda(current_spin_dists, tau, epsilon))
+            current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
         end
 
         collected_lambdas[N_val][a_val] = mean(current_lambdas)
     end
 
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
 
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
@@ -99,15 +99,21 @@ for N_val in N_vals
 end
 
 plt = plot()
-
+plot_name = "lambda_per_a_Ns$(join(N_vals))_IC$(num_initial_conds)_L$L"
 for N_val in N_vals
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
         deserialize(io)
     end
-    plot!(sort(a_vals), [val for val in values(sort(collected_lambdas[N_val]))], label="N=$N_val")
+    plot!(sort(a_vals), [val for val in values(sort(collected_lambdas[N_val]))], marker = :circle, label="N=$N_val")
 end
+
+x_vals = range(0.01, stop = 1, length = 1000)
+
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)")
 
 xlabel!("a")
 ylabel!("λ")
 display(plt)
+
+savefig("figs/" * plot_name * ".png")

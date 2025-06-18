@@ -20,7 +20,7 @@ include("../analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-L = 32 # number of spins
+L = 32 * 8 # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -33,9 +33,9 @@ tau = J
 n = max(div(L,tau), 50) # This way the total time evolved is at least L
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 5 # We are avraging over x initial conditions
-a_vals = [0.4, 0.5, 0.6, 0.7, 0.8, 1]
-N_vals = [4, 6]
+num_initial_conds = 10 # We are avraging over x initial conditions
+a_vals = [0.4, 0.5, 0.7, 0.8]
+N_vals = [4, 6, 9]
 
 epsilon = 0.1
 
@@ -60,6 +60,7 @@ for N_val in N_vals
 
     for a_val in a_vals
         println("N_val: $N_val | a_val: $a_val")
+
         avrage_spin_dists = zeros(n)
 
         for init_cond in 1:num_initial_conds
@@ -105,8 +106,6 @@ for N_val in N_vals
 end
 
 
-
-
 for N_val in N_vals
     x_min = 50
     filename = "N$(N_val)_L$(L)_IC$(num_initial_conds)_xmin$x_min"
@@ -120,3 +119,5 @@ for N_val in N_vals
 
     savefig("figs/N$N_val/lambda_per_time_" * filename * ".png")
 end
+
+# By looking at the graphs I see that I should be using the values of lambda after 75 (for L = 256)

@@ -58,7 +58,7 @@ function evolve_spin(u_::Vector{Float64}, t_span)
     # Expects and returns a flattened version of the state at the end of t_span
 
     prob = ODEProblem(spin_ode!, u_, t_span)
-    sol = solve(prob, RK4(), dt=0.001)
+    sol = solve(prob, RK4(), dt=0.0001)
 
     return sol.u[end]
 end
@@ -93,13 +93,13 @@ function random_global_control_evolve(original_state, a_val, T, t_step, s_0)
     us_of_time[1] = current_u
     t = t_step
     while t < T + t_step
-        t += t_step
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
         current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
         
+        t += t_step
         us_of_time[Int(div(t, t_step))] = current_u 
     end
     return [unflatten_state(u) for u in us_of_time]
@@ -114,10 +114,10 @@ function global_control_evolve(original_state, a_val, T, t_step, s_0)
 
     t = t_step
     while t < T + t_step
-        t += t_step
         current_u = evolve_spin(current_u, (t, t_step+t))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))
         
+        t += t_step
         us_of_time[Int(div(t, t_step))] = current_u
     end
     return [unflatten_state(u) for u in us_of_time]
