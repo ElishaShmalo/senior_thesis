@@ -45,11 +45,6 @@ lambda_of_times = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: N_val, Floa
 for N_val in N_vals
     println("N_val: $N_val")
 
-    state_evolve_func = global_control_evolve
-    if N_val == 4 # Need to evolve with randomized J_vec for N=4
-        state_evolve_func = random_global_control_evolve
-    end
-
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
 
@@ -76,9 +71,13 @@ for N_val in N_vals
 
             # Do n pushes 
             for current_n in 1:n
+                if N_val == 4
+                    J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+                    J_vec[2] *= (rand() > 0.5) ? -1 : 1
+                end
 
-                spin_chain_A = state_evolve_func(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
-                spin_chain_B = state_evolve_func(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
                 d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
