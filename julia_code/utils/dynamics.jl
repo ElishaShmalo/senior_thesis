@@ -66,13 +66,12 @@ end
 # --- Deffrent Evolutions ---
 # Evolve to time T, no control push
 function no_control_evolve(original_state, T, t_step)
-    t = 0.0
-    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
-
+    t = t_step
+    
     current_u = flatten_state(original_state)
-    push!(us_of_time, current_u)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
-    while t < T - 2
+    while t < T + t_step
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1
@@ -107,6 +106,7 @@ end
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step, s_0)
+
     current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
@@ -125,14 +125,13 @@ end
 
 # Evolve to time T with local_control_push
 function local_control_evolve(original_state, a_val, T, t_step, s_0)
-    t = 0.0
-    us_of_time = Vector{Vector{Float64}}([flatten_state(original_state)])
+    t = t_step
     local_control_index = 1
 
     current_u = flatten_state(original_state)
-    push!(us_of_time, current_u)
+    us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
-    while t < T -2
+    while t < T + t_step
 
         J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
         J_vec[2] *= (rand() > 0.5) ? -1 : 1

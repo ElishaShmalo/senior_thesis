@@ -22,7 +22,6 @@ function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, e
     return [pushed_vec[3i-2:3i] for i in 1:length(S_A)]
 end
 
-
 # Calculates Lyapunov val given list of spin distences
 function calculate_lambda(spin_dists, tau_val, epsilon_val, n_val)
     return sum(map(log, spin_dists ./ epsilon_val)) / (n_val * tau_val) 

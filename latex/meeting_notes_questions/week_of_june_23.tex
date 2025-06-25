@@ -1,0 +1,43 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\author{Elisha Shmalo}
+\title{Notes: Week of June 23}
+
+\begin{document}
+
+\maketitle
+
+\section{Analytic derivatation of Lyop-Exp}
+
+\subsection{Expansion of functions}
+\subsubsection{$f(x)$}
+Let 
+\[
+f(x) = \sqrt{1 - x^2}
+\]
+We expand \( f(x_0 + \delta x) \) to leading order in \( \delta x \) using a Taylor expansion:
+
+\[
+f(x_0 + \delta x) \approx f(x_0) + f'(x_0) \, \delta x
+\]
+
+The derivative:
+
+\[
+f'(x) = \frac{d}{dx} \left( \sqrt{1 - x^2} \right) = \frac{-x}{\sqrt{1 - x^2}}
+\]
+
+Then:
+
+\[
+f'(x_0) = \frac{-x_0}{\sqrt{1 - x_0^2}}
+\]
+
+Thus:
+
+\[
+f(x_0 + \delta x) \approx \sqrt{1 - x_0^2} - \frac{x_0}{\sqrt{1 - x_0^2}} \, \delta x
+\]
+
+\end{document}

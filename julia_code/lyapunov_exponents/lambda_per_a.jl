@@ -8,6 +8,7 @@ using DifferentialEquations
 using StaticArrays
 using Serialization
 using Statistics
+using DelimitedFiles
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -19,7 +20,7 @@ include("../analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-L = 4*64  # number of spins
+L = 5*64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
@@ -30,18 +31,19 @@ tau = 1 * J
 
 # number of pushes we are going to do
 n = L
-num_skip = 75 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
+num_skip = 75 * 2 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 25 # We are avraging over x initial conditions
+num_initial_conds = 75 # We are avraging over x initial conditions
 a_vals = [0.5 + i*0.025 for i in 0:19]
-# N_vals = [3, 4, 6]
-N_vals = [4]
+N_vals = [3, 4, 6, 9]
+# N_vals = [4]
 
 epsilon = 0.01
 
 # --- Calculating Lambdas ---
 
+# Our dict for recording results
 collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda by each initilal cond
 
 for N_val in N_vals
@@ -50,10 +52,13 @@ for N_val in N_vals
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
 
+    # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
 
     for a_val in a_vals
         println("N_val: $N_val | a_val: $a_val")
+        
+        # We will avrage over this later
         current_lambdas = zeros(num_initial_conds)
 
         for init_cond in 1:num_initial_conds
@@ -65,7 +70,8 @@ for N_val in N_vals
             spin_chain_B = copy(spin_chain_A)
             new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
             spin_chain_B[div(length(spin_chain_B), 2)] = normalize(new_mid_spin_val)
-
+            
+            # Will be used to calculate lyop exp
             current_spin_dists = zeros(n)
 
             # Do n pushes 
@@ -91,6 +97,7 @@ for N_val in N_vals
         collected_lambdas[N_val][a_val] = mean(current_lambdas)
     end
 
+    # Save the results for each N_val sepratly
     filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
 
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
@@ -99,6 +106,7 @@ for N_val in N_vals
     end
 end
 
+# Save the plots
 plt = plot()
 plot_name = "lambda_per_a_Ns$(join(N_vals))_IC$(num_initial_conds)_L$L"
 for N_val in N_vals
@@ -118,3 +126,30 @@ ylabel!("λ")
 display(plt)
 
 savefig("figs/" * plot_name * ".png")
+
+# Make .csv file
+for N_val in N_vals
+    # Construct file paths
+    filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(L)"
+    fullpath = "data/spin_chain_lambdas/" * filename * ".dat"
+
+    # Load the Dict
+    collected_lambdas[N_val] = open(fullpath, "r") do io
+        deserialize(io)
+    end
+
+    # Extract keys and values
+    lambda_dict = collected_lambdas[N_val]
+    dict_keys = sort(collect(keys(lambda_dict)))
+    dict_values = [val for val in values(sort(lambda_dict))]
+
+    # Make output CSV path (e.g., same directory with .csv extension)
+    csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+
+    # Write to CSV: one row for keys, one row for values
+    open(csv_path, "w") do io
+        writedlm(io, [dict_keys], ',')   # First row
+        writedlm(io, [dict_values], ',') # Second row
+    end
+end
+
