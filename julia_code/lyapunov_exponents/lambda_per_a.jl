@@ -20,11 +20,11 @@ include("../analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-L = 5*64  # number of spins
+L = 4*64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
-J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
+J_vec = J .* [1, 1, 1]
 
 # Time to evolve until push back to S_A
 tau = 1 * J
@@ -34,9 +34,9 @@ n = L
 num_skip = 75 * 2 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 75 # We are avraging over x initial conditions
-a_vals = [0.5 + i*0.025 for i in 0:19]
-N_vals = [3, 4, 6, 9]
+num_initial_conds = 100 # We are avraging over x initial conditions
+a_vals = [0.6 + i*0.02 for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+N_vals = [2, 3, 6, 9]
 # N_vals = [4]
 
 epsilon = 0.01
@@ -44,7 +44,8 @@ epsilon = 0.01
 # --- Calculating Lambdas ---
 
 # Our dict for recording results
-collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda by each initilal cond
+collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda
+collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: standard error on the mean for lambda
 
 for N_val in N_vals
     println("N_val: $N_val")
@@ -54,6 +55,11 @@ for N_val in N_vals
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
+    collected_lambda_SEMs[N_val] = Dict(a => 0 for a in a_vals)
+
+    if N_val != 4
+        J_vec = J .* [1, 1, 1]
+    end
 
     for a_val in a_vals
         println("N_val: $N_val | a_val: $a_val")
@@ -95,6 +101,8 @@ for N_val in N_vals
         end
 
         collected_lambdas[N_val][a_val] = mean(current_lambdas)
+        collected_lambda_SEMs[N_val][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
+
     end
 
     # Save the results for each N_val sepratly
@@ -103,6 +111,28 @@ for N_val in N_vals
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
         println("Saved file $filename")
+    end
+    open("data/spin_chain_lambdas/" * filename * "sems.dat", "w") do io
+        serialize(io, collected_lambda_SEMs[N_val])
+        println("Saved file $(filename)sems")
+    end
+
+    # Make .csv file
+    # Extract and sort keys and values
+    lambda_dict = collected_lambdas[N_val]
+    sems_dict = collected_lambda_SEMs[N_val]
+    dict_keys = sort(collect(keys(lambda_dict)))
+
+    # Prepare rows: each row is [aval, lambda, lambda_sem]
+    rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
+
+    # Make output CSV path
+    csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+
+    # Write to CSV with header
+    open(csv_path, "w") do io
+        writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
+        writedlm(io, rows, ',')                                # Data rows
     end
 end
 
@@ -114,10 +144,17 @@ for N_val in N_vals
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
         deserialize(io)
     end
-    plot!(sort(a_vals), [val for val in values(sort(collected_lambdas[N_val]))], marker = :circle, label="N=$N_val")
+    collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filename * "sems.dat", "r") do io
+        deserialize(io)
+    end
+    plot!(
+        sort(a_vals), 
+        [val for val in values(sort(collected_lambdas[N_val]))], 
+        yerror=[val for val in values(sort(collected_lambda_SEMs[N_val]))], 
+        marker = :circle, label="N=$N_val")
 end
 
-x_vals = range(0.475, stop = 1, length = 1000)
+x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
 plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)")
 
@@ -127,29 +164,38 @@ display(plt)
 
 savefig("figs/" * plot_name * ".png")
 
+
 # Make .csv file
-for N_val in N_vals
-    # Construct file paths
-    filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(L)"
-    fullpath = "data/spin_chain_lambdas/" * filename * ".dat"
+# for N_val in N_vals
+#     # Construct file paths
+#     filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(L)"
+#     fullpath = "data/spin_chain_lambdas/" * filename * ".dat"
 
-    # Load the Dict
-    collected_lambdas[N_val] = open(fullpath, "r") do io
-        deserialize(io)
-    end
+#     # Load the lambda vals
+#     collected_lambdas[N_val] = open(fullpath, "r") do io
+#         deserialize(io)
+#     end
 
-    # Extract keys and values
-    lambda_dict = collected_lambdas[N_val]
-    dict_keys = sort(collect(keys(lambda_dict)))
-    dict_values = [val for val in values(sort(lambda_dict))]
+#     # Load the lambda SEMs
+#     collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filename * "sems.dat", "r") do io
+#         deserialize(io)
+#     end
 
-    # Make output CSV path (e.g., same directory with .csv extension)
-    csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+#     # Extract and sort keys and values
+#     lambda_dict = collected_lambdas[N_val]
+#     sems_dict = collected_lambda_SEMs[N_val]
+#     dict_keys = sort(collect(keys(lambda_dict)))
 
-    # Write to CSV: one row for keys, one row for values
-    open(csv_path, "w") do io
-        writedlm(io, [dict_keys], ',')   # First row
-        writedlm(io, [dict_values], ',') # Second row
-    end
-end
+#     # Prepare rows: each row is [aval, lambda, lambda_sem]
+#     rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
+
+#     # Make output CSV path
+#     csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+
+#     # Write to CSV with header
+#     open(csv_path, "w") do io
+#         writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
+#         writedlm(io, rows, ',')                                # Data rows
+#     end
+# end
 

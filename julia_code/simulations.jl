@@ -32,7 +32,7 @@ T = L
 
 # --- Trying to Replecate Results ---
 num_init_cond = 100 # We are avraging over x initial conditions
-a_vals = [0.6, 0.68, 0.7, 0.716, 0.734, 0.766, 0.8, 0.86, 0.9]
+a_vals = [0.6 + i*0.02 for i in 0:20] 
 
 original_random = make_random_state()
 
@@ -58,9 +58,10 @@ for N in N_vals
 
     for a_val in a_vals
         println("N: $N | a_val $a_val")
-        current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond]
+        current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond] # []: Initial condition, Vec: Time, Vec: spin location, Float: δs
 
         for i in 1:num_init_cond
+            println("N: $N | a_val $a_val | IC $(i)")
             returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
             current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]

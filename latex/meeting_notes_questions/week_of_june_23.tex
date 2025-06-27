@@ -1,5 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry} 
 
 \author{Elisha Shmalo}
 \title{Notes: Week of June 23}
@@ -10,8 +12,60 @@
 
 \section{Analytic derivatation of Lyop-Exp}
 
-\subsection{Expansion of functions}
-\subsubsection{$f(x)$}
+\subsection{Hamiltonian Dynamics}
+
+Our basis:
+
+\[
+S_j^x = s_j, \space S_j^y = f(s_j)\cos(\phi_j), \space S_j^z = f(s_j)\sin(\phi_j)
+\]
+
+With $f(x) := \sqrt{1 - x^2}$.
+
+The hamiltonian is
+
+\[
+H = \sum_j (-\vec{J} \circ \vec{S_{j+1}}) \cdot \vec{S_j}
+\]
+
+The only terms in $H$ involving $j$ values are
+
+\begin{align*}
+    (H)_j = &-J_x(s_js_{j-1} + s_js_{j+1}) \\
+            &-J_yf(s_j)\cos\phi_j[f(s_{j-1})\cos\phi_{j-1} + f(s_{j+1})\cos\phi_{j+1}] \\
+            &-J_zf(s_j)\sin\phi_j[f(s_{j-1})\sin\phi_{j-1} + f(s_{j+1})\sin\phi_{j+1}]
+\end{align*}
+
+The cononical position is
+
+\[s_j\]
+
+The cononical momentum is
+
+\[\phi_j\]
+
+Thus
+
+\begin{align*}
+    \dot{s_j} &= \frac{\partial H}{\partial \phi_j}\\
+    \dot{\phi_j} &= -\frac{\partial H}{\partial s_j}
+\end{align*}
+
+and so we have
+
+\begin{align*}
+    \frac{ds_j}{dt} = &+J_yf(s_j)\sin(\phi_j)[f(s_{j+1})\cos(\phi_{j+1}) + f(s_{j-1})\cos(\phi_{j-1})] \\
+                      &-J_zf(s_j)\cos(\phi_j)[f(s_{j+1})\sin(\phi_{j+1}) + f(s_{j-1})\sin(\phi_{j-1})]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = -f'(s_j)[&-J_y\cos\phi_j(f(s_{j+1})\cos\phi_{j+1} + f(s_{j-1})\cos\phi_{j-1}) \\
+                                  &-J_z\sin\phi_j(f(s_{j+1})\sin\phi_{j+1} + f(s_{j-1})\sin\phi_{j-1})] \\
+                                  &-J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+\subsection{First order Expansion of functions}
+\subsubsection{$f(x)$ and $f'(x)$}
 Let 
 \[
 f(x) = \sqrt{1 - x^2}
@@ -38,6 +92,389 @@ Thus:
 
 \[
 f(x_0 + \delta x) \approx \sqrt{1 - x_0^2} - \frac{x_0}{\sqrt{1 - x_0^2}} \, \delta x
+\]
+
+For $x_0 = 0$, \[\boxed{f(x_0 + \delta x) \approx 1}\]
+
+Simiarly
+
+\[\boxed{f'(x_0 + \delta x) \approx -\delta x}\]
+
+\subsubsection{$cos\phi_j$ and $sin\phi_j$}
+
+Let
+\[
+\phi_j = \phi_j^0 + \delta \phi_j, \quad \text{where} \quad \phi_j^0 = \frac{2\pi}{N} j
+\]
+
+Using the expansion:
+\[
+\cos(a + \epsilon) \approx \cos a - \sin a \cdot \epsilon
+\]
+
+We have 
+
+\[
+\boxed{
+\cos\phi_j \approx \cos( \frac{2\pi}{N}j) - \sin( \frac{2\pi}{N}j)\delta\phi_j
+}
+\]
+
+For $N = 4$
+
+\[\cos\phi_j \approx
+\begin{cases}
+    \mp \delta\phi_j, & j \text{odd} \\
+    \pm 1, & j \text{even}
+\end{cases}
+\]
+
+Simiarly using the expansion:
+\[
+\sin(a + \epsilon) \approx \sin a + \cos a \cdot \epsilon
+\]
+
+We have 
+
+\[
+\boxed{
+\sin\phi_j \approx \sin( \frac{2\pi}{N}j) + \cos( \frac{2\pi}{N}j)\delta\phi_j
+}
+\]
+
+For $N = 4$
+
+\[\sin\phi_j 
+\begin{cases}
+    \pm 1, & j \text{odd} \\
+    \pm \delta\phi_j, & j \text{even}
+\end{cases}\]
+
+
+\subsubsection{$cos(\phi_{j+1} - \phi_j)$}
+
+In the notes I have:
+
+\[``cos(\phi_{j+1} - \phi_j) \approx 1 + O(\delta \phi^2),'' N = 4\]
+
+Let
+\[
+\phi_j = \phi_j^0 + \delta \phi_j, \quad \text{where} \quad \phi_j^0 = \frac{2\pi}{N} j
+\]
+with \( N \in \mathbb{Z} \). Then:
+\[
+\phi_{j+1} - \phi_j = \left( \phi_{j+1}^0 - \phi_j^0 \right) + \left( \delta \phi_{j+1} - \delta \phi_j \right) = \frac{2\pi}{N} + (\delta \phi_{j+1} - \delta \phi_j)
+\]
+
+We expand the cosine to first order in \( \delta \phi_j \) and \( \delta \phi_{j+1} \):
+
+\[
+\cos(\phi_{j+1} - \phi_j) = \cos\left( \frac{2\pi}{N} + \delta \phi_{j+1} - \delta \phi_j \right)
+\]
+
+Using the expansion:
+\[
+\cos(a + \epsilon) \approx \cos a - \sin a \cdot \epsilon
+\]
+
+with \( a = \frac{2\pi}{N} \) and \( \epsilon = \delta \phi_{j+1} - \delta \phi_j \), we obtain:
+
+\[
+\boxed{
+\cos(\phi_{j+1} - \phi_j) \approx \cos\left( \frac{2\pi}{N} \right) - \sin\left( \frac{2\pi}{N} \right)(\delta \phi_{j+1} - \delta \phi_j) + O(\delta \phi ^2)
+}
+\]
+
+If $N = 4$, 
+
+\[
+\cos(\phi_{j+1} - \phi_j) \approx  -(\delta \phi_{j+1} - \delta \phi_j)
+\]
+
+\subsubsection{$sin(\phi_{j+1} - \phi_j)$}
+
+Let
+\[
+\phi_j = \phi_j^0 + \delta \phi_j, \quad \text{where} \quad \phi_j^0 = \frac{2\pi}{N} j
+\]
+Then:
+\[
+\phi_{j+1} - \phi_j = \frac{2\pi}{N} + (\delta \phi_{j+1} - \delta \phi_j)
+\]
+
+We expand the sine to first order in \( \delta \phi_j \) and \( \delta \phi_{j+1} \):
+
+\[
+\sin(\phi_{j+1} - \phi_j) = \sin\left( \frac{2\pi}{N} + \delta \phi_{j+1} - \delta \phi_j \right)
+\]
+
+Using the Taylor expansion:
+\[
+\sin(a + \epsilon) \approx \sin a + \cos a \cdot \epsilon
+\]
+
+with \( a = \frac{2\pi}{N} \) and \( \epsilon = \delta \phi_{j+1} - \delta \phi_j \), we obtain:
+
+\[
+\boxed{
+\sin(\phi_{j+1} - \phi_j) \approx \sin\left( \frac{2\pi}{N} \right) + \cos\left( \frac{2\pi}{N} \right)(\delta \phi_{j+1} - \delta \phi_j) + O(\delta \phi ^2)
+}
+\]
+
+If $N = 4$, Then
+
+\[
+\sin(\phi_{j+1} - \phi_j) \approx 1 + O(\delta \phi ^2)
+\]
+
+\subsection{First order approximation of diffrential equations}
+
+Let 
+
+\[
+s_j = s_j^0 + \delta s_j = \delta s_j \quad \phi_j = \phi_j^0 + \delta\phi_j
+\]
+
+Recall the equations of motion in our chosen basis
+
+\begin{align*}
+    \frac{ds_j}{dt} = \frac{d\delta s_j}{dt} = &+J_yf(s_j)\sin(\phi_j)[f(s_{j+1})\cos(\phi_{j+1}) + f(s_{j-1})\cos(\phi_{j-1})] \\
+                      &-J_zf(s_j)\cos(\phi_j)[f(s_{j+1})\sin(\phi_{j+1}) + f(s_{j-1})\sin(\phi_{j-1})]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = \frac{d\delta\phi_j}{dt}  = -f'(s_j)[&-J_y\cos\phi_j(f(s_{j+1})\cos\phi_{j+1} + f(s_{j-1})\cos\phi_{j-1}) \\
+                                  &-J_z\sin\phi_j(f(s_{j+1})\sin\phi_{j+1} + f(s_{j-1})\sin\phi_{j-1})] \\
+                                  &-J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+\subsubsection{N = 4}
+
+Using the approximations we had above
+
+\begin{align*}
+    \frac{d\delta s_j}{dt} &= \begin{cases}
+        &J_y(\pm1)[\mp1 \pm 1] - J_z(\mp\delta\phi_j)[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ odd} \\
+        &J_y(\pm\delta\phi_j)[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}] - J_z(\pm1)[\mp1 \pm 1], j \text{ even} \\
+    \end{cases} \\
+    &= \delta\phi_j\begin{cases}
+        &J_z[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ odd} \\
+        &J_y[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ even} \\
+    \end{cases}
+\end{align*}
+
+\begin{align*}
+    \frac{d\delta\phi_j}{dt} = -J_x(s_{j+1} + s_{j-1}) \mp \begin{cases}
+        &J_z(\mp\phi_{j+1} \pm\phi_{j-1}), j \text{ odd} \\
+        &J_y(\pm \phi_{j+1} \pm\phi_{j-1}), j \text{ even}
+    \end{cases}
+\end{align*}
+
+\section{Numerics for Lyop Calc}
+\section*{Comparison of Pushback Implementations in Benettin's Method}
+
+The goal of the \texttt{push\_back} function in Benettin's algorithm is to restore the distance between two nearby trajectories, $\vec{S}_A$ (reference) and $\vec{S}_B$ (perturbed), to a fixed small value $\varepsilon$, without altering the direction of separation.
+
+\subsection*{My Original Implementation}
+
+In the original Julia implementation, the perturbation is applied \emph{locally} and independently to each spin:
+\[
+\vec{S}_{i}^{B} \gets \vec{S}_{i}^{A} + \varepsilon \cdot \frac{\vec{S}_{i}^{B} - \vec{S}_{i}^{A}}{||\vec{S}_{i}^{B} - \vec{S}_{i}^{A}||}
+\]
+for all $i = 1, \dots, L$.
+
+That is, each spin is pushed away from its counterpart independently, ensuring that the local separation at each site is $\varepsilon$. However, this results in a total perturbation vector (in $\mathbb{R}^{3L}$) with norm approximately:
+\[
+||\vec{S}_B - \vec{S}_A|| \approx \varepsilon \cdot \sqrt{L}
+\]
+
+I tried adjusting the pushback to be
+
+\[
+\vec{S}_{i}^{B} \gets 1/\sqrt{L} (\vec{S}_{i}^{A} + \varepsilon \cdot \frac{\vec{S}_{i}^{B} - \vec{S}_{i}^{A}}{||\vec{S}_{i}^{B} - \vec{S}_{i}^{A}||})
+\]
+
+such that the total perturbation vector has norm
+
+\[
+||\vec{S}_B - \vec{S}_A|| \approx \varepsilon
+\]
+
+but that still didn't fix things.
+
+\subsection*{Professor Pixely's Implementation (Benettin-consistent)}
+
+In contrast, the correct implementation applies the perturbation to the entire spin chain \emph{as a single vector} in $\mathbb{R}^{3L}$:
+\[
+\vec{S}_B \gets \vec{S}_A + \varepsilon \cdot \frac{\vec{S}_B - \vec{S}_A}{||\vec{S}_B - \vec{S}_A||}
+\]
+This ensures that the total perturbation vector has norm exactly $\varepsilon$.
+
+\textbf{Note: } I spoke with chatGPT and it also said that the correct implementation insured that the direction of perturbation \emph{is preserved} across steps. This consistency is essential for correctly capturing the dominant Lyapunov exponent. But I am not sure what is meant by that.
+\[
+\lambda = \lim_{n \to \infty} \frac{1}{n \tau} \sum_{i=1}^n \log \left( \frac{||\vec{S}_B^{(i)} - \vec{S}_A^{(i)}||}{\varepsilon} \right)
+\]
+
+\subsection*{Summary of Differences}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Feature} & \textbf{Original (local)} & \textbf{Professor's (global)} \\
+\hline
+Normalization per spin & Yes & No \\
+Preserves global direction & No & Yes \\
+Total perturbation norm & $\varepsilon \cdot \sqrt{L}$ & $\varepsilon$ \\
+Valid for Benettin method & Not quite & Yes \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Harmonic Oscillators to Model Spin}
+
+Consider a series RLC circuit driven by an AC voltage source:
+\[
+V_{\text{drive}}(t) = V_0 \cos(\omega_d t)
+\]
+The circuit contains:
+\begin{itemize}
+  \item Inductor with inductance $L$
+  \item Resistor with resistance $R$
+  \item Capacitor with capacitance $C$
+\end{itemize}
+
+\subsection{Equation of Motion}
+\[
+V_L + V_R + V_C = V_{\text{drive}}(t)
+\]
+\[
+\boxed{L \ddot{Q} + R \dot{Q} + \frac{1}{C} Q = V_0 \cos(\omega_d t)}
+\]
+
+\subsection{Solution Structure}
+
+The general solution is:
+\[
+Q(t) = Q_{\text{hom}}(t) + Q_{\text{part}}(t)
+\]
+
+The homogeneous solution describes transient behavior and decays over time due to resistance with time scale.
+
+\[\tau = -\frac{2L}{R}\].
+
+As in 
+
+\[Q_{\text{hom}}(t) \sim e^{-\frac{Rt}{2L}}\]
+
+I seek a steady state solution, so I feel like we should try something like:
+\[
+Q_{\text{part}}(t) = A \cos(\omega_d t) + B \sin(\omega_d t)
+\]
+
+\subsection{Determaning Particular Solution Ansatz}
+Compute the first and second derivatives:
+\[
+\dot{Q}_{\text{part}}(t) = -A \omega_d \sin(\omega_d t) + B \omega_d \cos(\omega_d t)
+\]
+\[
+\ddot{Q}_{\text{part}}(t) = -A \omega_d^2 \cos(\omega_d t) - B \omega_d^2 \sin(\omega_d t)
+\]
+
+Substitute into the differential equation:
+\begin{align*}
+&L \ddot{Q}_{\text{part}} + R \dot{Q}_{\text{part}} + \frac{1}{C} Q_{\text{part}} = V_0 \cos(\omega_d t) \\
+&= L(-A \omega_d^2 \cos(\omega_d t) - B \omega_d^2 \sin(\omega_d t)) \\
+&\quad + R(-A \omega_d \sin(\omega_d t) + B \omega_d \cos(\omega_d t)) \\
+&\quad + \frac{1}{C}(A \cos(\omega_d t) + B \sin(\omega_d t))
+\end{align*}
+
+Group terms:
+\[
+\text{Coefficient of } \cos(\omega_d t):\quad -L A \omega_d^2 + R B \omega_d + \frac{A}{C}
+\]
+\[
+\text{Coefficient of } \sin(\omega_d t):\quad -L B \omega_d^2 - R A \omega_d + \frac{B}{C}
+\]
+
+Set the equation equal to the driving term \( V_0 \cos(\omega_d t) \), and match coefficients:
+\[
+\begin{cases}
+- L A \omega_d^2 + R B \omega_d + \frac{A}{C} = V_0 \\
+- L B \omega_d^2 - R A \omega_d + \frac{B}{C} = 0
+\end{cases}
+\]
+
+\subsection*{Solve the System}
+
+We now solve this linear system for \( A \) and \( B \).
+
+Define:
+\[
+X := \left( \frac{1}{C} - L \omega_d^2 \right), \quad Y := R \omega_d
+\]
+
+Then the system becomes:
+\[
+\begin{cases}
+A X + B Y = V_0 \\
+B X - A Y = 0
+\end{cases}
+\]
+
+Solve the second equation for \( B \):
+\[
+B X = A Y \Rightarrow B = \frac{A Y}{X}
+\]
+
+Substitute into the first equation:
+\[
+A X + \left( \frac{A Y}{X} \right) Y = V_0
+\Rightarrow A \left( X + \frac{Y^2}{X} \right) = V_0
+\Rightarrow A = \frac{V_0 X}{X^2 + Y^2}
+\]
+
+Then:
+\[
+B = \frac{A Y}{X} = \frac{V_0 Y}{X^2 + Y^2}
+\]
+
+\subsection*{Final Particular Solution}
+
+Thus, the particular solution is:
+\[
+Q_{\text{part}}(t) = \frac{V_0 X}{X^2 + Y^2} \cos(\omega_d t) + \frac{V_0 Y}{X^2 + Y^2} \sin(\omega_d t)
+\]
+\[
+\text{where } X = \left( \frac{1}{C} - L \omega_d^2 \right), \quad Y = R \omega_d
+\]
+
+This can also be written in amplitude-phase form:
+\[
+Q_{\text{part}}(t) = Q_p \cos(\omega_d t - \delta)
+\]
+
+with:
+\[
+Q_p = \frac{V_0}{\sqrt{X^2 + Y^2}} = \frac{V_0}{\sqrt{\left( \frac{1}{C} - L \omega_d^2 \right)^2 + (R \omega_d)^2}}
+\]
+\[
+\tan \delta = \frac{Y}{X} = \frac{R \omega_d}{\frac{1}{C} - L \omega_d^2}
+\]
+
+\subsection*{Voltage Across the Capacitor}
+
+The voltage across the capacitor is:
+\[
+V_C(t) = \frac{Q_{\text{part}}(t)}{C} = \frac{Q_p}{C} \cos(\omega_d t - \delta)
+\]
+
+Final expression:
+\[
+\boxed{
+V_C(t) = \frac{V_0}{\sqrt{(1 - L C \omega_d^2)^2 + (R C \omega_d)^2}} \cos(\omega_d t - \delta)
+}
+\quad \text{with} \quad
+\tan \delta = \frac{R \omega_d}{\frac{1}{C} - L \omega_d^2}
 \]
 
 \end{document}
