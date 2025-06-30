@@ -12,64 +12,90 @@ using Statistics
 
 # Other files   
 include("utils/make_spins.jl")
+include("utils/general.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
+
+# Making necessary folders if they dont exist
+folder_names_in_order = ["data", "data/delta_evolved_spins", "data/mag_evolved_spins", "figs", "figs/delta_evolved_spins", "figs/mag_evolved_spins"]
+for folder in folder_names_in_order
+    if !isdir(folder)
+        mkdir(folder)
+    end
+end
 
 # Set plotting theme
 Plots.theme(:dark)
 # General Variables
-L = 4 * 64  # number of spins
+global_L = 4 * 64  # number of spins
 J = 1       # energy factor
 
 # J vector with some randomness
-J_vec = J .* [rand([-1, 1]), rand([-1, 1]), 1]
+J_vec = J .* [1, 1, 1]
 
 # Time step for evolution
 Tau_F = 1 / J
 
 # Evolve until
-T = L
+T = global_L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 100 # We are avraging over x initial conditions
-a_vals = [0.6 + i*0.02 for i in 0:20] 
-
-original_random = make_random_state()
+num_init_cond = 10 # We are avraging over x initial conditions
+# a_vals = [0.6 + i*0.02 for i in 0:20] 
+a_vals = [0, 0.5, 1] 
 
 # We will use an array to store the results of the simulation for each a_val. 
 # First dimention represents the particular initial condition, Second is the time, third is the state at that time, 
 # fourth is the particular spin value
 # i.e. evolved_states[1, 2, 3, :] is the third spin at time t=2 for the first initial condition 
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
-num_timesteps = L
 
-N_vals = [4, 6, 7, 8, 9, 10]
-# N_vals = [7, 8, 9, 10]
+N_vals = [10]
+# Making individual folders for N_vals
+for N_val in N_vals
+    if !isdir("data/mag_evolved_spins/N$N_val")
+        mkdir("data/mag_evolved_spins/N$N_val")
+    end
+    if !isdir("figs/mag_evolved_spins/N$N_val")
+        mkdir("figs/mag_evolved_spins/N$N_val")
+    end
+    if !isdir("data/delta_evolved_spins/N$N_val")
+        mkdir("data/delta_evolved_spins/N$N_val")
+    end
+    if !isdir("figs/delta_evolved_spins/N$N_val")
+        mkdir("figs/delta_evolved_spins/N$N_val")
+    end
+end
 
-for N in N_vals
-    println("N: $N")
+for N_val in N_vals
+    println("N: $N_val")
+
+    L = get_nearest(N_val, 256)
+    
     # Define s_naught as a constant
-    S_NAUGHT = make_spiral_state(L, 2 * π / N)
+    S_NAUGHT = make_spiral_state(L, (2 * π) / N_val)
+    
+    num_timesteps = L
 
     state_evolve_func = global_control_evolve
-    if N == 4 # Need to evolve with randomized J_vec for N=4
+    if N_val == 4 # Need to evolve with randomized J_vec for N=4
         state_evolve_func = random_global_control_evolve
     end
 
     for a_val in a_vals
-        println("N: $N | a_val $a_val")
+        println("N: $N_val | a_val $a_val")
         current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond] # []: Initial condition, Vec: Time, Vec: spin location, Float: δs
 
         for i in 1:num_init_cond
-            println("N: $N | a_val $a_val | IC $(i)")
+            println("N: $N_val | a_val $a_val | IC $(i)")
+            original_random = make_spiral_state(L, (2 * π) / N_val)
             returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
             current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
-            
         end
 
         # saving avrage of δs for future ref
-        results_file_name = "N$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+        results_file_name = "N$(N_val)/N_$(N_val)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
         open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
             serialize(io, sum(current_spin_delta)/num_init_cond)
@@ -78,11 +104,12 @@ for N in N_vals
 end
 
 # --- Plotting the Dynamics of S_diif ---
-
-for N in N_vals
+N_vals = [3, 4, 10]
+for N_val in N_vals
+    L = get_nearest(N_val, global_L)
     plt = plot()
     for a_val in a_vals
-        results_file_name = "N$(N)/N_$(N)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
+        results_file_name = "N$(N_val)/N_$(N_val)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$L"
 
         delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
             deserialize(io)
@@ -97,8 +124,8 @@ for N in N_vals
 
     xlabel!("time")
     ylabel!("S_diff")
-    title!("Spin Dynamics for N $N")
+    title!("Spin Dynamics for N = $N_val")
     # display(plt)
 
-    savefig("figs/N$N/s_diff_plot_diffrent_a_vals_N$(N)_IC$(num_init_cond)_L$(L).png")
+    savefig("figs/delta_evolved_spins/N$N_val/s_diff_plot_diffrent_a_vals_N$(N_val)_IC$(num_init_cond)_L$(L).png")
 end

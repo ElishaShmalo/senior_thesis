@@ -11,6 +11,24 @@ function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
+function get_diffrential_test(state)
+    n = length(state)
+    to_cross = Vector{SVector{3, Float64}}(undef, n)
+
+    # Handle periodic B.C.
+    to_cross[1] = -J_vec .* (state[end] + state[2])
+    to_cross[end] = -J_vec .* (state[end-1] + state[1])
+
+    @inbounds for i in 2:n-1
+        prev = state[i - 1]
+        next = state[i + 1]
+        to_cross[i] = -J_vec .* (prev + next)
+    end
+
+    dstate = [cross(to_cross[i], state[i]) for i in 1:n]
+    return dstate
+end
+
 # --- Control Push ---
 
 function global_control_push(state, a::Float64, s_0::Vector{Vector{Float64}})
@@ -58,7 +76,7 @@ function evolve_spin(u_::Vector{Float64}, t_span)
     # Expects and returns a flattened version of the state at the end of t_span
 
     prob = ODEProblem(spin_ode!, u_, t_span)
-    sol = solve(prob, RK4(), dt=0.0001)
+    sol = solve(prob, Tsit5(), abstol=1e-9, reltol=1e-9)
 
     return sol.u[end]
 end

@@ -12,9 +12,18 @@ using DelimitedFiles
 
 # Other files   
 include("../utils/make_spins.jl")
+include("../utils/general.jl")
 include("../utils/dynamics.jl")
 include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
+
+# Making necessary folders if they dont exist
+folder_names_in_order = ["data", "data/spin_chain_lambdas", "figs", "figs/lambda_per_time", "figs/lambda_per_a"]
+for folder in folder_names_in_order
+    if !isdir(folder)
+        mkdir(folder)
+    end
+end
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -36,8 +45,20 @@ num_skip = 75 * 2 # we skip 75 of the first n pushes to get a stable result (we 
 # --- Trying to Replecate Results ---
 num_initial_conds = 100 # We are avraging over x initial conditions
 a_vals = [0.6 + i*0.02 for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-N_vals = [2, 3, 6, 9]
-# N_vals = [4]
+# N_vals = [2, 3, 6, 9]
+N_vals = [2]
+# Making individual folders for N_vals
+for N_val in N_vals
+    if !isdir("data/spin_chain_lambdas/N$N_val")
+        mkdir("data/spin_chain_lambdas/N$N_val")
+    end
+    if !isdir("figs/lambda_per_time/N$N_val")
+        mkdir("figs/lambda_per_time/N$N_val")
+    end
+    if !isdir("figs/lambda_per_a/N$N_val")
+        mkdir("figs/lambda_per_a/N$N_val")
+    end
+end
 
 epsilon = 0.01
 
@@ -51,7 +72,7 @@ for N_val in N_vals
     println("N_val: $N_val")
 
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(L, (2 * pi) / N_val)
+    S_NAUGHT = make_spiral_state(get_nearest(N_val, L), (2 * pi) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
@@ -70,7 +91,7 @@ for N_val in N_vals
         for init_cond in 1:num_initial_conds
             println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
-            spin_chain_A = make_random_state(L) # our S_A
+            spin_chain_A = make_random_state(get_nearest(N_val, L)) # our S_A
 
             # Making spin_chain_B to be spin_chain_A with the middle spin modified
             spin_chain_B = copy(spin_chain_A)
@@ -106,7 +127,7 @@ for N_val in N_vals
     end
 
     # Save the results for each N_val sepratly
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
 
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
@@ -136,11 +157,11 @@ for N_val in N_vals
     end
 end
 
-# Save the plots
+# Save the plot (if you want all the N_vals on one plot)
 plt = plot()
 plot_name = "lambda_per_a_Ns$(join(N_vals))_IC$(num_initial_conds)_L$L"
 for N_val in N_vals
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(L)"
+    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
         deserialize(io)
     end
@@ -162,13 +183,13 @@ xlabel!("a")
 ylabel!("λ")
 display(plt)
 
-savefig("figs/" * plot_name * ".png")
+savefig("figs/lambda_per_a/" * plot_name * ".png")
 
 
 # Make .csv file
 # for N_val in N_vals
 #     # Construct file paths
-#     filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(L)"
+#     filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
 #     fullpath = "data/spin_chain_lambdas/" * filename * ".dat"
 
 #     # Load the lambda vals
