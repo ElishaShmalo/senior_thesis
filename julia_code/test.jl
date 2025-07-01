@@ -2,31 +2,42 @@
 # Doing ferromagnet because it's cooler :)
 
 # Imports
-using Random
-using LinearAlgebra
-using Plots
-using DifferentialEquations
-using StaticArrays
-using Serialization
-using Statistics
+using CSV
+using DataFrames
 
-# Other files   
-include("utils/make_spins.jl")
-include("utils/general.jl")
-include("utils/dynamics.jl")
-include("analytics/spin_diffrences.jl")
+# Replace "path/to/file.csv" with the actual file path
+df = CSV.read("path/to/file.csv", DataFrame)
 
-J_vec = [1, 1, 1]
+collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda
+collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: standard error on the mean for lambda
 
+L = 256
 
-L = get_nearest(N, 256)
-S_0 = make_spiral_state(L, 2 * π / N)
+# Save the plot (if you want all the N_vals on one plot)
+plt = plot()
+plot_name = "lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
+for N_val in N_vals
+    filename = "N$N_val/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
+    collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
+        deserialize(io)
+    end
+    collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filename * "sems.dat", "r") do io
+        deserialize(io)
+    end
+    plot!(
+        sort(a_vals), 
+        [val for val in values(sort(collected_lambdas[N_val]))], 
+        yerror=[val for val in values(sort(collected_lambda_SEMs[N_val]))], 
+        marker = :circle, label="N=$N_val")
+end
 
-# println(get_diffrential_test(S_0))
-N = 3
-V_1 = [0, cos((2 * π / N)* 2), sin((2 * π / N)* 2)]
-V_2 = [0, cos((2 * π / N)* 1), sin((2 * π / N)* 1)] .+ [0, cos((2 * π / N)* 3), sin((2 * π / N)* 3)]
+x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-println(cross(V_1, V_2))
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=$L")
 
-println(typeof(V_1)," ", typeof(V_2)," ", typeof(cross(V_1, V_2))," ", typeof((2 * π / N)* 2))
+xlabel!("a")
+ylabel!("λ")
+display(plt)
+
+savefig("figs/lambda_per_a/" * plot_name * ".png")
+

@@ -40,7 +40,7 @@ Tau_F = 1 / J
 T = global_L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 10 # We are avraging over x initial conditions
+num_init_cond = 1 # We are avraging over x initial conditions
 # a_vals = [0.6 + i*0.02 for i in 0:20] 
 a_vals = [0, 0.5, 1] 
 
@@ -50,7 +50,7 @@ a_vals = [0, 0.5, 1]
 # i.e. evolved_states[1, 2, 3, :] is the third spin at time t=2 for the first initial condition 
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
 
-N_vals = [10]
+N_vals = [2, 3, 4, 6, 10]
 # Making individual folders for N_vals
 for N_val in N_vals
     if !isdir("data/mag_evolved_spins/N$N_val")
@@ -73,7 +73,7 @@ for N_val in N_vals
     L = get_nearest(N_val, 256)
     
     # Define s_naught as a constant
-    S_NAUGHT = make_spiral_state(L, (2 * π) / N_val)
+    S_NAUGHT = make_spiral_state(L, (2) / N_val)
     
     num_timesteps = L
 
@@ -88,7 +88,7 @@ for N_val in N_vals
 
         for i in 1:num_init_cond
             println("N: $N_val | a_val $a_val | IC $(i)")
-            original_random = make_spiral_state(L, (2 * π) / N_val)
+            original_random = make_spiral_state(L, (2) / N_val)
             returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
             current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
@@ -104,7 +104,7 @@ for N_val in N_vals
 end
 
 # --- Plotting the Dynamics of S_diif ---
-N_vals = [3, 4, 10]
+
 for N_val in N_vals
     L = get_nearest(N_val, global_L)
     plt = plot()

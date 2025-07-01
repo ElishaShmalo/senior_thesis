@@ -29,8 +29,8 @@ end
 Plots.theme(:dark)
 
 # General Variables
-L = 4*64  # number of spins
-J = 1       # energy factor
+L = 128  # number of spins
+J = 1    # energy factor
 
 # J vector with some randomness
 J_vec = J .* [1, 1, 1]
@@ -40,13 +40,16 @@ tau = 1 * J
 
 # number of pushes we are going to do
 n = L
-num_skip = 75 * 2 # we skip 75 of the first n pushes to get a stable result (we chose 75 from our results in "lambda_per_time.js)
+num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 100 # We are avraging over x initial conditions
+num_initial_conds = 500 # We are avraging over x initial conditions
 a_vals = [0.6 + i*0.02 for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
+a_vals = unique(sort(vcat(trans_a_vals, a_vals)))
+
 # N_vals = [2, 3, 6, 9]
-N_vals = [2]
+N_vals = [4]
 # Making individual folders for N_vals
 for N_val in N_vals
     if !isdir("data/spin_chain_lambdas/N$N_val")
@@ -72,7 +75,7 @@ for N_val in N_vals
     println("N_val: $N_val")
 
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(get_nearest(N_val, L), (2 * pi) / N_val)
+    S_NAUGHT = make_spiral_state(get_nearest(N_val, L), (2) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
@@ -104,10 +107,12 @@ for N_val in N_vals
             # Do n pushes 
             for current_n in 1:n
                 # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
-                if N_val == 4 
-                    J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
-                    J_vec[2] *= (rand() > 0.5) ? -1 : 1
-                end
+                # if N_val == 4 
+                #     J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+                #     J_vec[2] *= (rand() > 0.5) ? -1 : 1
+                # end
+                J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+                J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
                 # evolve both to time t' = t + tau with control
                 spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
@@ -127,7 +132,7 @@ for N_val in N_vals
     end
 
     # Save the results for each N_val sepratly
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
+    filename = "N$N_val/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
 
     open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
@@ -159,9 +164,9 @@ end
 
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_name = "lambda_per_a_Ns$(join(N_vals))_IC$(num_initial_conds)_L$L"
+plot_name = "lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
 for N_val in N_vals
-    filename = "N$(replace("$N_val", "." => "p"))/" * "N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
+    filename = "N$N_val/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
         deserialize(io)
     end
@@ -177,7 +182,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=$L")
 
 xlabel!("a")
 ylabel!("λ")
