@@ -107,16 +107,11 @@ for N_val in N_vals
             # Do n pushes 
             for current_n in 1:n
                 # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
-                # if N_val == 4 
-                #     J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
-                #     J_vec[2] *= (rand() > 0.5) ? -1 : 1
-                # end
-                J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
-                J_vec[2] *= (rand() > 0.5) ? -1 : 1
 
                 # evolve both to time t' = t + tau with control
-                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
-                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
+                evolved_results = random_evolve_spins_to_time(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                spin_chain_A = evolved_results[1][end]
+                spin_chain_B = evolved_results[2][end]
 
                 d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)

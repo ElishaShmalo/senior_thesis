@@ -124,7 +124,6 @@ end
 
 # Evolve to time T with global_control_push
 function global_control_evolve(original_state, a_val, T, t_step, s_0)
-
     current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
@@ -140,6 +139,45 @@ function global_control_evolve(original_state, a_val, T, t_step, s_0)
     end
     return [unflatten_state(u) for u in us_of_time]
 end
+
+
+
+
+
+
+
+# Used for calculating lyapunov exponents
+function random_evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
+    current_us = [flatten_state(Sa), flatten_state(Sb)]
+    us_of_time = [Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)]), Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)])]
+
+    us_of_time[1][1] = current_us[1]
+    us_of_time[2][1] = current_us[2]
+
+    t = t_step
+    while t < T + t_step
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+
+        current_us = [evolve_spin(current_us[1], (t, t_step+t)), evolve_spin(current_us[2], (t, t_step+t))]
+        current_us[1] = flatten_state(global_control_push(unflatten_state(current_us[1]), a_val, s_0))
+        current_us[2] = flatten_state(global_control_push(unflatten_state(current_us[2]), a_val, s_0))
+        
+        t += t_step
+        us_of_time[1][Int(div(t, t_step))] = current_us[1]
+        us_of_time[2][Int(div(t, t_step))] = current_us[2]
+    end
+    return [[unflatten_state(u) for u in us_of_time[1]], [unflatten_state(u) for u in us_of_time[2]]]
+end
+
+
+
+
+
+
+
+
+
 
 # Evolve to time T with local_control_push
 function local_control_evolve(original_state, a_val, T, t_step, s_0)
