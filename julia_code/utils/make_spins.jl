@@ -17,7 +17,7 @@ function a_cospi(x)
     return N(simplify(SymPy.cos(Sym(x) * SymPy.pi)))
 end
 function a_sinpi(x)
-    return N(simplify(SymPy.cos(Sym(x) * SymPy.pi)))
+    return N(simplify(SymPy.sin(Sym(x) * SymPy.pi)))
 end
 
 # Spiral spin state
@@ -25,6 +25,11 @@ function make_spiral_state(n::Int=L, spiral_angle_coff::Float64=1/2)
     return [[0.0, a_cospi(i * spiral_angle_coff), a_sinpi(i * spiral_angle_coff)] for i in 0:(n-1)]
 end
 
+# function make_spiral_state(n::Int=L, spiral_angle_coff::Float64=1/2)
+#     return [[0.0, cospi(i * spiral_angle_coff), sinpi(i * spiral_angle_coff)] for i in 0:(n-1)]
+# end
+
 function make_random_spin(size = 1)
     return size * normalize(rand(3))
 end
+

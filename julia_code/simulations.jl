@@ -50,7 +50,7 @@ a_vals = [0, 0.5, 1]
 # i.e. evolved_states[1, 2, 3, :] is the third spin at time t=2 for the first initial condition 
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
 
-N_vals = [2, 3, 4, 6, 10]
+N_vals = [2, 4, 3, 6, 10]
 # Making individual folders for N_vals
 for N_val in N_vals
     if !isdir("data/mag_evolved_spins/N$N_val")

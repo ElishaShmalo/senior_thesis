@@ -29,7 +29,7 @@ end
 Plots.theme(:dark)
 
 # General Variables
-L = 128  # number of spins
+L = 256  # number of spins
 J = 1    # energy factor
 
 # J vector with some randomness
@@ -63,7 +63,7 @@ for N_val in N_vals
     end
 end
 
-epsilon = 0.01
+epsilon = 0.1
 
 # --- Calculating Lambdas ---
 

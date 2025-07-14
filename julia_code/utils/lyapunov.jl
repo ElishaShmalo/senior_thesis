@@ -15,7 +15,6 @@ function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, e
     diff_vec = flat_B - flat_A
     diff_norm = norm(diff_vec)
 
-    # Rescale difference to have norm epsilon_val
     pushed_vec = flat_A + (epsilon_val / diff_norm) * diff_vec
 
     # Reshape back into Vector{Vector{Float64}}

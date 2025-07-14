@@ -156,8 +156,8 @@ function random_evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
 
     t = t_step
     while t < T + t_step
-        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
-        J_vec[2] *= (rand() > 0.5) ? -1 : 1
+        J_vec[1] = (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[2] = (rand() > 0.5) ? -1 : 1
 
         current_us = [evolve_spin(current_us[1], (t, t_step+t)), evolve_spin(current_us[2], (t, t_step+t))]
         current_us[1] = flatten_state(global_control_push(unflatten_state(current_us[1]), a_val, s_0))
