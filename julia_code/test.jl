@@ -1,3 +1,7 @@
-include("utils/make_spins.jl")
 
-println(make_spiral_state(10, 2/3))
+
+x = 0
+
+if x
+    println("h")
+end

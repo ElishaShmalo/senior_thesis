@@ -4,7 +4,7 @@
 
 
 \author{Elisha Shmalo}
-\title{Notes: Week of June 23}
+\title{Notes: Week of Jul 14}
 
 \begin{document}
 
@@ -61,7 +61,7 @@ and so we have
 \begin{align*}
     \frac{d\phi_j}{dt} = -f'(s_j)[&-J_y\cos\phi_j(f(s_{j+1})\cos\phi_{j+1} + f(s_{j-1})\cos\phi_{j-1}) \\
                                   &-J_z\sin\phi_j(f(s_{j+1})\sin\phi_{j+1} + f(s_{j-1})\sin\phi_{j-1})] \\
-                                  &-J_x(s_{j+1} + s_{j-1})
+                                  &+J_x(s_{j+1} + s_{j-1})
 \end{align*}
 
 \subsection{First order Expansion of functions}
@@ -116,17 +116,8 @@ We have
 
 \[
 \boxed{
-\cos\phi_j \approx \cos( \frac{2\pi}{N}j) - \sin( \frac{2\pi}{N}j)\delta\phi_j
+\cos\phi_j \approx \cos(\phi_j^0) - \sin(\phi_j^0)\delta\phi_j
 }
-\]
-
-For $N = 4$
-
-\[\cos\phi_j \approx
-\begin{cases}
-    \mp \delta\phi_j, & j \text{odd} \\
-    \pm 1, & j \text{even}
-\end{cases}
 \]
 
 Simiarly using the expansion:
@@ -138,24 +129,11 @@ We have
 
 \[
 \boxed{
-\sin\phi_j \approx \sin( \frac{2\pi}{N}j) + \cos( \frac{2\pi}{N}j)\delta\phi_j
+\sin\phi_j \approx \sin(\phi_j^0) + \cos(\phi_j^0)\delta\phi_j
 }
 \]
 
-For $N = 4$
-
-\[\sin\phi_j 
-\begin{cases}
-    \pm 1, & j \text{odd} \\
-    \pm \delta\phi_j, & j \text{even}
-\end{cases}\]
-
-
 \subsubsection{$cos(\phi_{j+1} - \phi_j)$}
-
-In the notes I have:
-
-\[``cos(\phi_{j+1} - \phi_j) \approx 1 + O(\delta \phi^2),'' N = 4\]
 
 Let
 \[
@@ -185,46 +163,15 @@ with \( a = \frac{2\pi}{N} \) and \( \epsilon = \delta \phi_{j+1} - \delta \phi_
 }
 \]
 
-If $N = 4$, 
-
-\[
-\cos(\phi_{j+1} - \phi_j) \approx  -(\delta \phi_{j+1} - \delta \phi_j)
-\]
 
 \subsubsection{$sin(\phi_{j+1} - \phi_j)$}
 
-Let
-\[
-\phi_j = \phi_j^0 + \delta \phi_j, \quad \text{where} \quad \phi_j^0 = \frac{2\pi}{N} j
-\]
-Then:
-\[
-\phi_{j+1} - \phi_j = \frac{2\pi}{N} + (\delta \phi_{j+1} - \delta \phi_j)
-\]
-
-We expand the sine to first order in \( \delta \phi_j \) and \( \delta \phi_{j+1} \):
-
-\[
-\sin(\phi_{j+1} - \phi_j) = \sin\left( \frac{2\pi}{N} + \delta \phi_{j+1} - \delta \phi_j \right)
-\]
-
-Using the Taylor expansion:
-\[
-\sin(a + \epsilon) \approx \sin a + \cos a \cdot \epsilon
-\]
-
-with \( a = \frac{2\pi}{N} \) and \( \epsilon = \delta \phi_{j+1} - \delta \phi_j \), we obtain:
+Just like before
 
 \[
 \boxed{
 \sin(\phi_{j+1} - \phi_j) \approx \sin\left( \frac{2\pi}{N} \right) + \cos\left( \frac{2\pi}{N} \right)(\delta \phi_{j+1} - \delta \phi_j) + O(\delta \phi ^2)
 }
-\]
-
-If $N = 4$, Then
-
-\[
-\sin(\phi_{j+1} - \phi_j) \approx 1 + O(\delta \phi ^2)
 \]
 
 \subsection{First order approximation of diffrential equations}
@@ -245,90 +192,72 @@ Recall the equations of motion in our chosen basis
 \begin{align*}
     \frac{d\phi_j}{dt} = \frac{d\delta\phi_j}{dt}  = -f'(s_j)[&-J_y\cos\phi_j(f(s_{j+1})\cos\phi_{j+1} + f(s_{j-1})\cos\phi_{j-1}) \\
                                   &-J_z\sin\phi_j(f(s_{j+1})\sin\phi_{j+1} + f(s_{j-1})\sin\phi_{j-1})] \\
-                                  &-J_x(s_{j+1} + s_{j-1})
+                                  &+J_x(s_{j+1} + s_{j-1})
 \end{align*}
 
-\subsubsection{N = 4}
-
-Using the approximations we had above
+\subsubsection*{Applying first order approx to $\frac{d\delta s_j}{dt}$}
 
 \begin{align*}
-    \frac{d\delta s_j}{dt} &= \begin{cases}
-        &J_y(\pm1)[\mp1 \pm 1] - J_z(\mp\delta\phi_j)[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ odd} \\
-        &J_y(\pm\delta\phi_j)[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}] - J_z(\pm1)[\mp1 \pm 1], j \text{ even} \\
-    \end{cases} \\
-    &= \delta\phi_j\begin{cases}
-        &J_z[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ odd} \\
-        &J_y[\mp\delta\phi_{j+1} \pm \delta\phi_{j-1}], j \text{ even} \\
-    \end{cases}
+    \frac{d\delta s_j}{dt} \approx &+J_y(\sin\phi_j^0 + \delta \phi_j\cos\phi_j^0)[\cos\phi_{j+1}^0 - \delta\phi_{j+1}\sin\phi_{j+1}^0 + \cos\phi_{j-1}^0 - \delta\phi_{j+1}\sin\phi_{j-1}^0] \\
+                      &-J_z(\cos\phi_{j}^0 - \delta\phi_{j}\sin\phi_{j}^0)[\sin\phi_{j+1}^0 + \delta \phi_{j+1}\cos\phi_{j+1}^0 + \sin\phi_{j-1}^0 + \delta\phi_{j-1}\cos\phi_{j-1}^0]
 \end{align*}
+
+Which, only keeping first oder of $\delta\phi$ becomes
 
 \begin{align*}
-    \frac{d\delta\phi_j}{dt} = -J_x(s_{j+1} + s_{j-1}) \mp \begin{cases}
-        &J_z(\mp\phi_{j+1} \pm\phi_{j-1}), j \text{ odd} \\
-        &J_y(\pm \phi_{j+1} \pm\phi_{j-1}), j \text{ even}
-    \end{cases}
+    \frac{d\delta s_j}{dt} \approx &+J_y[\sin\phi_j^0\cos\phi_{j+1}^0 - \delta\phi_{j+1}\sin\phi_j^0\sin\phi_{j+1}^0 + \sin\phi_j^0\cos\phi_{j-1}^0 - \delta\phi_{j+1}\sin\phi_j^0\sin\phi_{j-1}^0 \\
+                      & + \delta \phi_j\cos\phi_j^0\cos\phi_{j+1}^0 + \delta \phi_j\cos\phi_j^0\cos\phi_{j-1}^0] \\
+                      &-J_z[\cos\phi_{j}^0\sin\phi_{j+1}^0 + \delta \phi_{j+1}\cos\phi_{j}^0\cos\phi_{j+1}^0 + \cos\phi_{j}^0\sin\phi_{j-1}^0 + \delta\phi_{j-1}\cos\phi_{j}^0\cos\phi_{j-1}^0 \\
+                      & - \delta\phi_{j}\sin\phi_{j}^0\sin\phi_{j+1}^0 - \delta\phi_{j}\sin\phi_{j}^0\sin\phi_{j-1}^0] 
+                    \end{align*}
+
+\subsubsection{For $J_y = J_z = J$}
+
+\begin{align*}
+    \frac{d\delta s_j}{dt} \approx J[&\sin(\phi_j^0 - \phi_{j+1}^0) + \sin(\phi_j^0 - \phi_{j+1}^0) - \cos(\phi_j^0 - \phi_{j+1}^0)\delta\phi_{j+1} \\ 
+                                     & - \cos(\phi_j^0 - \phi_{j-1}^0)\delta\phi_{j-1} + \cos(\phi_j^0 - \phi_{j+1}^0)\delta\phi_{j} + \cos(\phi_j^0 - \phi_{j+1}^0)\delta\phi_{j}]
 \end{align*}
 
-\section{Numerics for Lyop Calc}
-\section*{Comparison of Pushback Implementations in Benettin's Method}
+Recalling that $\phi_j^0 = \frac{2\pi}{N}j$ this becomes
 
-The goal of the \texttt{push\_back} function in Benettin's algorithm is to restore the distance between two nearby trajectories, $\vec{S}_A$ (reference) and $\vec{S}_B$ (perturbed), to a fixed small value $\varepsilon$, without altering the direction of separation.
+\begin{align*}
+    \frac{d\delta s_j}{dt} \approx J\cos( \frac{2\pi}{N})[2\delta\phi_j - \delta\phi_{j + 1} - \delta\phi_{j - 1}]
+\end{align*}
 
-\subsection*{My Original Implementation}
+Now we can actually make a lot of headway for $\frac{d \phi_j}{dt}$ with no approximations (just by using $J_y = J_z = J$):
 
-In the original Julia implementation, the perturbation is applied \emph{locally} and independently to each spin:
-\[
-\vec{S}_{i}^{B} \gets \vec{S}_{i}^{A} + \varepsilon \cdot \frac{\vec{S}_{i}^{B} - \vec{S}_{i}^{A}}{||\vec{S}_{i}^{B} - \vec{S}_{i}^{A}||}
-\]
-for all $i = 1, \dots, L$.
+\begin{align*}
+    \frac{d \phi_j}{dt} = f'(s_j)&J[f(s_{j+1})(\cos\phi_j \cos\phi_{j+1} + \sin\phi_j\sin\phi_{j+1}) \\
+                                 & + f(s_{j-1})(\cos\phi_j \cos\phi_{j-1} + \sin\phi_j\sin\phi_{j-1})] \\
+                                 & + J_x (s_{j+1} + s_{j-1})
+\end{align*}
 
-That is, each spin is pushed away from its counterpart independently, ensuring that the local separation at each site is $\varepsilon$. However, this results in a total perturbation vector (in $\mathbb{R}^{3L}$) with norm approximately:
-\[
-||\vec{S}_B - \vec{S}_A|| \approx \varepsilon \cdot \sqrt{L}
-\]
+Using the well known trig identities this becomes
 
-I tried adjusting the pushback to be
+\begin{align*}
+    \frac{d \phi_j}{dt} = f'(s_j)&J[f(s_{j+1})\cos(\phi_j - \phi_{j+1}) + f(s_{j-1})\cos(\phi_j - \phi_{j-1})] \\
+                                 & + J_x (s_{j+1} + s_{j-1})
+\end{align*}
 
-\[
-\vec{S}_{i}^{B} \gets 1/\sqrt{L} (\vec{S}_{i}^{A} + \varepsilon \cdot \frac{\vec{S}_{i}^{B} - \vec{S}_{i}^{A}}{||\vec{S}_{i}^{B} - \vec{S}_{i}^{A}||})
-\]
-
-such that the total perturbation vector has norm
+Now finally remember that we are using $\phi_j - \phi_{j\pm1} = \mp \frac{2\pi}{N}$ and apply a first order approximation to get
 
 \[
-||\vec{S}_B - \vec{S}_A|| \approx \varepsilon
+    \frac{d \phi_j}{dt} \approx -J\delta s_j2\cos(\frac{2\pi}{N}) + J_x(\delta s_{j+1} + \delta s_{j-1})
 \]
 
-but that still didn't fix things.
+In conclusion if we just choose $J_y = J_z = J$ we get
 
-\subsection*{Professor Pixely's Implementation (Benettin-consistent)}
-
-In contrast, the correct implementation applies the perturbation to the entire spin chain \emph{as a single vector} in $\mathbb{R}^{3L}$:
 \[
-\vec{S}_B \gets \vec{S}_A + \varepsilon \cdot \frac{\vec{S}_B - \vec{S}_A}{||\vec{S}_B - \vec{S}_A||}
+    \boxed{\frac{d\delta s_j}{dt} \approx J\cos( \frac{2\pi}{N})[2\delta\phi_j - \delta\phi_{j + 1} - \delta\phi_{j - 1}]}
 \]
-This ensures that the total perturbation vector has norm exactly $\varepsilon$.
 
-\textbf{Note: } I spoke with chatGPT and it also said that the correct implementation insured that the direction of perturbation \emph{is preserved} across steps. This consistency is essential for correctly capturing the dominant Lyapunov exponent. But I am not sure what is meant by that.
+and
+
 \[
-\lambda = \lim_{n \to \infty} \frac{1}{n \tau} \sum_{i=1}^n \log \left( \frac{||\vec{S}_B^{(i)} - \vec{S}_A^{(i)}||}{\varepsilon} \right)
+    \boxed{\frac{d \phi_j}{dt} \approx -J\delta s_j2\cos(\frac{2\pi}{N}) + J_x(\delta s_{j+1} + \delta s_{j-1})}
 \]
 
-\subsection*{Summary of Differences}
-
-\begin{center}
-\begin{tabular}{|l|c|c|}
-\hline
-\textbf{Feature} & \textbf{Original (local)} & \textbf{Professor's (global)} \\
-\hline
-Normalization per spin & Yes & No \\
-Preserves global direction & No & Yes \\
-Total perturbation norm & $\varepsilon \cdot \sqrt{L}$ & $\varepsilon$ \\
-Valid for Benettin method & Not quite & Yes \\
-\hline
-\end{tabular}
-\end{center}
+I propose we don't do random $J_y$, and we just do random $J_x$.
 
 \section{Harmonic Oscillators to Model Spin}
 
