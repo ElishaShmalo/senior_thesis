@@ -148,7 +148,7 @@ function semirand_global_control_evolve(original_state, a_val, T, t_step, s_0)
     us_of_time[1] = current_u
     t = t_step
     while t < T + t_step
-        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx and Jy to remove solitons
+        J_vec[1] *= (rand() > 0.5) ? -1 : 1 # Randomly choosing signs for Jx to remove solitons
 
         current_u = evolve_spin(current_u, (t, t+t_step))
         current_u = flatten_state(global_control_push(unflatten_state(current_u), a_val, s_0))

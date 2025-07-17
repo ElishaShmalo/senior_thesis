@@ -40,8 +40,8 @@ Tau_F = 1 / J
 T = global_L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 1 # We are avraging over x initial conditions
-a_vals = [round(0.8 + i*0.01, digits = 2) for i in 0:7] 
+num_init_cond = 50 # We are avraging over x initial conditions
+a_vals = [round(0.54 + i*0.02, digits = 2) for i in 0:18] 
 # a_vals = [0, 0.5, 1] 
 
 # We will use an array to store the results of the simulation for each a_val. 
@@ -51,7 +51,7 @@ a_vals = [round(0.8 + i*0.01, digits = 2) for i in 0:7]
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
 
 # N_vals = [2, 4, 3, 6, 9, 10]
-# N_vals = [10]
+N_vals = [4]
 # Making individual folders for N_vals
 for N_val in N_vals
     if !isdir("data/mag_evolved_spins/N$N_val")
@@ -68,7 +68,7 @@ for N_val in N_vals
     end
 end
 
-N4_rand = 0 # N4_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
+N4_rand = 2 # N4_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
 
 for N_val in N_vals
     println("N: $N_val")
@@ -150,9 +150,9 @@ for N_val in N_vals
 
     pic_file_name = "N$(N_val)/s_diff_plot_diffrent_a_vals_N_$(N_val)_IC$(num_init_cond)_L$(L)"
     if N_val == 4 && N4_rand == 0
-        results_file_name = results_file_name * "_nonrand"
+        pic_file_name = pic_file_name * "_nonrand"
     elseif N_val == 4 && N4_rand == 2
-        results_file_name = results_file_name * "_semirand"
+        pic_file_name = pic_file_name * "_semirand"
     end
 
     savefig("figs/delta_evolved_spins/$(pic_file_name).png")
