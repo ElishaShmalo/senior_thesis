@@ -40,7 +40,7 @@ Tau_F = 1 / J
 T = global_L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 50 # We are avraging over x initial conditions
+num_init_cond = 1 # We are avraging over x initial conditions
 a_vals = [round(0.54 + i*0.02, digits = 2) for i in 0:18] 
 # a_vals = [0, 0.5, 1] 
 
@@ -68,7 +68,7 @@ for N_val in N_vals
     end
 end
 
-N4_rand = 2 # N4_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
+N4_rand = 0 # N4_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
 
 for N_val in N_vals
     println("N: $N_val")

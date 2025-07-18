@@ -20,14 +20,14 @@ L = 4*64  # number of spins
 N_val = 4
 num_init_cond = 1
 
-rand_j = 2
+rand_j = 0
 if N_val != 4 
     rand_j = 0
 end
 
 # Heat map of delta_spins
 plt = plot()
-a_val = 0.76
+a_val = 0.
 results_file_name = "N$N_val/N_$(N_val)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)" * "_L$(get_nearest(N_val, L))"
 
 if rand_j == 0 && N_val == 4
@@ -58,4 +58,4 @@ display(plt)
 
 
 
-savefig("figs/delta_spin_heatmaps/$results_file_name.png")
+savefig("figs/delta_spin_heatmaps/$(results_file_name)_temp.png")

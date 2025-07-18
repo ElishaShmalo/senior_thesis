@@ -1,7 +1,4 @@
+include("utils/general.jl")
 
 
-x = 0
-
-if x
-    println("h")
-end
+get_theoretical_a_crit(6)

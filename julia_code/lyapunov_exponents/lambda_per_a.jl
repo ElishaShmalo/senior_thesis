@@ -29,7 +29,7 @@ end
 Plots.theme(:dark)
 
 # General Variables
-L = 256  # number of spins
+L = 128  # number of spins
 J = 1    # energy factor
 
 # J vector with some randomness
