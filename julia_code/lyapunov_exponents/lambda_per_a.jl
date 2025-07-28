@@ -22,7 +22,7 @@ include("../analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 
 # General Variables
-global_L = 256  # number of spins
+@everywhere global_L = 256  # number of spins
 J = 1    # energy factor
 
 # J vector with some randomness
@@ -43,17 +43,6 @@ a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 N_vals = [4, 10]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
-for N_val in N_vals
-    if !isdir("data/spin_chain_lambdas/N$N_val")
-        mkdir("data/spin_chain_lambdas/N$N_val")
-    end
-    if !isdir("figs/lambda_per_time/N$N_val")
-        mkdir("figs/lambda_per_time/N$N_val")
-    end
-    if !isdir("figs/lambda_per_a/N$N_val")
-        mkdir("figs/lambda_per_a/N$N_val")
-    end
-end
 
 epsilon = 0.1
 
