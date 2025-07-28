@@ -9,6 +9,7 @@ using StaticArrays
 using Serialization
 using Statistics
 using DelimitedFiles
+using Distributed
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -17,19 +18,11 @@ include("../utils/dynamics.jl")
 include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
 
-# Making necessary folders if they dont exist
-folder_names_in_order = ["data", "data/spin_chain_lambdas", "figs", "figs/lambda_per_time", "figs/lambda_per_a"]
-for folder in folder_names_in_order
-    if !isdir(folder)
-        mkdir(folder)
-    end
-end
-
 # Set plotting theme
 Plots.theme(:dark)
 
 # General Variables
-L = 128  # number of spins
+global_L = 256  # number of spins
 J = 1    # energy factor
 
 # J vector with some randomness
@@ -43,13 +36,12 @@ n = L
 num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 500 # We are avraging over x initial conditions
-a_vals = [0.6 + i*0.02 for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
-a_vals = unique(sort(vcat(trans_a_vals, a_vals)))
+num_initial_conds = 10 # We are avraging over x initial conditions
+# a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
-# N_vals = [2, 3, 6, 9]
-N_vals = [4]
+N_vals = [4, 10]
+# N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 for N_val in N_vals
     if !isdir("data/spin_chain_lambdas/N$N_val")
@@ -74,8 +66,12 @@ collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float6
 for N_val in N_vals
     println("N_val: $N_val")
 
+    @everywhere L = get_nearest(N_val, global_L)
+
+    @everywhere states_evolve_func = evolve_spins_to_time
+
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(get_nearest(N_val, L), (2) / N_val)
+    S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
@@ -89,12 +85,12 @@ for N_val in N_vals
         println("N_val: $N_val | a_val: $a_val")
         
         # We will avrage over this later
-        current_lambdas = zeros(num_initial_conds)
+        @everywhere current_lambdas = zeros(num_initial_conds)
 
-        for init_cond in 1:num_initial_conds
+        @sync @distributed for init_cond in 1:num_initial_conds
             println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
-            spin_chain_A = make_random_state(get_nearest(N_val, L)) # our S_A
+            spin_chain_A = make_random_state(L) # our S_A
 
             # Making spin_chain_B to be spin_chain_A with the middle spin modified
             spin_chain_B = copy(spin_chain_A)
@@ -109,7 +105,7 @@ for N_val in N_vals
                 # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
 
                 # evolve both to time t' = t + tau with control
-                evolved_results = random_evolve_spins_to_time(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                evolved_results = states_evolve_func(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
                 spin_chain_A = evolved_results[1][end]
                 spin_chain_B = evolved_results[2][end]
 
@@ -127,15 +123,15 @@ for N_val in N_vals
     end
 
     # Save the results for each N_val sepratly
-    filename = "N$N_val/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
+    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
 
-    open("data/spin_chain_lambdas/" * filename * ".dat", "w") do io
+    open("data/spin_chain_lambdas/" * filepath * ".dat", "w") do io
         serialize(io, collected_lambdas[N_val])
-        println("Saved file $filename")
+        println("Saved file $filepath")
     end
-    open("data/spin_chain_lambdas/" * filename * "sems.dat", "w") do io
+    open("data/spin_chain_lambdas/" * filepath * "sems.dat", "w") do io
         serialize(io, collected_lambda_SEMs[N_val])
-        println("Saved file $(filename)sems")
+        println("Saved file $(filepath)sems")
     end
 
     # Make .csv file
@@ -148,7 +144,7 @@ for N_val in N_vals
     rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
 
     # Make output CSV path
-    csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+    csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
 
     # Write to CSV with header
     open(csv_path, "w") do io
@@ -159,13 +155,16 @@ end
 
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_name = "lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
+plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
 for N_val in N_vals
-    filename = "N$N_val/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
-    collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filename * ".dat", "r") do io
+
+    L = get_nearest(N_val, global_L)
+
+    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
+    collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
         deserialize(io)
     end
-    collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filename * "sems.dat", "r") do io
+    collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
         deserialize(io)
     end
     plot!(
@@ -189,8 +188,8 @@ savefig("figs/lambda_per_a/" * plot_name * ".png")
 # Make .csv file
 # for N_val in N_vals
 #     # Construct file paths
-#     filename = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
-#     fullpath = "data/spin_chain_lambdas/" * filename * ".dat"
+#     filepath = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
+#     fullpath = "data/spin_chain_lambdas/" * filepath * ".dat"
 
 #     # Load the lambda vals
 #     collected_lambdas[N_val] = open(fullpath, "r") do io
@@ -198,7 +197,7 @@ savefig("figs/lambda_per_a/" * plot_name * ".png")
 #     end
 
 #     # Load the lambda SEMs
-#     collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filename * "sems.dat", "r") do io
+#     collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
 #         deserialize(io)
 #     end
 
@@ -211,7 +210,7 @@ savefig("figs/lambda_per_a/" * plot_name * ".png")
 #     rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
 
 #     # Make output CSV path
-#     csv_path = "data/spin_chain_lambdas/" * filename * ".csv"
+#     csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
 
 #     # Write to CSV with header
 #     open(csv_path, "w") do io
