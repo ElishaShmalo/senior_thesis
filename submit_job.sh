@@ -12,7 +12,7 @@
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
-#SBATCH --mem=256                # Real memory (RAM) required (MB)
+#SBATCH --mem=8000               # Real memory (RAM) required (MB)
 
 #SBATCH --time=00:05:00             # Total run time limit (HH:MM:SS)
 
@@ -20,8 +20,6 @@
 
 #SBATCH --error=slurm.%N.%j.err     # STDERR output file (optional)
 
-module purge
-module load julia/1.11.5
 module load openmpi
 
 
