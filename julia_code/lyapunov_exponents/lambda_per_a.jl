@@ -62,7 +62,7 @@ for N_val in N_vals
     @everywhere num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(L, (2) / N_val)
+    @everywhere S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
