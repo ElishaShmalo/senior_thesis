@@ -33,3 +33,11 @@ function make_random_spin(size = 1)
     return size * normalize(rand(3))
 end
 
+function f_coff(x)
+    return sqrt(1-x^2)
+end
+
+# Make a spin chain after being given bassis vlaues of s_j and phi_j for each spin
+function make_state_from_sj_phij(s_vals::Vector{Float64}, phi_vals::Vector{Float64})
+    return [normalize([s_j, f_coff(s_j)cos(phi_j), f_coff(s_j)sin(phi_j)]) for (s_j, phi_j) in zip(s_vals, phi_vals)]
+end

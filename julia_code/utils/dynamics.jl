@@ -31,7 +31,7 @@ end
 
 # --- Control Push ---
 
-function global_control_push(state, a::Float64, s_0::Vector{Vector{Float64}})
+function global_control_push(state::Vector{Vector{Float64}}, a::Float64, s_0::Vector{Vector{Float64}})
     numerator = ((1-a) .* s_0) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator

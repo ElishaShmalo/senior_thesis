@@ -17,26 +17,23 @@ include("analytics/spin_diffrences.jl")
 Plots.theme(:dark)
 # General Variables
 L = 4*64  # number of spins
-N_val = 4
+N_val = 10
 num_init_cond = 1
 
-rand_j = 0
-if N_val != 4 
-    rand_j = 0
-end
+Js_rand = 0
 
 # Heat map of delta_spins
 plt = plot()
-a_val = 0.
-results_file_name = "N$N_val/N_$(N_val)_a_val_" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)" * "_L$(get_nearest(N_val, L))"
-
-if rand_j == 0 && N_val == 4
-    results_file_name = results_file_name * "_nonrand"
-elseif rand_j == 2 && N_val == 4
-    results_file_name = results_file_name * "_semirand"
+a_val = 1.0
+aval_path = "$(replace("$a_val", "." => "p"))"
+if length(aval_path) > 3
+    aval_path = "$(aval_path[1:3])" * "/a$(aval_path)"
 end
 
-delta_spins = open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "r") do io
+# results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
+results_file_path = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(get_nearest(N_val, L))/N10_a1p0_IC1_L260_rand0_seksolNumOff1_EppOff0p01_trikept_avg.dat" # 
+
+delta_spins = open("data/delta_evolved_spins/" * results_file_path, "r") do io
     deserialize(io)
 end
 
@@ -55,7 +52,6 @@ display(plt)
 
 
 
+# savefig("figs/delta_spin_heatmaps/$(results_file_name)_temp.png")
 
-
-
-savefig("figs/delta_spin_heatmaps/$(results_file_name)_temp.png")
+# println(readdir("data/delta_evolved_spins/"*"N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(get_nearest(N_val, L))/"))

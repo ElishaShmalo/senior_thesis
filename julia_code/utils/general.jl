@@ -7,3 +7,16 @@ end
 function get_theoretical_a_crit(N)
     return ℯ^(-(1-cos((2 * pi) / N))*sqrt(cos((2 * pi) / N)))
 end
+
+function shift_arr(arr::Vector, shift_amount::Int)
+    n = length(arr)
+    if n == 0
+        return arr
+    end
+    shift_amount = mod(shift_amount, n)  # wrap shift to range [0, n-1]
+    return vcat(arr[end - shift_amount + 1:end], arr[1:end - shift_amount])
+end
+
+function rand_float(a, b)
+    return a + (b - a) * rand()  
+end
