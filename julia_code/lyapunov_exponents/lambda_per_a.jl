@@ -33,7 +33,6 @@ tau = 1 * J
 
 # number of pushes we are going to do
 @everywhere n = global_L
-num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 10 # We are avraging over x initial conditions
@@ -58,6 +57,9 @@ for N_val in N_vals
     @everywhere L = get_nearest(N_val, global_L)
 
     @everywhere states_evolve_func = evolve_spins_to_time
+
+
+    @everywhere num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
