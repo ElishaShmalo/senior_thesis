@@ -23,13 +23,13 @@ Plots.theme(:dark)
 
 # General Variables
 @everywhere global_L = 256  # number of spins
-J = 1    # energy factor
+@everywhere J = 1    # energy factor
 
 # J vector with some randomness
 @everywhere J_vec = J .* [1, 1, 1]
 
 # Time to evolve until push back to S_A
-tau = 1 * J
+@everywhere tau = 1 * J
 
 # number of pushes we are going to do
 @everywhere n = global_L
@@ -43,7 +43,7 @@ N_vals = [4, 10]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
-epsilon = 0.1
+@everywhere epsilon = 0.1
 
 # --- Calculating Lambdas ---
 
