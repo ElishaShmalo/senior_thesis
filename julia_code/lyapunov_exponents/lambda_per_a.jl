@@ -26,7 +26,7 @@ Plots.theme(:dark)
 J = 1    # energy factor
 
 # J vector with some randomness
-J_vec = J .* [1, 1, 1]
+@everywhere J_vec = J .* [1, 1, 1]
 
 # Time to evolve until push back to S_A
 tau = 1 * J
