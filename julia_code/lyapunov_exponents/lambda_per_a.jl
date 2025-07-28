@@ -79,8 +79,9 @@ for N_val in N_vals
         @everywhere current_lambdas = zeros(num_initial_conds)
 
         @sync @distributed for init_cond in 1:num_initial_conds
-            local_N_val = $N_val
-            println("N_val: $local_N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
+            local_N_val = N_val
+            local_a_val = a_val
+            println("N_val: $local_N_val | a_val: $local_a_val | IC: $init_cond / $num_initial_conds")
 
             spin_chain_A = make_random_state(L) # our S_A
 
