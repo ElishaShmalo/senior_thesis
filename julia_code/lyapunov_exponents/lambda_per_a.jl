@@ -32,7 +32,7 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # number of pushes we are going to do
-n = L
+@everywhere n = global_L
 num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
 # --- Trying to Replecate Results ---
