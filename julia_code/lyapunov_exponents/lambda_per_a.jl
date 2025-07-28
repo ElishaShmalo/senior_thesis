@@ -35,7 +35,7 @@ Plots.theme(:dark)
 @everywhere n = global_L
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 10 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
 # a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
@@ -79,7 +79,8 @@ for N_val in N_vals
         @everywhere current_lambdas = zeros(num_initial_conds)
 
         @sync @distributed for init_cond in 1:num_initial_conds
-            println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
+            local_N_val = $N_val
+            println("N_val: $local_N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
             spin_chain_A = make_random_state(L) # our S_A
 
