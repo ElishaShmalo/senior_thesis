@@ -8,7 +8,7 @@
 
 #SBATCH --nodes=1                   # Number of nodes you require
 
-#SBATCH --ntasks=1                 # Total # of tasks across all nodes
+#SBATCH --ntasks=5                 # Total # of tasks across all nodes
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
@@ -20,13 +20,12 @@
 
 #SBATCH --error=slurm.%N.%j.err     # STDERR output file (optional)
 
-
+module purge
+module load julia/1.11.5
 module load openmpi
 
 
 export OMP_NUM_THREADS=1
 
 
-
-
-srun  --mpi=pmi2  ~/.juliaup/bin/julia julia_code/test.jl
+srun ~/.juliaup/bin/julia -p 4 julia_code/test.jl 
