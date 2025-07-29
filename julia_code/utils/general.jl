@@ -29,7 +29,7 @@ function make_data_file(path, content)
     # Ensure the parent directories exist
     mkpath(parent_dir)
 
-    open("data/spin_chain_lambdas/" * path * ".dat", "w") do io
+    open(path * ".dat", "w") do io
         serialize(io, content)
         println("Saved file $path")
     end
