@@ -12,7 +12,7 @@
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
-#SBATCH --mem=20000               # Real memory (RAM) required (MB)
+#SBATCH --mem=6000               # Real memory (RAM) required (MB)
 
 #SBATCH --time=01:00:00             # Total run time limit (HH:MM:SS)
 
@@ -26,5 +26,5 @@ module load openmpi
 export OMP_NUM_THREADS=1
 
 
-~/.juliaup/bin/julia -p 10 julia_code/lyapunov_exponents/parallel_lambda_per_a.jl 
+ ~/.juliaup/bin/julia julia_code/test_parallel.jl
 
