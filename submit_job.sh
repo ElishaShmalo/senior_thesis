@@ -27,3 +27,4 @@ export OMP_NUM_THREADS=1
 
 
 srun ~/.juliaup/bin/julia -p 2 julia_code/lyapunov_exponents/parallel_lambda_per_a.jl 
+
