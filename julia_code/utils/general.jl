@@ -21,3 +21,16 @@ end
 function rand_float(a, b)
     return a + (b - a) * rand()  
 end
+
+function make_data_file(path, content)
+    # Extract the parent directory
+    parent_dir = dirname(path)
+
+    # Ensure the parent directories exist
+    mkpath(parent_dir)
+
+    open("data/spin_chain_lambdas/" * path * ".dat", "w") do io
+        serialize(io, content)
+        println("Saved file $path")
+    end
+end

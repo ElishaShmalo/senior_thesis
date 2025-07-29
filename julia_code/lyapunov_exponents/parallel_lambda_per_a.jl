@@ -109,14 +109,9 @@ for N_val in N_vals
     # Save the results for each N_val sepratly
     filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
 
-    open("data/spin_chain_lambdas/" * filepath * ".dat", "w") do io
-        serialize(io, collected_lambdas[N_val])
-        println("Saved file $filepath")
-    end
-    open("data/spin_chain_lambdas/" * filepath * "sems.dat", "w") do io
-        serialize(io, collected_lambda_SEMs[N_val])
-        println("Saved file $(filepath)sems")
-    end
+
+    make_data_file("data/spin_chain_lambdas/" * filepath * ".dat", collected_lambdas[N_val])
+    make_data_file("data/spin_chain_lambdas/" * filepath * "sems.dat", collected_lambda_SEMs[N_val])
 
     # Make .csv file
     # Extract and sort keys and values
@@ -140,6 +135,7 @@ end
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
 plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
+
 for N_val in N_vals
 
     L = get_nearest(N_val, global_L)
@@ -166,7 +162,8 @@ xlabel!("a")
 ylabel!("λ")
 display(plt)
 
-savefig("figs/lambda_per_a/" * plot_name * ".png")
+mkdir(dirname("figs/lambda_per_a/" * plot_path))
+savefig("figs/lambda_per_a/" * plot_path * ".png")
 
 
 # Make .csv file
