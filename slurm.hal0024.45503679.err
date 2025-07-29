@@ -1,0 +1,21 @@
+ERROR: LoadError: SystemError: opening file "data/spin_chain_lambdas/N2/SeveralAs/IC10/L256/N2_ar0p5_0p8_IC10_L256.dat": No such file or directory
+Stacktrace:
+ [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)
+   @ Base ./error.jl:176
+ [2] systemerror
+   @ ./error.jl:175 [inlined]
+ [3] open(fname::String; lock::Bool, read::Bool, write::Nothing, create::Nothing, truncate::Nothing, append::Nothing)
+   @ Base ./iostream.jl:295
+ [4] open
+   @ ./iostream.jl:277 [inlined]
+ [5] open(fname::String, mode::String; lock::Bool)
+   @ Base ./iostream.jl:358
+ [6] open(fname::String, mode::String)
+   @ Base ./iostream.jl:357
+ [7] open(::var"#67#69", ::String, ::Vararg{String}; kwargs::@Kwargs{})
+   @ Base ./io.jl:408
+ [8] open(::Function, ::String, ::String)
+   @ Base ./io.jl:407
+ [9] top-level scope
+   @ /cache/home/es1074/senior_thesis/julia_code/lyapunov_exponents/parallel_lambda_per_a.jl:144
+in expression starting at /cache/home/es1074/senior_thesis/julia_code/lyapunov_exponents/parallel_lambda_per_a.jl:139
