@@ -162,7 +162,7 @@ xlabel!("a")
 ylabel!("λ")
 display(plt)
 
-mkdir(dirname("figs/lambda_per_a/" * plot_path))
+mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
 
 
