@@ -156,7 +156,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=$L")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=~$global_LL")
 
 xlabel!("a")
 ylabel!("λ")
