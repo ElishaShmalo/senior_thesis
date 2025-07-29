@@ -2,7 +2,7 @@
 
 # Imports
 @everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, Distributed, SharedArrays
-
+addprocs(1)
 # Other files   
 @everywhere include("../utils/make_spins.jl")
 @everywhere include("../utils/general.jl")
@@ -27,11 +27,11 @@ Plots.theme(:dark)
 @everywhere n = global_L
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 1 # We are avraging over x initial conditions
 # a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
-N_vals = [4, 10]
+N_vals = [4]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
@@ -46,23 +46,19 @@ collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float6
 for N_val in N_vals
     println("N_val: $N_val")
 
-    @everywhere L = get_nearest(N_val, global_L)
+    L = get_nearest(N_val, global_L)
 
-    @everywhere states_evolve_func = evolve_spins_to_time
+    states_evolve_func = evolve_spins_to_time
 
 
-    @everywhere num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
+    num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
-    @everywhere S_NAUGHT = make_spiral_state(L, (2) / N_val)
+    S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
     collected_lambda_SEMs[N_val] = Dict(a => 0 for a in a_vals)
-
-    if N_val != 4
-        J_vec = J .* [1, 1, 1]
-    end
 
     for a_val in a_vals
         println("N_val: $N_val | a_val: $a_val")
@@ -71,7 +67,7 @@ for N_val in N_vals
         current_lambdas = SharedArray{Float64}(num_initial_conds)
 
         # define the variables for the workers to use
-        let N_val=N_val, a_val=a_val, L=L, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds
+        let N_val=N_val, a_val=a_val, L=L, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func, num_skip=num_skip
             @sync @distributed for init_cond in 1:num_initial_conds
 
                 println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
