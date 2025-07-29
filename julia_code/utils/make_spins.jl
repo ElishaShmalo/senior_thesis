@@ -4,7 +4,7 @@
 using SymPy
 
 # Random spin state
-@everywhere function make_random_state(n::Int=L)
+function make_random_state(n::Int=L)
     return [normalize(rand(3)) for _ in 1:n]
 end
 
@@ -29,7 +29,7 @@ end
 #     return [[0.0, cospi(i * spiral_angle_coff), sinpi(i * spiral_angle_coff)] for i in 0:(n-1)]
 # end
 
-@everywhere function make_random_spin(size = 1)
+function make_random_spin(size = 1)
     return size * normalize(rand(3))
 end
 

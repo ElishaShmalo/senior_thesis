@@ -1,14 +1,23 @@
 # parallel_loop.jl
 using Distributed
+addprocs(2)
+@everywhere using SharedArrays
+
+
+@everywhere println("Hi from $(myid())")
 
 # Add workers from the command line args (Slurm will launch N processes)
 # These workers are added automatically if you use `srun julia -p N`
 
-@everywhere function do_work(i)
-    sleep(rand())  # Simulate some work
-    println("Task $i done on worker $(myid())")
-end
+my_list = SharedArray{Float64}(100)
 
-@sync @distributed for i in 1:100
-    do_work(i)
-end
+print(my_list)
+
+# @sync @distributed for i in 1:100
+#     t = rand()
+#     sleep(t)  # Simulate some work
+#     my_list[i] = t
+#     println("Task $i done on worker $(myid())")
+# end
+
+# println(sum(my_list) / length(my_list))

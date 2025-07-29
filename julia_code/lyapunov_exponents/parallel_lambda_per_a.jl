@@ -1,41 +1,33 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
 
 # Imports
-using Random
-using LinearAlgebra
-using Plots
-using DifferentialEquations
-using StaticArrays
-using Serialization
-using Statistics
-using DelimitedFiles
+@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, Distributed, SharedArrays
 
 # Other files   
-include("../utils/make_spins.jl")
-include("../utils/general.jl")
-include("../utils/dynamics.jl")
-include("../utils/lyapunov.jl")
-include("../analytics/spin_diffrences.jl")
+@everywhere include("../utils/make_spins.jl")
+@everywhere include("../utils/general.jl")
+@everywhere include("../utils/dynamics.jl")
+@everywhere include("../utils/lyapunov.jl")
+@everywhere include("../analytics/spin_diffrences.jl")
 
 # Set plotting theme
 Plots.theme(:dark)
 
 # General Variables
-global_L = 256  # number of spins
-J = 1    # energy factor
+@everywhere global_L = 256  # number of spins
+@everywhere J = 1    # energy factor
 
 # J vector with some randomness
-J_vec = J .* [1, 1, 1]
+@everywhere J_vec = J .* [1, 1, 1]
 
 # Time to evolve until push back to S_A
-tau = 1 * J
+@everywhere tau = 1 * J
 
 # number of pushes we are going to do
-n = L
-num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
+@everywhere n = global_L
 
 # --- Trying to Replecate Results ---
-num_initial_conds = 10 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
 # a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
@@ -43,7 +35,7 @@ N_vals = [4, 10]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
-epsilon = 0.1
+@everywhere epsilon = 0.1
 
 # --- Calculating Lambdas ---
 
@@ -54,12 +46,15 @@ collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float6
 for N_val in N_vals
     println("N_val: $N_val")
 
-    L = get_nearest(N_val, global_L)
+    @everywhere L = get_nearest(N_val, global_L)
 
-    states_evolve_func = evolve_spins_to_time
+    @everywhere states_evolve_func = evolve_spins_to_time
+
+
+    @everywhere num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(L, (2) / N_val)
+    @everywhere S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
     # Initializes results for this N_val
     collected_lambdas[N_val] = Dict(a => 0 for a in a_vals)
@@ -73,36 +68,40 @@ for N_val in N_vals
         println("N_val: $N_val | a_val: $a_val")
         
         # We will avrage over this later
-        current_lambdas = zeros(num_initial_conds)
+        current_lambdas = SharedArray{Float64}(num_initial_conds)
 
-        for init_cond in 1:num_initial_conds
-            println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
+        # define the variables for the workers to use
+        let N_val=N_val, a_val=a_val, L=L, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds
+            @sync @distributed for init_cond in 1:num_initial_conds
 
-            spin_chain_A = make_random_state(L) # our S_A
+                println("N_val: $N_val | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
-            # Making spin_chain_B to be spin_chain_A with the middle spin modified
-            spin_chain_B = copy(spin_chain_A)
-            new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
-            spin_chain_B[div(length(spin_chain_B), 2)] = normalize(new_mid_spin_val)
-            
-            # Will be used to calculate lyop exp
-            current_spin_dists = zeros(n)
+                spin_chain_A = make_random_state(L) # our S_A
 
-            # Do n pushes 
-            for current_n in 1:n
-                # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
+                # Making spin_chain_B to be spin_chain_A with the middle spin modified
+                spin_chain_B = copy(spin_chain_A)
+                new_mid_spin_val = spin_chain_B[div(length(spin_chain_B), 2)] + make_random_spin(epsilon)
+                spin_chain_B[div(length(spin_chain_B), 2)] = normalize(new_mid_spin_val)
+                
+                # Will be used to calculate lyop exp
+                current_spin_dists = zeros(n)
 
-                # evolve both to time t' = t + tau with control
-                evolved_results = states_evolve_func(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
-                spin_chain_A = evolved_results[1][end]
-                spin_chain_B = evolved_results[2][end]
+                # Do n pushes 
+                for current_n in 1:n
+                    # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
 
-                d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
-                spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
+                    # evolve both to time t' = t + tau with control
+                    evolved_results = states_evolve_func(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                    spin_chain_A = evolved_results[1][end]
+                    spin_chain_B = evolved_results[2][end]
 
-                current_spin_dists[current_n] = d_abs
+                    d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
+                    spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
+
+                    current_spin_dists[current_n] = d_abs
+                end
+                current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
             end
-            current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
         end
 
         collected_lambdas[N_val][a_val] = mean(current_lambdas)
@@ -206,3 +205,4 @@ savefig("figs/lambda_per_a/" * plot_name * ".png")
 #         writedlm(io, rows, ',')                                # Data rows
 #     end
 # end
+

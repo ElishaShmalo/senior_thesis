@@ -2,16 +2,16 @@
 
 # Unroll state into a flat vector
 # We need to do this to use runge kutta
-@everywhere function flatten_state(state::Vector{Vector{Float64}})
+function flatten_state(state::Vector{Vector{Float64}})
     return vcat(state...)
 end
 
 # Turn the flattened state (vec) back into an actual Vec{Vec{3, Float64}}
-@everywhere function unflatten_state(vec::Vector{Float64})
+function unflatten_state(vec::Vector{Float64})
     return [vec[3i-2:3i] for i in 1:div(length(vec), 3)]
 end
 
-@everywhere function get_diffrential_test(state)
+function get_diffrential_test(state)
     n = length(state)
     to_cross = Vector{SVector{3, Float64}}(undef, n)
 
@@ -31,13 +31,13 @@ end
 
 # --- Control Push ---
 
-@everywhere function global_control_push(state::Vector{Vector{Float64}}, a::Float64, s_0::Vector{Vector{Float64}})
+function global_control_push(state::Vector{Vector{Float64}}, a::Float64, s_0::Vector{Vector{Float64}})
     numerator = ((1-a) .* s_0) .+ (a .* state)
     denominator = map(norm, numerator)
     return numerator ./ denominator
 end
 
-@everywhere function local_control_push(state, a::Float64, N::Int64, start_index::Int64, s_0::Vector{Vector{Float64}})
+function local_control_push(state, a::Float64, N::Int64, start_index::Int64, s_0::Vector{Vector{Float64}})
     # Returns a new state with a control push done to the N spins after (and including) start index in "state"
     local_indexes = [((start_index+i-1) % length(s_0)) + 1 for i in 0:N-1]
     
@@ -51,7 +51,7 @@ end
 end
 
 # Define the ODE
-@everywhere function spin_ode!(du, u, p, t)
+function spin_ode!(du, u, p, t)
     state = unflatten_state(u)
 
     n = length(state)
@@ -72,7 +72,7 @@ end
     du .= flatten_state(dstate)
 end
 
-@everywhere function evolve_spin(u_::Vector{Float64}, t_span) 
+function evolve_spin(u_::Vector{Float64}, t_span) 
     # Expects and returns a flattened version of the state at the end of t_span
 
     prob = ODEProblem(spin_ode!, u_, t_span)
@@ -83,7 +83,7 @@ end
 
 # --- Deffrent Evolutions ---
 # Evolve to time T, no control push
-@everywhere function no_control_evolve(original_state, T, t_step)
+function no_control_evolve(original_state, T, t_step)
     t = t_step
     
     current_u = flatten_state(original_state)
@@ -103,7 +103,7 @@ end
 end
 
 # Evolve to time T with global_control_push
-@everywhere function global_control_evolve(original_state, a_val, T, t_step, s_0)
+function global_control_evolve(original_state, a_val, T, t_step, s_0)
         current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
@@ -121,7 +121,7 @@ end
 end
 
 # Evolve to time T with global_control_push and random J_x J_y
-@everywhere function random_global_control_evolve(original_state, a_val, T, t_step, s_0)
+function random_global_control_evolve(original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
@@ -141,7 +141,7 @@ end
 end
 
 # Evolve to time T with global_control_push and random J_x 
-@everywhere function semirand_global_control_evolve(original_state, a_val, T, t_step, s_0)
+function semirand_global_control_evolve(original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
 
@@ -162,7 +162,7 @@ end
 
 
 # Used for calculating lyapunov exponents
-@everywhere function random_evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
+function random_evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
     current_us = [flatten_state(Sa), flatten_state(Sb)]
     us_of_time = [Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)]), Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)])]
 
@@ -186,7 +186,7 @@ end
 end
 
 # Used for calculating lyapunov exponents
-@everywhere function evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
+function evolve_spins_to_time(Sa, Sb, a_val, T, t_step, s_0)
     current_us = [flatten_state(Sa), flatten_state(Sb)]
     us_of_time = [Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)]), Vector{Vector{Float64}}([zeros(length(current_us)) for _ in 0:div(T, t_step)])]
 
@@ -217,7 +217,7 @@ end
 
 
 # Evolve to time T with local_control_push
-@everywhere function local_control_evolve(original_state, a_val, T, t_step, s_0)
+function local_control_evolve(original_state, a_val, T, t_step, s_0)
     t = t_step
     local_control_index = 1
 

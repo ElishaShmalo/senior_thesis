@@ -1,6 +1,6 @@
 using Distributed
 
-@everywhere function get_nearest(N, L)
+function get_nearest(N, L)
     """Returns the nearest integer to L that is a multiple of N"""
     return round(Int, L/N) * N
 end
