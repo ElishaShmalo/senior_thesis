@@ -29,7 +29,7 @@ function make_data_file(path, content)
     # Ensure the parent directories exist
     mkpath(parent_dir)
 
-    open(path * ".dat", "w") do io
+    open(path, "w") do io
         serialize(io, content)
         println("Saved file $path")
     end
