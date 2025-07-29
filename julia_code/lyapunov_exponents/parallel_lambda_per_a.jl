@@ -1,8 +1,9 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
+using Distributed
 
 # Imports
-@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, Distributed, SharedArrays
-addprocs(1)
+@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays
+
 # Other files   
 @everywhere include("../utils/make_spins.jl")
 @everywhere include("../utils/general.jl")
@@ -27,11 +28,11 @@ Plots.theme(:dark)
 @everywhere n = global_L
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 1 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
 # a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
-N_vals = [4]
+N_vals = [2, 4, 10]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
@@ -138,7 +139,7 @@ end
 
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
+plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
 for N_val in N_vals
 
     L = get_nearest(N_val, global_L)
