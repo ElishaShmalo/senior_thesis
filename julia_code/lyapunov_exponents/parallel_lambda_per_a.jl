@@ -28,12 +28,12 @@ Plots.theme(:dark)
 @everywhere n = global_L
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
-# a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+@everywhere num_initial_conds = 500 # We are avraging over x initial conditions
+a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+# a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
-N_vals = [2, 4]
-# N_vals = [2, 3, 4, 6, 9, 10]
+# N_vals = [2, 4]
+N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
 @everywhere epsilon = 0.1
