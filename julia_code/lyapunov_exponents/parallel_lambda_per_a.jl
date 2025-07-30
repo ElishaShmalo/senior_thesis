@@ -52,7 +52,7 @@ for N_val in N_vals
     states_evolve_func = evolve_spins_to_time
 
 
-    num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
+    num_skip = Int(round((7 * 255) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
