@@ -25,13 +25,10 @@ Js_rand = 0
 # Heat map of delta_spins
 plt = plot()
 a_val = 1.0
-aval_path = "$(replace("$a_val", "." => "p"))"
-if length(aval_path) > 3
-    aval_path = "$(aval_path[1:3])" * "/a$(aval_path)"
-end
+aval_path = "$(replace("$a_val", "." => "p"))"[1:3]
 
 # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
-results_file_path = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(get_nearest(N_val, L))/N10_a1p0_IC1_L260_rand0_seksolNumOff1_EppOff0p01_trikept_avg.dat" # 
+results_file_path = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(get_nearest(N_val, L))/N10_a1p0_IC1_L260_rand0_seksolNumOff10_EppOff0p001_true_rand_avg.dat" # 
 
 delta_spins = open("data/delta_evolved_spins/" * results_file_path, "r") do io
     deserialize(io)
@@ -51,7 +48,7 @@ display(plt)
 
 
 
-
-# savefig("figs/delta_spin_heatmaps/$(results_file_name)_temp.png")
+prep_save_plot("figs/delta_spin_heatmaps/$(results_file_path).png")
+savefig("figs/delta_spin_heatmaps/$(results_file_path).png")
 
 # println(readdir("data/delta_evolved_spins/"*"N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(get_nearest(N_val, L))/"))

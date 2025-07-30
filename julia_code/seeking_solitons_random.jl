@@ -33,7 +33,7 @@ T = global_L
 # --- Trying to Replecate Results ---
 num_init_cond = 1 # We are avraging over x initial conditions
 # a_vals = [round(0.5 + i*0.1, digits = 2) for i in 0:5] 
-a_vals = [0.9] 
+a_vals = [1.0] 
 
 
 # We will use an array to store the results of the simulation for each a_val. 
@@ -48,7 +48,7 @@ N_vals = [4, 10]
 Js_rand = 0 # Js_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
 
 # Testing diffrent (random) initial conditions to see what they yeild
-num_trials = 10
+num_trials = 1
 
 for N_val in N_vals
     println("N: $N_val")
@@ -81,11 +81,13 @@ for N_val in N_vals
                 println("N: $N_val | a_val $a_val | IC $(i)")
 
                 # It's going to be a spiral state with some spins a bit off
-                original_random = make_spiral_state(L, (2) / N_val)
-                shifted_index = div(length(original_random), 2) - div(num_spins_off, 2)
-                for i in 1:num_spins_off
-                    original_random[i+ shifted_index] = make_random_spin(epsilon_off)
-                end
+                # original_random = make_spiral_state(L, (2) / N_val)
+                # shifted_index = div(length(original_random), 2) - div(num_spins_off, 2)
+                # for i in 1:num_spins_off
+                #     original_random[i+ shifted_index] = make_random_spin(epsilon_off)
+                # end
+
+                original_random = make_random_state(L)
 
                 returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
@@ -95,7 +97,7 @@ for N_val in N_vals
             # saving avrage of δs for future ref
             aval_path = "$(replace("$a_val", "." => "p"))"[1:3]
             
-            results_file_path = "data/delta_evolved_spins/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$(Js_rand)_seksolNumOff$(num_spins_off)_EppOff$(replace("$epsilon_off", "." => "p"))_tri$(trial)_avg.dat"
+            results_file_path = "data/delta_evolved_spins/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$(Js_rand)_seksolNumOff$(num_spins_off)_EppOff$(replace("$epsilon_off", "." => "p"))_true_rand_avg.dat"
 
             make_data_file(results_file_path, sum(current_spin_delta)/num_init_cond)
         end

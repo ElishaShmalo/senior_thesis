@@ -34,3 +34,11 @@ function make_data_file(path, content)
         println("Saved file $path")
     end
 end
+
+function prep_save_plot(path)
+    # Extract the parent directory
+    parent_dir = dirname(path)
+
+    # Ensure the parent directories exist
+    mkpath(parent_dir)
+end

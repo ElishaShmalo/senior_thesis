@@ -15,14 +15,6 @@ include("utils/general.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
 
-# Making necessary folders if they dont exist
-folder_names_in_order = ["data", "data/delta_evolved_spins", "data/mag_evolved_spins", "figs", "figs/delta_evolved_spins", "figs/mag_evolved_spins"]
-for folder in folder_names_in_order
-    if !isdir(folder)
-        mkdir(folder)
-    end
-end
-
 # Set plotting theme
 Plots.theme(:dark)
 # General Variables
@@ -90,15 +82,15 @@ for N_val in N_vals
             println("N: $N_val | a_val $a_val | IC $(i)")
 
             
-            s_js = [sin(j) for j in -round(L/2):round(L/2)]
-            phi_js = [j for j in -round(L/2):round(L/2)]
+            s_js = [j/L for j in -round(L/2):round(L/2)]
+            phi_js = [asin(j/L) for j in -round(L/2):round(L/2)]
 
             original_anstz = make_state_from_sj_phij(s_js[1:L], phi_js[1:L])
-            for j in eachindex(original_anstz)
-                if abs(j - L/2) > num_dev
-                    original_anstz[j] = [0.0, 0.0, 0.0]
-                end
-            end
+            # for j in eachindex(original_anstz)
+            #     if abs(j - L/2) > num_dev
+            #         original_anstz[j] = [0.0, 0.0, 0.0]
+            #     end
+            # end
 
             returned_states = state_evolve_func(original_anstz, a_val, L*J, Tau_F, S_NAUGHT)
 
@@ -106,15 +98,10 @@ for N_val in N_vals
         end
         
         # saving avrage of δs for future ref
-        aval_path = "$(replace("$a_val", "." => "p"))"
-        if length(aval_path) > 3
-            aval_path = "$(aval_path[1:3])" * "/a$(aval_path)"
-        end
+        aval_path = "$(replace("$a_val", "." => "p"))"[1:3]
         # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$(Js_rand)_SjBtanhkz_PhijSjdivr2_B$(replace("$(B)", "." => "p"))_k$(replace("$k", "." => "p"))_numdev$(num_dev)_rand"
-        results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$(Js_rand)_null_test"
+        results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$(Js_rand)_null_test_jasin"
 
-        open("data/delta_evolved_spins/" * results_file_name * "_avg.dat", "w") do io
-            serialize(io, sum(current_spin_delta)/num_init_cond)
-        end
+        make_data_file("data/delta_evolved_spins/" * results_file_name * "_avg.dat", sum(current_spin_delta)/num_init_cond)
     end
 end
