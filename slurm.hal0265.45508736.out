@@ -1,0 +1,72 @@
+N_val: 2
+N_val: 2 | a_val: 0.5
+      From worker 4:	N_val: 2 | a_val: 0.5 | IC: 3 / 10
+      From worker 9:	N_val: 2 | a_val: 0.5 | IC: 8 / 10
+      From worker 8:	N_val: 2 | a_val: 0.5 | IC: 7 / 10
+      From worker 3:	N_val: 2 | a_val: 0.5 | IC: 2 / 10
+      From worker 11:	N_val: 2 | a_val: 0.5 | IC: 10 / 10
+      From worker 5:	N_val: 2 | a_val: 0.5 | IC: 4 / 10
+      From worker 2:	N_val: 2 | a_val: 0.5 | IC: 1 / 10
+      From worker 7:	N_val: 2 | a_val: 0.5 | IC: 6 / 10
+      From worker 6:	N_val: 2 | a_val: 0.5 | IC: 5 / 10
+      From worker 10:	N_val: 2 | a_val: 0.5 | IC: 9 / 10
+N_val: 2 | a_val: 0.6
+      From worker 14:	N_val: 2 | a_val: 0.6 | IC: 3 / 10
+      From worker 20:	N_val: 2 | a_val: 0.6 | IC: 9 / 10
+      From worker 12:	N_val: 2 | a_val: 0.6 | IC: 1 / 10
+      From worker 17:	N_val: 2 | a_val: 0.6 | IC: 6 / 10
+      From worker 19:	N_val: 2 | a_val: 0.6 | IC: 8 / 10
+      From worker 18:	N_val: 2 | a_val: 0.6 | IC: 7 / 10
+      From worker 16:	N_val: 2 | a_val: 0.6 | IC: 5 / 10
+      From worker 21:	N_val: 2 | a_val: 0.6 | IC: 10 / 10
+      From worker 15:	N_val: 2 | a_val: 0.6 | IC: 4 / 10
+      From worker 13:	N_val: 2 | a_val: 0.6 | IC: 2 / 10
+N_val: 2 | a_val: 0.8
+      From worker 24:	N_val: 2 | a_val: 0.8 | IC: 3 / 10
+      From worker 23:	N_val: 2 | a_val: 0.8 | IC: 2 / 10
+      From worker 22:	N_val: 2 | a_val: 0.8 | IC: 1 / 10
+      From worker 30:	N_val: 2 | a_val: 0.8 | IC: 9 / 10
+      From worker 26:	N_val: 2 | a_val: 0.8 | IC: 5 / 10
+      From worker 29:	N_val: 2 | a_val: 0.8 | IC: 8 / 10
+      From worker 28:	N_val: 2 | a_val: 0.8 | IC: 7 / 10
+      From worker 25:	N_val: 2 | a_val: 0.8 | IC: 4 / 10
+      From worker 27:	N_val: 2 | a_val: 0.8 | IC: 6 / 10
+      From worker 31:	N_val: 2 | a_val: 0.8 | IC: 10 / 10
+Saved file data/spin_chain_lambdas/N2/SeveralAs/IC10/L256/N2_ar0p5_0p8_IC10_L256.dat
+Saved file data/spin_chain_lambdas/N2/SeveralAs/IC10/L256/N2_ar0p5_0p8_IC10_L256sems.dat
+N_val: 4
+N_val: 4 | a_val: 0.5
+      From worker 39:	N_val: 4 | a_val: 0.5 | IC: 8 / 10
+      From worker 38:	N_val: 4 | a_val: 0.5 | IC: 7 / 10
+      From worker 37:	N_val: 4 | a_val: 0.5 | IC: 6 / 10
+      From worker 41:	N_val: 4 | a_val: 0.5 | IC: 10 / 10
+      From worker 36:	N_val: 4 | a_val: 0.5 | IC: 5 / 10
+      From worker 40:	N_val: 4 | a_val: 0.5 | IC: 9 / 10
+      From worker 32:	N_val: 4 | a_val: 0.5 | IC: 1 / 10
+      From worker 34:	N_val: 4 | a_val: 0.5 | IC: 3 / 10
+      From worker 33:	N_val: 4 | a_val: 0.5 | IC: 2 / 10
+      From worker 35:	N_val: 4 | a_val: 0.5 | IC: 4 / 10
+N_val: 4 | a_val: 0.6
+      From worker 46:	N_val: 4 | a_val: 0.6 | IC: 5 / 10
+      From worker 50:	N_val: 4 | a_val: 0.6 | IC: 9 / 10
+      From worker 48:	N_val: 4 | a_val: 0.6 | IC: 7 / 10
+      From worker 43:	N_val: 4 | a_val: 0.6 | IC: 2 / 10
+      From worker 45:	N_val: 4 | a_val: 0.6 | IC: 4 / 10
+      From worker 51:	N_val: 4 | a_val: 0.6 | IC: 10 / 10
+      From worker 49:	N_val: 4 | a_val: 0.6 | IC: 8 / 10
+      From worker 42:	N_val: 4 | a_val: 0.6 | IC: 1 / 10
+      From worker 47:	N_val: 4 | a_val: 0.6 | IC: 6 / 10
+      From worker 44:	N_val: 4 | a_val: 0.6 | IC: 3 / 10
+N_val: 4 | a_val: 0.8
+      From worker 6:	N_val: 4 | a_val: 0.8 | IC: 5 / 10
+      From worker 4:	N_val: 4 | a_val: 0.8 | IC: 3 / 10
+      From worker 5:	N_val: 4 | a_val: 0.8 | IC: 4 / 10
+      From worker 2:	N_val: 4 | a_val: 0.8 | IC: 1 / 10
+      From worker 3:	N_val: 4 | a_val: 0.8 | IC: 2 / 10
+      From worker 7:	N_val: 4 | a_val: 0.8 | IC: 6 / 10
+      From worker 8:	N_val: 4 | a_val: 0.8 | IC: 7 / 10
+      From worker 9:	N_val: 4 | a_val: 0.8 | IC: 8 / 10
+      From worker 11:	N_val: 4 | a_val: 0.8 | IC: 10 / 10
+      From worker 10:	N_val: 4 | a_val: 0.8 | IC: 9 / 10
+Saved file data/spin_chain_lambdas/N4/SeveralAs/IC10/L256/N4_ar0p5_0p8_IC10_L256.dat
+Saved file data/spin_chain_lambdas/N4/SeveralAs/IC10/L256/N4_ar0p5_0p8_IC10_L256sems.dat
