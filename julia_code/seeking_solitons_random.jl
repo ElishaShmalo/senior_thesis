@@ -33,7 +33,7 @@ T = global_L
 # --- Trying to Replecate Results ---
 num_init_cond = 1 # We are avraging over x initial conditions
 # a_vals = [round(0.5 + i*0.1, digits = 2) for i in 0:5] 
-a_vals = [1.0] 
+a_vals = [0.72] 
 
 
 # We will use an array to store the results of the simulation for each a_val. 
@@ -43,7 +43,7 @@ a_vals = [1.0]
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
 
 # N_vals = [2, 4, 3, 6, 9, 10]
-N_vals = [4, 10]
+N_vals = [4]
 
 Js_rand = 0 # Js_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
 
