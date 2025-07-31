@@ -135,7 +135,7 @@ end
 
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
+plot_path = "N4/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
 
 for N_val in N_vals
 
