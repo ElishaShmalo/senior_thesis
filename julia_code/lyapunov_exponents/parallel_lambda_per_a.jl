@@ -27,10 +27,11 @@ Plots.theme(:dark)
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 500 # We are avraging over x initial conditions
 a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
+a_vals = sort(union(a_vals, trans_a_vals))
 
 # N_vals = [3]
-N_vals = [2, 3, 4, 6, 9, 10]
+N_vals = [4]
 # Making individual folders for N_vals
 
 @everywhere epsilon = 0.1
@@ -49,7 +50,7 @@ for N_val in N_vals
     # number of pushes we are going to do
     n = L
 
-    states_evolve_func = evolve_spins_to_time
+    states_evolve_func = semirand_evolve_spins_to_time
 
 
     num_skip = Int(round((7 * L) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
@@ -88,7 +89,7 @@ for N_val in N_vals
                     # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
 
                     # evolve both to time t' = t + tau with control
-                    evolved_results = states_evolve_func(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                    evolved_results = states_evolve_func(copy(J_vec), spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
                     spin_chain_A = evolved_results[1][end]
                     spin_chain_B = evolved_results[2][end]
 
@@ -152,6 +153,12 @@ for N_val in N_vals
         [val for val in values(sort(collected_lambdas[N_val]))], 
         yerror=[val for val in values(sort(collected_lambda_SEMs[N_val]))], 
         marker = :circle, label="N=$N_val")
+
+    if N_val > 4
+        line_color = plt.series_list[length(plt.series_list)][:seriescolor]
+        println(line_color)
+        vline!([get_theoretical_a_crit(N_val)], line = (:dash, line_color), label = "Theoretical trans: $N_val")        
+    end
 end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
@@ -164,39 +171,3 @@ display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
-
-
-# Make .csv file
-# for N_val in N_vals
-#     # Construct file paths
-#     filepath = "N$(replace("$N_val", "." => "p"))/N$(N_val)_IC$(num_initial_conds)_L$(get_nearest(N_val, L))"
-#     fullpath = "data/spin_chain_lambdas/" * filepath * ".dat"
-
-#     # Load the lambda vals
-#     collected_lambdas[N_val] = open(fullpath, "r") do io
-#         deserialize(io)
-#     end
-
-#     # Load the lambda SEMs
-#     collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
-#         deserialize(io)
-#     end
-
-#     # Extract and sort keys and values
-#     lambda_dict = collected_lambdas[N_val]
-#     sems_dict = collected_lambda_SEMs[N_val]
-#     dict_keys = sort(collect(keys(lambda_dict)))
-
-#     # Prepare rows: each row is [aval, lambda, lambda_sem]
-#     rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
-
-#     # Make output CSV path
-#     csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
-
-#     # Write to CSV with header
-#     open(csv_path, "w") do io
-#         writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
-#         writedlm(io, rows, ',')                                # Data rows
-#     end
-# end
-

@@ -30,16 +30,13 @@ J_vec = J .* [1, 1, 1]
 # Time to evolve until push back to S_A
 tau = 1 * J
 
-# number of pushes we are going to do
-n = L
-num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
-
 # --- Trying to Replecate Results ---
 num_initial_conds = 10 # We are avraging over x initial conditions
-# a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.5, 0.6, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
+a_vals = sort(union(a_vals, trans_a_vals))
 
-N_vals = [4, 10]
+N_vals = [4]
 # N_vals = [2, 3, 4, 6, 9, 10]
 # Making individual folders for N_vals
 
@@ -56,7 +53,12 @@ for N_val in N_vals
 
     L = get_nearest(N_val, global_L)
 
-    states_evolve_func = evolve_spins_to_time
+    # number of pushes we are going to do
+    n = L
+    num_skip = Int((7 * L) / 8) # we only keep the last L/8 time samples so that the initial condition is properly lost
+
+
+    states_evolve_func = semirand_evolve_spins_to_time
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
@@ -93,7 +95,7 @@ for N_val in N_vals
                 # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
 
                 # evolve both to time t' = t + tau with control
-                evolved_results = states_evolve_func(spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                evolved_results = states_evolve_func(copy(J_vec), spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
                 spin_chain_A = evolved_results[1][end]
                 spin_chain_B = evolved_results[2][end]
 
@@ -113,14 +115,8 @@ for N_val in N_vals
     # Save the results for each N_val sepratly
     filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
 
-    open("data/spin_chain_lambdas/" * filepath * ".dat", "w") do io
-        serialize(io, collected_lambdas[N_val])
-        println("Saved file $filepath")
-    end
-    open("data/spin_chain_lambdas/" * filepath * "sems.dat", "w") do io
-        serialize(io, collected_lambda_SEMs[N_val])
-        println("Saved file $(filepath)sems")
-    end
+    make_data_file("data/spin_chain_lambdas/" * filepath * ".dat", collected_lambdas[N_val])
+    make_data_file("data/spin_chain_lambdas/" * filepath * "sems.dat", collected_lambda_SEMs[N_val])
 
     # Make .csv file
     # Extract and sort keys and values
@@ -141,9 +137,11 @@ for N_val in N_vals
     end
 end
 
+
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$L"
+plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
+
 for N_val in N_vals
 
     L = get_nearest(N_val, global_L)
@@ -160,17 +158,24 @@ for N_val in N_vals
         [val for val in values(sort(collected_lambdas[N_val]))], 
         yerror=[val for val in values(sort(collected_lambda_SEMs[N_val]))], 
         marker = :circle, label="N=$N_val")
+
+    if N_val > 4
+        line_color = plt.series_list[length(plt.series_list)][:seriescolor]
+        println(line_color)
+        vline!([get_theoretical_a_crit(N_val)], line = (:dash, line_color), label = "Theoretical trans: $N_val")        
+    end
 end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=$L")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=~$global_L")
 
 xlabel!("a")
 ylabel!("λ")
 display(plt)
 
-savefig("figs/lambda_per_a/" * plot_name * ".png")
+mkpath(dirname("figs/lambda_per_a/" * plot_path))
+savefig("figs/lambda_per_a/" * plot_path * ".png")
 
 
 # Make .csv file
