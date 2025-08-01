@@ -129,7 +129,7 @@ end
 # Save the plot
 println("Making Plot")
 plt = plot()
-plot_path = "N4/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_N4_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(L_vals))"
+plot_path = "N4/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N4_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(L_vals))"
 
 for L in L_vals
 
@@ -149,7 +149,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=~$global_L")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for N=4")
 
 xlabel!("a")
 ylabel!("λ")
@@ -193,6 +193,7 @@ end
 
 # Convert to DataFrame and save
 df = DataFrame(cols, Symbol.(col_names))
-mkpath(dirname("data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L.csv"))
-CSV.write("data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L.csv", df)
-println("Saved CsV")
+csv_path = "data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N4_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(L_vals)).csv"
+mkpath(dirname(csv_path))
+CSV.write(csv_path, df)
+println("Saved CsV: $csv_path")

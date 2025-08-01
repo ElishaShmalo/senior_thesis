@@ -16,6 +16,7 @@ Plots.theme(:dark)
 
 # General Variables
 @everywhere global_L = 256  # number of spins
+@everywhere num_unit_cells = global_L / 4 # We want to keep the number of unit cells the same regardless of the N_val
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -26,12 +27,12 @@ Plots.theme(:dark)
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 500 # We are avraging over x initial conditions
-a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
-a_vals = sort(union(a_vals, trans_a_vals))
+a_vals = [round(0.3 + i*0.02, digits=2) for i in 0:35] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+# trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
+# a_vals = sort(union(a_vals, trans_a_vals))
 
-# N_vals = [3]
-N_vals = [4]
+N_vals = [2, 3, 6, 9, 10]
+# N_vals = [4]
 # Making individual folders for N_vals
 
 @everywhere epsilon = 0.1
@@ -45,12 +46,12 @@ collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float6
 for N_val in N_vals
     println("N_val: $N_val")
 
-    L = get_nearest(N_val, global_L)
+    L = num_unit_cells * N_val
 
     # number of pushes we are going to do
     n = L
 
-    states_evolve_func = semirand_evolve_spins_to_time
+    states_evolve_func = evolve_spins_to_time
 
 
     num_skip = Int(round((7 * L) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
@@ -139,7 +140,7 @@ plot_path = "N4/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(
 
 for N_val in N_vals
 
-    L = get_nearest(N_val, global_L)
+    L = num_unit_cells * N_val
 
     filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
@@ -171,3 +172,51 @@ display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
+
+println("Making CSVs from Data")
+
+collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: avrg lambda
+collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: N_val, Float64: a_val, Float64: standard error on the mean for lambda
+
+for N_val in N_vals
+
+    L = num_unit_cells * N_val
+
+    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
+    collected_lambdas[N_val] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
+        deserialize(io)
+    end
+    collected_lambda_SEMs[N_val] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
+        deserialize(io)
+    end
+end
+
+# Sort a_vals to ensure correct row order
+sorted_a_vals = sort(a_vals)
+
+# Prepare the header
+col_names = ["a_val"]
+for N in N_vals
+    push!(col_names, "lambda_N=$N")
+    push!(col_names, "SEM_N=$N")
+end
+
+println(length(col_names))
+
+# Create the data rows
+cols = Vector{Vector{Union{Missing, Float64}}}()
+push!(cols, sorted_a_vals)
+
+    
+for N in N_vals
+    push!(cols, [collected_lambdas[N][k] for k in sorted_a_vals])
+    push!(cols, [collected_lambda_SEMs[N][k] for k in sorted_a_vals])
+end 
+
+# Convert to DataFrame and save
+df = DataFrame(cols, Symbol.(col_names))
+csv_path = "data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L.csv"
+mkpath(dirname(csv_path))
+CSV.write(csv_path, df)
+
+println("Made CSVs from data: $csv_path")

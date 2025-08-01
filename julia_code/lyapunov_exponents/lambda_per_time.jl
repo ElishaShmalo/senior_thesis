@@ -34,8 +34,8 @@ n = max(div(L,tau), 50) # This way the total time evolved is at least L
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 10 # We are avraging over x initial conditions
-a_vals = [0.4, 0.5, 0.7, 0.8]
-N_vals = [4, 6, 9]
+a_vals = [round(0.6 + 0.02*i, digits=2) for i in 1:10]
+N_vals = [4, 10]
 
 epsilon = 0.1
 
