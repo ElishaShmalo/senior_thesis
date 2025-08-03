@@ -1,8 +1,10 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
 using Distributed
 
+# addprocs(10)
+
 # Imports
-@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays
+@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
 
 # Other files   
 @everywhere include("../utils/make_spins.jl")
@@ -16,7 +18,7 @@ Plots.theme(:dark)
 
 # General Variables
 @everywhere global_L = 256  # number of spins
-@everywhere num_unit_cells = global_L / 4 # We want to keep the number of unit cells the same regardless of the N_val
+@everywhere num_unit_cells = Int(global_L / 4) # We want to keep the number of unit cells the same regardless of the N_val
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -26,13 +28,14 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 500 # We are avraging over x initial conditions
-a_vals = [round(0.3 + i*0.02, digits=2) for i in 0:35] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
+# a_vals = [round(0.3 + i*0.02, digits=2) for i in 0:35] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
-N_vals = [2, 3, 6, 9, 10]
-# N_vals = [4]
+# N_vals = [2, 3, 6, 9, 10]
+N_vals = [4]
 # Making individual folders for N_vals
 
 @everywhere epsilon = 0.1
@@ -51,7 +54,7 @@ for N_val in N_vals
     # number of pushes we are going to do
     n = L
 
-    states_evolve_func = evolve_spins_to_time
+    states_evolve_func = random_evolve_spins_to_time
 
 
     num_skip = Int(round((7 * L) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
@@ -136,7 +139,7 @@ end
 
 # Save the plot (if you want all the N_vals on one plot)
 plt = plot()
-plot_path = "N4/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
+plot_path = "SeveralNs/SeveralAs/IC$num_initial_conds/L$global_L/lambda_per_a_Ns$(join(N_vals))_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$global_L"
 
 for N_val in N_vals
 
@@ -164,7 +167,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for L=~$global_L")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for Num Unit Cells =~$num_unit_cells")
 
 xlabel!("a")
 ylabel!("λ")

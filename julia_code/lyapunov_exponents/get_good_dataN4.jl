@@ -11,6 +11,9 @@ using Distributed
 @everywhere include("../utils/lyapunov.jl")
 @everywhere include("../analytics/spin_diffrences.jl")
 
+@time begin
+    
+
 # Set plotting theme
 Plots.theme(:dark)
 
@@ -25,8 +28,8 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 50 # We are avraging over x initial conditions
-a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
+a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
@@ -197,3 +200,5 @@ csv_path = "data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/Sev
 mkpath(dirname(csv_path))
 CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
+
+end
