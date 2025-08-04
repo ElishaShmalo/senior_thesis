@@ -8,13 +8,13 @@
 
 #SBATCH --nodes=1                   # Number of nodes you require
 
-#SBATCH --ntasks=50                 # Total # of tasks across all nodes
+#SBATCH --ntasks=64                 # Total # of tasks across all nodes
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
 #SBATCH --mem=150000               # Real memory (RAM) required (MB)
 
-#SBATCH --time=20:00:00             # Total run time limit (HH:MM:SS)
+#SBATCH --time=24:00:00             # Total run time limit (HH:MM:SS)
 
 #SBATCH --output=slurm.%N.%j.out    # STDOUT output file
 
@@ -22,9 +22,7 @@
 
 module load openmpi
 
-
 export OMP_NUM_THREADS=1
 
-
-~/.juliaup/bin/julia -p 50 julia_code/lyapunov_exponents/get_good_dataN4.jl 
+~/.juliaup/bin/julia -p 64 julia_code/lyapunov_exponents/get_good_data_severalL.jl 
 

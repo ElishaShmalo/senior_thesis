@@ -52,7 +52,7 @@ for N_val in N_vals
     L = num_unit_cells * N_val
 
     # number of pushes we are going to do
-    n = L * 1.6
+    n = L^1.6
 
     states_evolve_func = random_evolve_spins_to_time
 

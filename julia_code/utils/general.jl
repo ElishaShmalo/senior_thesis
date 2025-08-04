@@ -35,10 +35,12 @@ function make_data_file(path, content)
     end
 end
 
-function prep_save_plot(path)
+function make_path_exist(path)
     # Extract the parent directory
     parent_dir = dirname(path)
 
     # Ensure the parent directories exist
     mkpath(parent_dir)
 end
+
+

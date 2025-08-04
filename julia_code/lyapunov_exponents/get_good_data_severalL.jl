@@ -19,7 +19,7 @@ Plots.theme(:dark)
 
 # General Variables
 @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-@everywhere L_vals = [32, 64, 128, 256, 512]  # number of spins
+# @everywhere num_unit_cells_vals = [8, 16]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -29,14 +29,15 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 50 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
 a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+# a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
 @everywhere epsilon = 0.1
 
-N_val = 10
+@everywhere N_val = 4
 
 # --- Calculating Lambdas ---
 
@@ -49,7 +50,7 @@ for num_unit_cells in num_unit_cells_vals
     println("L_val: $L")
 
     # number of pushes we are going to do
-    n = L * 1.6
+    n = Int(round(L^1.6))
 
     states_evolve_func = random_evolve_spins_to_time
 
@@ -64,7 +65,7 @@ for num_unit_cells in num_unit_cells_vals
 
     for a_val in a_vals
         println("L_val: $L | a_val: $a_val")
-        
+        a_val_name = replace("$a_val", "." => "p")
         # We will avrage over this later
         current_lambdas = SharedArray{Float64}(num_initial_conds)
 
@@ -83,6 +84,7 @@ for num_unit_cells in num_unit_cells_vals
                 
                 # Will be used to calculate lyop exp
                 current_spin_dists = zeros(n)
+                current_sdiffs = [Vector{Float64}([0.0 for _ in 1:L]) for _ in 1:n]
 
                 # Do n pushes 
                 for current_n in 1:n
@@ -93,12 +95,17 @@ for num_unit_cells in num_unit_cells_vals
                     spin_chain_A = evolved_results[1][end]
                     spin_chain_B = evolved_results[2][end]
 
-                    d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
+                    current_spin_dists[current_n] = calculate_spin_distence(spin_chain_A, spin_chain_B)
                     spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
 
-                    current_spin_dists[current_n] = d_abs
+                    current_sdiffs[current_n] = get_delta_spin(spin_chain_A, S_NAUGHT)
                 end
                 current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
+                
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+                make_path_exist(sample_filepath)
+                df = DataFrame(t = 1:n, lambda = calculate_lambda_per_time(current_spin_dists, epsilon), delta_s = current_sdiffs)
+                CSV.write(sample_filepath, df)
             end
         end
 
@@ -136,10 +143,10 @@ end
 # Save the plot
 println("Making Plot")
 plt = plot()
-plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(L_vals))"
-
-for L in L_vals
-
+plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))"
+N_val .* num_unit_cells_vals
+for L in num_unit_cells_vals * N_val
+    
     filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
         deserialize(io)
@@ -168,7 +175,7 @@ println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
 # Save CSV
 print("Saving CSVs")
-for L in L_vals
+for L in num_unit_cells_vals * N_val
 
     filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
@@ -184,7 +191,7 @@ sorted_a_vals = sort(a_vals)
 
 # Prepare the header
 col_names = ["a_val"]
-for L in L_vals
+for L in num_unit_cells_vals * N_val
     push!(col_names, "lambda_L=$L")
     push!(col_names, "SEM_L=$L")
 end
@@ -193,14 +200,14 @@ end
 cols = Vector{Vector{Union{Missing, Float64}}}()
 push!(cols, sorted_a_vals)
     
-for L in L_vals
+for L in num_unit_cells_vals * N_val
     push!(cols, [collected_lambdas[L][k] for k in sorted_a_vals])
     push!(cols, [collected_lambda_SEMs[L][k] for k in sorted_a_vals])
 end 
 
 # Convert to DataFrame and save
 df = DataFrame(cols, Symbol.(col_names))
-csv_path = "data/spin_chain_lambdas/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(L_vals)).csv"
+csv_path = "data/spin_chain_lambdas/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(num_unit_cells_vals * N_val)).csv"
 mkpath(dirname(csv_path))
 CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
