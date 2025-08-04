@@ -144,7 +144,7 @@ end
 println("Making Plot")
 plt = plot()
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))"
-N_val .* num_unit_cells_vals
+
 for L in num_unit_cells_vals * N_val
     
     filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
@@ -172,6 +172,28 @@ display(plt)
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
+
+# Save varience plot
+# Create plot
+plt = plot(
+    title="Var(λ(a)) for N=$N_val",
+    xlabel="a",
+    ylabel="Var(λ)"
+)
+
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    plot!(plt, a_vals, collected_lambda_SEMs[L] * sqrt(num_initial_conds-1),
+          label="L=$L",
+          linestyle=:solid,
+          markersize=5,
+          linewidth=1)
+end
+
+var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_Vars.png"
+make_path_exist(var_plot_path)
+savefig(var_plot_path)
+println("Saved Plot: $(var_plot_path)")
 
 # Save CSV
 print("Saving CSVs")
