@@ -196,7 +196,7 @@ end
 
 # Convert to DataFrame and save
 df = DataFrame(cols, Symbol.(col_names))
-csv_path = "data/spin_chain_lambdas/SeveralNs/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N4_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(L_vals)).csv"
+csv_path = "data/spin_chain_lambdas/N4/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N4_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(L_vals)).csv"
 mkpath(dirname(csv_path))
 CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
