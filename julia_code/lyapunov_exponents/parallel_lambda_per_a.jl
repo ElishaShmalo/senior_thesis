@@ -1,7 +1,7 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
 using Distributed
 
-# addprocs(10)
+addprocs(10)
 
 # Imports
 @everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
@@ -34,8 +34,8 @@ a_vals = [round(0.6 + i*0.02, digits=2) for i in 0:20] # 0.6, 0.62, 0.64, 0.66, 
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
-# N_vals = [2, 3, 6, 9, 10]
-N_vals = [4]
+N_vals = [6, 10]
+# N_vals = [4]
 # Making individual folders for N_vals
 
 @everywhere epsilon = 0.1
@@ -52,12 +52,12 @@ for N_val in N_vals
     L = num_unit_cells * N_val
 
     # number of pushes we are going to do
-    n = L
+    n = L * 1.6
 
     states_evolve_func = random_evolve_spins_to_time
 
 
-    num_skip = Int(round((7 * L) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
+    num_skip = Int(round((7 * n) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
