@@ -1,0 +1,514 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\author{Elisha Shmalo}
+\title{Notes: Week of Jul 21}
+
+\begin{document}
+
+\maketitle
+
+\section{Derivation of Equations of Motion}
+
+\subsection{Hamiltonian Dynamics}
+
+Our basis:
+
+\[
+S_j^x = s_j, \space S_j^y = f(s_j)\cos(\phi_j), \space S_j^z = f(s_j)\sin(\phi_j)
+\]
+
+With $f(x) := \sqrt{1 - x^2}$.
+
+The hamiltonian is
+
+\[
+H = \sum_j (-\vec{J} \circ \vec{S_{j+1}}) \cdot \vec{S_j}
+\]
+
+The only terms in $H$ involving $j$ values are
+
+\begin{align*}
+    (H)_j = &-J_x(s_js_{j-1} + s_js_{j+1}) \\
+            &-J_yf(s_j)\cos\phi_j[f(s_{j-1})\cos\phi_{j-1} + f(s_{j+1})\cos\phi_{j+1}] \\
+            &-J_zf(s_j)\sin\phi_j[f(s_{j-1})\sin\phi_{j-1} + f(s_{j+1})\sin\phi_{j+1}]
+\end{align*}
+
+The cononical position is
+
+\[s_j\]
+
+The cononical momentum is
+
+\[\phi_j\]
+
+Thus
+
+\begin{align*}
+    \dot{s_j} &= \frac{\partial H}{\partial \phi_j}\\
+    \dot{\phi_j} &= -\frac{\partial H}{\partial s_j}
+\end{align*}
+
+and so we have
+
+\begin{align*}
+    \frac{ds_j}{dt} = &+J_yf(s_j)\sin(\phi_j)[f(s_{j+1})\cos(\phi_{j+1}) + f(s_{j-1})\cos(\phi_{j-1})] \\
+                      &-J_zf(s_j)\cos(\phi_j)[f(s_{j+1})\sin(\phi_{j+1}) + f(s_{j-1})\sin(\phi_{j-1})]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = -f'(s_j)[&-J_y\cos\phi_j(f(s_{j+1})\cos\phi_{j+1} + f(s_{j-1})\cos\phi_{j-1}) \\
+                                  &-J_z\sin\phi_j(f(s_{j+1})\sin\phi_{j+1} + f(s_{j-1})\sin\phi_{j-1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+
+\subsection{If $J_y = J_z = J$}
+
+\begin{align*}
+    \frac{ds_j}{dt} = &Jf(s_j)[f(s_{j+1}) (\sin\phi_j\cos\phi_{j+1} - \cos\phi_j\sin\phi_{j+1})\\
+                      &+f(s_{j-1})(\sin\phi_j\cos\phi_{j-1} - \cos\phi_j\sin\phi_{j-1})]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = Jf'(s_j)[&f(s_{j+1})(\cos\phi_j\cos\phi_{j+1} + \sin\phi_j\sin\phi_{j+1}) \\
+                                  &+f(s_{j-1})(\cos\phi_j\cos\phi_{j-1} + \sin\phi_j\sin\phi_{j-1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+
+which become
+
+\begin{align*}
+    \frac{ds_j}{dt} = &Jf(s_j)[f(s_{j+1})\sin(\phi_j - \phi_{j+1})\\
+                      &+f(s_{j-1})\sin(\phi_j - \phi_{j-1})]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = Jf'(s_j)[&f(s_{j+1})\cos(\phi_j - \phi_{j+1}) \\
+                                  &+f(s_{j-1})\cos(\phi_j - \phi_{j-1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+\subsection{Second order Expansion of functions}
+\subsubsection{$f(x)$ and $f'(x)$}
+Let 
+\[
+f(x) = \sqrt{1 - x^2}
+\]
+We expand \( f(\delta x) \) using a Taylor expansion:
+
+\[
+\boxed{f(\delta x) \approx 1 + 0 - 1/2 \delta x^2}
+\]
+
+The derivative:
+
+\[
+f'(x) = \frac{d}{dx} \left( \sqrt{1 - x^2} \right) = \frac{-x}{\sqrt{1 - x^2}}
+\]
+
+Then:
+
+\[
+f'(0) = 0
+\]
+
+\[
+f''(0) = -1
+\]
+
+\[
+f'''(0) = 0
+\]
+
+Thus:
+
+\[
+\boxed{f'(\delta x) \approx -\delta x}
+\]
+
+even up to second order.
+
+\subsubsection{Now $\cos(\phi_j - \phi_{j\pm1})$ and $\sin{\phi_j - \phi_{j\pm1}}$}
+
+Let
+\[
+\phi_j = \phi_j^0 + \delta \phi_j, \quad \text{where} \quad \phi_j^0 = \frac{2\pi}{N} j
+\]
+
+Let 
+
+\[
+x = \phi_j^0 - \phi_{j+1}^0, y = \phi_j^0 - \phi_{j-1}^0
+\]
+
+Then 
+\[
+    \cos(\phi_j - \phi_{j+1}) = \cos(x + \delta x)
+\]
+
+and similar for the others.
+
+Note
+
+\[
+\cos(x) = \cos(y), \sin(x) = -\sin(y)
+\]
+
+Now for the exapnsions:
+
+\[
+    \boxed{\cos(x + \delta x) \approx \cos(x) - \sin(x)\delta x - 1/2\cos(x)\delta x^2}
+\]
+
+and 
+
+\[
+    \boxed{\sin(x + \delta x) \approx \sin(x) + \cos(x)\delta x - 1/2\sin(x)\delta x^2}
+\]
+
+\subsection{Second order approximation of diffrential equations}
+
+\subsubsection{First $ds_j/dt$}
+
+Recall
+
+\begin{align*}
+    \frac{ds_j}{dt} = &Jf(s_j)[f(s_{j+1})\sin(\phi_j - \phi_{j+1})\\
+                      &+f(s_{j-1})\sin(\phi_j - \phi_{j-1})]
+\end{align*}
+
+Using the exapnsions
+
+\begin{align*}
+    \frac{ds_j}{dt} \approx &J(1-1/2\delta s_j^2)[(1-1/2\delta s_{j+1}^2)(\sin(x) + \cos(x)\delta x - 1/2\sin(x)\delta x^2)\\
+                      &+(1-1/2\delta s_{j-1}^2)(\sin(y) + \cos(y)\delta y - 1/2\sin(y)\delta y^2)]
+\end{align*}
+
+Only keeping up to order two inside the brackets and grouping like terms gives us
+
+\begin{align*}
+    \frac{ds_j}{dt} \approx &J(1-\delta s_j^2)[\cos(x)(\delta x + \delta y) - 1/2\sin(x)(\delta x^2 - \delta y^2 + \delta s_{j+1}^2 - \delta s_{j-1}^2)]\\
+\end{align*}
+
+Again we are only keeping up to second order in $\delta ...$. So the terms with $-\delta s_j^2$ don't survive and we are left with 
+
+\begin{align*}
+    \frac{ds_j}{dt} \approx &J[\cos(x)(\delta x + \delta y) - 1/2\sin(x)(\delta x^2 - \delta y^2 + \delta s_{j+1}^2 - \delta s_{j-1}^2)]\\
+\end{align*}
+
+Which is
+
+\begin{align*}
+    \frac{ds_j}{dt} \approx J[&\cos(\frac{2\pi}{N})(2\delta\phi_{j} - \delta\phi_{j+1} - \delta\phi_{j-1}) \\
+                                +&1/2\sin(\frac{2\pi}{N})(\delta\phi_{j+1}^2 - \delta\phi_{j-1}^2 + 2\delta\phi_{j}(\delta\phi_{j+1} - \delta\phi_{j-1}) + \delta s_{j+1}^2 - \delta s_{j-1}^2)]
+\end{align*}
+
+\subsubsection{Next $d\phi_j/dt$}
+
+Recall
+
+\begin{align*}
+    \frac{d\phi_j}{dt} = Jf'(s_j)[&f(s_{j+1})\cos(\phi_j - \phi_{j+1}) \\
+                                  &+f(s_{j-1})\cos(\phi_j - \phi_{j-1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+using the expansions to second order
+
+\begin{align*}
+    \frac{d\phi_j}{dt} \approx -J\delta s_j[&(1-1/2\delta s_{j+1}^2)(\cos(x) - \sin(x)\delta x - 1/2 \cos(x)\delta x^2) \\
+                                  &+(1-1/2\delta s_{j+1}^2)(\cos(y) - \sin(y)\delta y - 1/2 \cos(y)\delta y^2)] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+
+When we consider that we are only keeping things up to second order a lot of terms don't survive
+
+\begin{align*}
+    \frac{d\phi_j}{dt} \approx -J\delta s_j[&(\cos(x) - \sin(x)\delta x) \\
+                                  &+(\cos(y) - \sin(y)\delta y)] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+Which simplifies to 
+
+\begin{align*}
+    \frac{d\phi_j}{dt} \approx -J\delta s_j[&2\cos(x) - \sin(x)(\delta x - \delta y)] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+which is
+
+\begin{align*}
+    \frac{d\phi_j}{dt} \approx -J\delta s_j[&2\cos(\frac{2\pi}{N}) + \sin(\frac{2\pi}{N})(\delta\phi_{j-1} - \delta\phi_{j+1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+\space
+
+Thus we have that the equations of motion to second order are
+
+\begin{align*}
+    \frac{ds_j}{dt} \approx J[&\cos(\frac{2\pi}{N})(2\delta\phi_{j} - \delta\phi_{j+1} - \delta\phi_{j-1}) \\
+                                +&1/2\sin(\frac{2\pi}{N})(\delta\phi_{j+1}^2 - \delta\phi_{j-1}^2 + 2\delta\phi_{j}(\delta\phi_{j+1} - \delta\phi_{j-1}) + \delta s_{j+1}^2 - \delta s_{j-1}^2)]
+\end{align*}
+
+\begin{align*}
+    \frac{d\phi_j}{dt} \approx -J\delta s_j[&2\cos(\frac{2\pi}{N}) + \sin(\frac{2\pi}{N})(\delta\phi_{j-1} - \delta\phi_{j+1})] \\
+                                  &+J_x(s_{j+1} + s_{j-1})
+\end{align*}
+
+\section{Seeking Solitons}
+
+Try 
+
+\begin{align*}
+    s_j &= f(z), z = aj - ut \\
+    \phi_j &= \frac{2 \pi}{N} + g(z)
+\end{align*}
+
+Such that 
+
+\begin{align*}
+    \delta s_j &= f(z), z = aj - ut \\
+    \delta \phi_j &= g(z)
+\end{align*}
+
+Note that I have chosen a to be my latice constant.
+
+Rewriting the second order approximation for the equations of motion:
+
+\begin{align*}
+    -uf'(z)\approx J[&\cos(\frac{2\pi}{N})(2g(z) - g(z+a) - g(z-a)) \\
+                                +&1/2\sin(\frac{2\pi}{N})(g(z+a)^2 - g(z-a)^2 + 2g(z)(g(z+a) - g(z-a)) + f(z+a)^2 - f(z-a)^2)]
+\end{align*}
+
+\begin{align*}
+    -ug'(z) \approx -Jf(z)[&2\cos(\frac{2\pi}{N}) + \sin(\frac{2\pi}{N})(g(z-a) - g(z+a))] \\
+                                  &+J_x(f(z+a) + f(z-a))
+\end{align*}
+
+If we take the continuam limit and a linear exapnsions
+
+\begin{align*}
+    f(z \pm a) &\approx f(z) \pm af'(z) \\
+    g(z \pm a) &\approx g(z) \pm ag'(z)
+\end{align*}
+
+Then we get the follwing relations
+
+\begin{align*}
+    &2f(z) - f(z+a) - f(z-a) \approx 0 \\
+    &f(z-a) - f(z+a) \approx -2af' \\
+    &f(z - a) + f(z + a) \approx 2f \\
+\end{align*}
+
+(where I've written $f(z) = f$ for brevity). The same is true for $g(z)$.
+
+Using these (and defining $\theta = \frac{2\pi}{N}$), our diffrential equations become
+
+\begin{align*}
+    -uf' &\approx J[0 +1/2\sin(\theta)(4agg' + 4agg' + 4aff')] \\
+            &= 2J\sin(\theta)[2agg' + aff']
+\end{align*}
+
+\begin{align*}
+    -ug' \approx -Jf[2\cos(\theta) - 2a\sin(\theta)g'] + 2J_xf
+\end{align*}
+
+Rearanging these become
+
+\begin{align*}
+    f' &\approx -4Ja\sin(\theta)\frac{gg'}{u + 2Ja\sin(\theta)f} \\
+    g' &\approx \frac{2(J\cos(\theta) - J_x)}{u + 2Ja\sin(\theta)f}f
+\end{align*}
+
+It may be easier to work with 
+
+\begin{align*}
+    -uf' &\approx J[0 +1/2\sin(\theta)(4gg' + 4gg' + 4ff')] \\
+            &= 2J\sin(\theta)[2gg' + ff']
+\end{align*}
+
+\begin{align*}
+    -ug' \approx -Jf[2\cos(\theta) - 2\sin(\theta)g'] + 2J_xf
+\end{align*}
+
+directly.
+
+\subsection{Considering effect of control}
+
+When we add in the control push, since the solitons appear near $\lambda = 0$, we should look for results where the first order terms of the evolution.
+The result is 
+
+\begin{align*}
+    -uf' &\approx 2J\sin(\theta)[2gg' + ff'] \\
+     -ug'&\approx 2Jf\sin(\theta)g'
+\end{align*}
+
+The second of these gives
+
+\[
+g'(u+2Jsin(\theta)f) = 0
+\]
+
+implying
+
+\[g' = 0 \text{ or } f = \frac{-u}{2Jsin(\theta)}\]
+
+Thus either $g$ or $f$ is constant. In the case that $g$ is constant the first equation gives
+
+\[-uf' = 2Jsin(\theta)ff'\]
+
+\section{Harmonic Oscillators to Model Spin}
+
+Consider a series RLC circuit driven by an AC voltage source:
+\[
+V_{\text{drive}}(t) = V_0 \cos(\omega_d t)
+\]
+The circuit contains:
+\begin{itemize}
+  \item Inductor with inductance $L$
+  \item Resistor with resistance $R$
+  \item Capacitor with capacitance $C$
+\end{itemize}
+
+\subsection{Equation of Motion}
+\[
+V_L + V_R + V_C = V_{\text{drive}}(t)
+\]
+\[
+\boxed{L \ddot{Q} + R \dot{Q} + \frac{1}{C} Q = V_0 \cos(\omega_d t)}
+\]
+
+\subsection{Solution Structure}
+
+The general solution is:
+\[
+Q(t) = Q_{\text{hom}}(t) + Q_{\text{part}}(t)
+\]
+
+The homogeneous solution describes transient behavior and decays over time due to resistance with time scale.
+
+\[\tau = -\frac{2L}{R}\].
+
+As in 
+
+\[Q_{\text{hom}}(t) \sim e^{-\frac{Rt}{2L}}\]
+
+I seek a steady state solution, so I feel like we should try something like:
+\[
+Q_{\text{part}}(t) = A \cos(\omega_d t) + B \sin(\omega_d t)
+\]
+
+\subsection{Determaning Particular Solution Ansatz}
+Compute the first and second derivatives:
+\[
+\dot{Q}_{\text{part}}(t) = -A \omega_d \sin(\omega_d t) + B \omega_d \cos(\omega_d t)
+\]
+\[
+\ddot{Q}_{\text{part}}(t) = -A \omega_d^2 \cos(\omega_d t) - B \omega_d^2 \sin(\omega_d t)
+\]
+
+Substitute into the differential equation:
+\begin{align*}
+&L \ddot{Q}_{\text{part}} + R \dot{Q}_{\text{part}} + \frac{1}{C} Q_{\text{part}} = V_0 \cos(\omega_d t) \\
+&= L(-A \omega_d^2 \cos(\omega_d t) - B \omega_d^2 \sin(\omega_d t)) \\
+&\quad + R(-A \omega_d \sin(\omega_d t) + B \omega_d \cos(\omega_d t)) \\
+&\quad + \frac{1}{C}(A \cos(\omega_d t) + B \sin(\omega_d t))
+\end{align*}
+
+Group terms:
+\[
+\text{Coefficient of } \cos(\omega_d t):\quad -L A \omega_d^2 + R B \omega_d + \frac{A}{C}
+\]
+\[
+\text{Coefficient of } \sin(\omega_d t):\quad -L B \omega_d^2 - R A \omega_d + \frac{B}{C}
+\]
+
+Set the equation equal to the driving term \( V_0 \cos(\omega_d t) \), and match coefficients:
+\[
+\begin{cases}
+- L A \omega_d^2 + R B \omega_d + \frac{A}{C} = V_0 \\
+- L B \omega_d^2 - R A \omega_d + \frac{B}{C} = 0
+\end{cases}
+\]
+
+\subsection*{Solve the System}
+
+We now solve this linear system for \( A \) and \( B \).
+
+Define:
+\[
+X := \left( \frac{1}{C} - L \omega_d^2 \right), \quad Y := R \omega_d
+\]
+
+Then the system becomes:
+\[
+\begin{cases}
+A X + B Y = V_0 \\
+B X - A Y = 0
+\end{cases}
+\]
+
+Solve the second equation for \( B \):
+\[
+B X = A Y \Rightarrow B = \frac{A Y}{X}
+\]
+
+Substitute into the first equation:
+\[
+A X + \left( \frac{A Y}{X} \right) Y = V_0
+\Rightarrow A \left( X + \frac{Y^2}{X} \right) = V_0
+\Rightarrow A = \frac{V_0 X}{X^2 + Y^2}
+\]
+
+Then:
+\[
+B = \frac{A Y}{X} = \frac{V_0 Y}{X^2 + Y^2}
+\]
+
+\subsection*{Final Particular Solution}
+
+Thus, the particular solution is:
+\[
+Q_{\text{part}}(t) = \frac{V_0 X}{X^2 + Y^2} \cos(\omega_d t) + \frac{V_0 Y}{X^2 + Y^2} \sin(\omega_d t)
+\]
+\[
+\text{where } X = \left( \frac{1}{C} - L \omega_d^2 \right), \quad Y = R \omega_d
+\]
+
+This can also be written in amplitude-phase form:
+\[
+Q_{\text{part}}(t) = Q_p \cos(\omega_d t - \delta)
+\]
+
+with:
+\[
+Q_p = \frac{V_0}{\sqrt{X^2 + Y^2}} = \frac{V_0}{\sqrt{\left( \frac{1}{C} - L \omega_d^2 \right)^2 + (R \omega_d)^2}}
+\]
+\[
+\tan \delta = \frac{Y}{X} = \frac{R \omega_d}{\frac{1}{C} - L \omega_d^2}
+\]
+
+\subsection*{Voltage Across the Capacitor}
+
+The voltage across the capacitor is:
+\[
+V_C(t) = \frac{Q_{\text{part}}(t)}{C} = \frac{Q_p}{C} \cos(\omega_d t - \delta)
+\]
+
+Final expression:
+\[
+\boxed{
+V_C(t) = \frac{V_0}{\sqrt{(1 - L C \omega_d^2)^2 + (R C \omega_d)^2}} \cos(\omega_d t - \delta)
+}
+\quad \text{with} \quad
+\tan \delta = \frac{R \omega_d}{\frac{1}{C} - L \omega_d^2}
+\]
+
+\end{document}
