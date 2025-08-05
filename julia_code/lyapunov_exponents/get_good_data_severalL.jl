@@ -18,8 +18,8 @@ using Distributed
 Plots.theme(:dark)
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-# @everywhere num_unit_cells_vals = [8, 16]
+# @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
+@everywhere num_unit_cells_vals = [8, 16]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -29,9 +29,9 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+@everywhere num_initial_conds = 1 # We are avraging over x initial conditions
+# a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
@@ -146,7 +146,7 @@ plt = plot()
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))"
 
 for L in num_unit_cells_vals * N_val
-    
+    L = Int(L)
     filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
         deserialize(io)
@@ -183,7 +183,8 @@ plt = plot(
 
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
-    plot!(plt, a_vals, collected_lambda_SEMs[L] * sqrt(num_initial_conds-1),
+    L = Int(L)
+    plot!(plt, a_vals, [val for val in values(sort(collected_lambda_SEMs[L]))] * sqrt(num_initial_conds-1),
           label="L=$L",
           linestyle=:solid,
           markersize=5,
@@ -198,7 +199,7 @@ println("Saved Plot: $(var_plot_path)")
 # Save CSV
 print("Saving CSVs")
 for L in num_unit_cells_vals * N_val
-
+    L = Int(L)
     filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
     collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
         deserialize(io)
@@ -223,6 +224,7 @@ cols = Vector{Vector{Union{Missing, Float64}}}()
 push!(cols, sorted_a_vals)
     
 for L in num_unit_cells_vals * N_val
+    L = Int(L)
     push!(cols, [collected_lambdas[L][k] for k in sorted_a_vals])
     push!(cols, [collected_lambda_SEMs[L][k] for k in sorted_a_vals])
 end 
