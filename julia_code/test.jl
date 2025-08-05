@@ -1,14 +1,13 @@
-using CSV
-using DataFrames
 
-function save_to_csv(data1::Vector{Float64}, data2::Vector{Float64}, filename::String)
+include("analytics/spin_diffrences.jl")
 
-    df = DataFrame(Index = 1:length(data1), Data1 = data1, Data2 = data2)
-    CSV.write(filename, df)
+A = [[1., 1., 0.], [1., 0., 0.]]
+B = [[1., 0., 1.], [0., -1., 0.]]
+@time begin
+    println(weighted_spin_difference(A, B))
 end
 
-# Example usage:
-data1 = [1.0, 2.0, 3.0]
-data2 = [4.0, 5.0, 6.0]
+@time begin
+   println(weighted_spin_difference2(A, B)) 
+end
 
-save_to_csv(data1, data2, "test.csv")

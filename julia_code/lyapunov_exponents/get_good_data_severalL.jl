@@ -84,7 +84,7 @@ for num_unit_cells in num_unit_cells_vals
                 
                 # Will be used to calculate lyop exp
                 current_spin_dists = zeros(n)
-                current_sdiffs = [Vector{Float64}([0.0 for _ in 1:L]) for _ in 1:n]
+                current_sdiffs = zeros(n)
 
                 # Do n pushes 
                 for current_n in 1:n
@@ -98,7 +98,7 @@ for num_unit_cells in num_unit_cells_vals
                     current_spin_dists[current_n] = calculate_spin_distence(spin_chain_A, spin_chain_B)
                     spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
 
-                    current_sdiffs[current_n] = get_delta_spin(spin_chain_A, S_NAUGHT)
+                    current_sdiffs[current_n] = weighted_spin_difference(spin_chain_A, S_NAUGHT)
                 end
                 current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
                 
