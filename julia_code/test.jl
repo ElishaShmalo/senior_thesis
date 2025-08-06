@@ -1,3 +1,4 @@
+using LinearAlgebra
 
 include("analytics/spin_diffrences.jl")
 
