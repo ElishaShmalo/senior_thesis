@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
-~/.juliaup/bin/julia -p 64 julia_code/lyapunov_exponents/get_good_data_severalL.jl 
+ ~/.juliaup/bin/julia -p 64 julia_code/lyapunov_exponents/get_good_data_severalL.jl 
 

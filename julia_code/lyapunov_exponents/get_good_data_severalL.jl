@@ -1,6 +1,8 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
 using Distributed
 
+addprocs(5)
+
 # Imports
 @everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
 
@@ -18,8 +20,8 @@ using Distributed
 Plots.theme(:dark)
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-# @everywhere num_unit_cells_vals = [8, 16]
+# @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
+@everywhere num_unit_cells_vals = [8, 16]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -29,9 +31,9 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+@everywhere num_initial_conds = 5 # We are avraging over x initial conditions
+# a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
 # a_vals = sort(union(a_vals, trans_a_vals))
 
@@ -167,7 +169,7 @@ plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a
 
 xlabel!("a")
 ylabel!("λ")
-display(plt)
+# display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
@@ -237,3 +239,4 @@ CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
 
 end
+
