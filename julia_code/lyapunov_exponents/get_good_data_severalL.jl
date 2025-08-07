@@ -67,11 +67,11 @@ for num_unit_cells in num_unit_cells_vals
         println("L_val: $L | a_val: $a_val")
         a_val_name = replace("$a_val", "." => "p")
         # We will avrage over this later
-        current_lambdas = SharedArray{Float64}(num_initial_conds)
+        current_lambdas = zeros(Float64, num_initial_conds)
 
         # define the variables for the workers to use
         let a_val=a_val, L=L, n=n, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func, num_skip=num_skip
-            @sync @distributed for init_cond in 1:num_initial_conds
+            current_lambdas = @distributed (vcat) for init_cond in 1:num_initial_conds
 
                 println("L_val: $L | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
@@ -100,12 +100,15 @@ for num_unit_cells in num_unit_cells_vals
 
                     current_sdiffs[current_n] = weighted_spin_difference(spin_chain_A, S_NAUGHT)
                 end
-                current_lambdas[init_cond] = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
+                lambda = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
                 
                 sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
                 make_path_exist(sample_filepath)
                 df = DataFrame(t = 1:n, lambda = calculate_lambda_per_time(current_spin_dists, epsilon), delta_s = current_sdiffs)
                 CSV.write(sample_filepath, df)
+
+                # return the calculated lambda
+                [lambda]
             end
         end
 
