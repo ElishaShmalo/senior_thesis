@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1754339179.19817 "/Users/elishashmalo/PycharmProjects/senior_thesis/latex/meeting_notes_questions/week_of_aug4/week_of_aug4.tex" "week_of_aug4.pdf" "week_of_aug4" 1754339179.4869 0
-  "/Users/elishashmalo/PycharmProjects/senior_thesis/latex/meeting_notes_questions/week_of_aug4/week_of_aug4.tex" 1754339178.99739 13210 2647ca600bc0ea51fba44837d0a1082e ""
+["pdflatex"] 1754588535.91383 "/Users/elishashmalo/PycharmProjects/senior_thesis/latex/meeting_notes_questions/week_of_aug4/week_of_aug4.tex" "week_of_aug4.pdf" "week_of_aug4" 1754588536.20756 0
+  "/Users/elishashmalo/PycharmProjects/senior_thesis/latex/meeting_notes_questions/week_of_aug4/week_of_aug4.tex" 1754588535.70784 15929 99737edb9a40a93078efb7a4c7e977d3 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -57,8 +57,8 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1747195380 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "week_of_aug4.aux" 1754339179.44873 1869 c840f6274aa03212451b3bfab89fadb0 "pdflatex"
-  "week_of_aug4.tex" 1754339178.99739 13210 2647ca600bc0ea51fba44837d0a1082e ""
+  "week_of_aug4.aux" 1754588536.16838 2221 5132670bcd21aa996e5fa1ce9530e95f "pdflatex"
+  "week_of_aug4.tex" 1754588535.70784 15929 99737edb9a40a93078efb7a4c7e977d3 ""
   (generated)
   "week_of_aug4.aux"
   "week_of_aug4.log"

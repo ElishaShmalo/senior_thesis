@@ -11,7 +11,7 @@ using Distributed
 @everywhere include("../utils/lyapunov.jl")
 @everywhere include("../analytics/spin_diffrences.jl")
 
-@time begin
+# @time begin
 
 
 # Set plotting theme
@@ -19,7 +19,8 @@ Plots.theme(:dark)
 
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-@everywhere num_unit_cells_vals = [32]
+@everywhere num_unit_cells_vals = [8, 16, 32]
+# @everywhere num_unit_cells_vals = [32]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness

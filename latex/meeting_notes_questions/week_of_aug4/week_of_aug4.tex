@@ -330,12 +330,12 @@ Rearanging these become
 It may be easier to work with 
 
 \begin{align*}
-    -uf' &\approx J[0 +1/2\sin(\theta)(4gg' + 4gg' + 4ff')] \\
-            &= 2J\sin(\theta)[2gg' + ff']
+    -uf' &\approx J[0 +1/2\sin(\theta)(4agg' + 4agg' + 4aff')] \\
+            &= 2aJ\sin(\theta)[2gg' + ff']
 \end{align*}
 
 \begin{align*}
-    -ug' \approx -Jf[2\cos(\theta) - 2\sin(\theta)g'] + 2J_xf
+    -ug' \approx -Jf[2\cos(\theta) - 2a\sin(\theta)g'] + 2J_xf
 \end{align*}
 
 directly.
@@ -346,23 +346,126 @@ When we add in the control push, since the solitons appear near $\lambda = 0$, w
 The result is 
 
 \begin{align*}
-    -uf' &\approx 2J\sin(\theta)[2gg' + ff'] \\
-     -ug'&\approx 2Jf\sin(\theta)g'
+    -uf' &\approx 2aJ\sin(\theta)[2gg' + ff'] \\
+     -ug'&\approx 2aJf\sin(\theta)g'
 \end{align*}
 
 The second of these gives
 
 \[
-g'(u+2Jsin(\theta)f) = 0
+g'(u+2aJsin(\theta)f) = 0
 \]
 
 implying
 
-\[g' = 0 \text{ or } f = \frac{-u}{2Jsin(\theta)}\]
+\[g' = 0 \text{ or } f = \frac{-u}{2aJsin(\theta)}\]
 
 Thus either $g$ or $f$ is constant. In the case that $g$ is constant the first equation gives
 
-\[-uf' = 2Jsin(\theta)ff'\]
+\[-uf' = 2aJsin(\theta)ff'\]
+
+Which implies that $f$ is constant implying (from \(g'(u+2aJsin(\theta)f) = 0\)) that $g$ is constant.
+
+I would say that constant solutions for $f$ and $g$ will not give rise to the solitons we are seeing. I good idea would be to go back 
+and expand $f$ and $g$ beyond the linear order for the equations of motion.
+
+\subsection{Going Back}
+
+Recall 
+
+\begin{align*}
+    -uf'(z)\approx J[&\cos(\theta)(2g(z) - g(z+a) - g(z-a)) \\
+                                +&1/2\sin(\theta)(g(z+a)^2 - g(z-a)^2 + 2g(z)(g(z+a) - g(z-a)) + f(z+a)^2 - f(z-a)^2)]
+\end{align*}
+
+\begin{align*}
+    -ug'(z) \approx -Jf(z)[&2\cos(\theta) + \sin(\theta)(g(z-a) - g(z+a))] \\
+                                  &+J_x(f(z+a) + f(z-a))
+\end{align*}
+
+we are going to be ignoring first order contributions because we are seeking solutions 
+near the phase transition. Thus we focus on
+
+\begin{align*}
+    -uf'(z)\approx \frac{J\sin(\theta)}{2}(g(z+a)^2 - g(z-a)^2 + 2g(z)(g(z+a) - g(z-a)) + f(z+a)^2 - f(z-a)^2)]
+\end{align*}
+
+\begin{align*}
+    -ug'(z) \approx Jf(z)\sin(\theta)(g(z+a) - g(z-a))
+\end{align*}
+
+expanding to second order gives
+
+\[
+f(z \pm a) \approx f(z) \pm af'(z) + \frac{a^2}{2}f''(z)
+\]
+
+and same for $g$.
+
+As before, write $f(z)$ as $f$ just for convinence. So
+\[
+f(z \pm a) \approx f \pm af' + \frac{a^2}{2}f''
+\]
+
+and same for $g$.
+
+Note that terms like $f(z+1) - f(z-1)$ are still simply $2af'$, while terms like
+$f(z+1) + f(z-1)$ are now $2f + a^2f''$.
+
+plugging these into our equations of motion gives
+
+\begin{align*}
+    -uf' \approx \frac{J\sin(\theta)}{2}[(2ag'(2g + a^2g'') + 2g(2ag') + 2af'(2f + a^2f'')]
+\end{align*}
+
+\begin{align*}
+    -ug' \approx Jf\sin(\theta)(2ag')
+\end{align*}
+
+From the second equation, which hasn't changed, we see that $g$ is constant or 
+
+\[
+f = \frac{-u}{2Ja\sin(\theta)}
+\]
+
+is constant.
+
+Now since the spiral states all have $s_j = 0$ constant, it might be benificial to look at the $f = \frac{-u}{2Ja\sin(\theta)}$ constant case.
+
+\subsubsection{Examining $f$ constant case}
+
+In such a case the first equation becomes 
+
+\[
+0 = \frac{J\sin\theta}{2}[2ag'(2g + a^2g'') + 4agg']
+\]
+
+Now we already chose $f$ constant, so lets assume $g$ not constant $\implies g' \neq 0$.
+
+This gives
+
+\[
+0 = 2a(2g + a^2g'') + 4ag
+\]
+
+which is linear and thus doesn't give a soliton. We are forced to consider $g' = 0$.
+
+\subsubsection{Considering constant $g$}
+
+In this case the second equation vanishes and the first equation gives
+
+\[
+-uf' = Ja\sin\theta f'(2f + a^2f'').
+\]
+
+Unless we take $f' = 0 \implies f$ is const, this gives.
+
+\[
+-u = Ja\sin\theta (2f + a^2f'')
+\]
+
+which is once again linear. It seems we are once again forced into $f$ and $g$ constant (might not be a bad idea).
+
 
 \section{Harmonic Oscillators to Model Spin}
 
