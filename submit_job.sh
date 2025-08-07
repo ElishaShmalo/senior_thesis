@@ -26,5 +26,5 @@ module load openmpi
 export OMP_NUM_THREADS=1
 
 
-~/.juliaup/bin/julia -p 50 julia_code/lyapunov_exponents/parallel_lambda_per_a.jl 
+ ~/.juliaup/bin/julia -p 50 julia_code/lyapunov_exponents/parallel_lambda_per_a.jl 
 

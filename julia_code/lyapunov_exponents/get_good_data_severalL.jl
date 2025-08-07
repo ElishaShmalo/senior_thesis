@@ -18,8 +18,8 @@ using Distributed
 Plots.theme(:dark)
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-# @everywhere num_unit_cells_vals = [8, 16]
+# @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
+@everywhere num_unit_cells_vals = [32]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -167,7 +167,7 @@ plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a
 
 xlabel!("a")
 ylabel!("λ")
-display(plt)
+# display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
@@ -237,3 +237,4 @@ CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
 
 end
+
