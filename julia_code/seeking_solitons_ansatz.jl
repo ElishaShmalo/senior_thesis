@@ -31,9 +31,9 @@ Tau_F = 1 / J
 T = global_L
 
 # --- Trying to Replecate Results ---
-num_init_cond = 1 # We are avraging over x initial conditions
+num_init_cond = 10 # We are avraging over x initial conditions
 # a_vals = [round(0.5 + i*0.1, digits = 2) for i in 0:5] 
-a_vals = [1.0] 
+a_vals = [0.72] 
 
 
 # We will use an array to store the results of the simulation for each a_val. 
@@ -43,7 +43,7 @@ a_vals = [1.0]
 # i.e. evolved_states[1, 2, :, :] is an array represnting the state of t=2, first initial condition
 
 # N_vals = [2, 4, 3, 6, 9, 10]
-N_vals = [4, 10]
+N_vals = [4]
 
 Js_rand = 0 # Js_rand ∈ {0, 1, 2}. 0: No random Js, 1: random J_x and J_y, 2: random J_x
 
@@ -72,18 +72,18 @@ for N_val in N_vals
         println("N: $N_val | a_val $a_val")
         current_spin_delta = [Vector{Vector{Float64}}([]) for _ in 1:num_init_cond] # []: Initial condition, Vec: Time, Vec: spin location, Float: δs
 
-        min_B = 0.1
-        # B = rand_float(min_B, 1)
-        B = 1.0
-        k = 1.0
-
-        phi_j_coff = 1
+        f = 0
+        g = 0
         for i in 1:num_init_cond
             println("N: $N_val | a_val $a_val | IC $(i)")
-
+            f = round(i / num_init_cond)
             
-            s_js = [j/L for j in -round(L/2):round(L/2)]
-            phi_js = [asin(j/L) for j in -round(L/2):round(L/2)]
+            s_js = [0.0 for j in -round(L/2):round(L/2)]
+            for j in round(L/2)-N_val:round(L/2)
+                s_js[Int(j)] = f
+            end
+
+            phi_js = [(2π/N_val) * j + g for j in 0:L-1]
 
             original_anstz = make_state_from_sj_phij(s_js[1:L], phi_js[1:L])
             # for j in eachindex(original_anstz)
@@ -92,7 +92,7 @@ for N_val in N_vals
             #     end
             # end
 
-            returned_states = state_evolve_func(original_anstz, a_val, L*J, Tau_F, S_NAUGHT)
+            returned_states = state_evolve_func(copy(J_vec), original_anstz, a_val, L*J, Tau_F, S_NAUGHT)
 
             current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
         end

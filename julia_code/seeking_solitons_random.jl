@@ -53,7 +53,7 @@ num_trials = 1
 for N_val in N_vals
     println("N: $N_val")
 
-    L = get_nearest(N_val, global_L)
+    L = 256
     
     # Define s_naught as a constant
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
@@ -61,16 +61,11 @@ for N_val in N_vals
     num_timesteps = L
 
     state_evolve_func = global_control_evolve
-    if N_val == 4 && Js_rand == 1 # Need to evolve with randomized J_vec for N=4
-        state_evolve_func = random_global_control_evolve
-    elseif N_val == 4 && Js_rand == 2
-        state_evolve_func = semirand_global_control_evolve
-    end
 
     J_vec = J .* [1, 1, 1]
 
-    num_spins_off = N_val # Number of spins that will be diffrent to the spiral
-    epsilon_off = 0.01 / num_spins_off
+    num_spins_off = N_val*10 # Number of spins that will be diffrent to the spiral
+    epsilon_off = 0.01
 
     for a_val in a_vals
         println("N: $N_val | a_val $a_val")
@@ -81,15 +76,15 @@ for N_val in N_vals
                 println("N: $N_val | a_val $a_val | IC $(i)")
 
                 # It's going to be a spiral state with some spins a bit off
-                # original_random = make_spiral_state(L, (2) / N_val)
-                # shifted_index = div(length(original_random), 2) - div(num_spins_off, 2)
-                # for i in 1:num_spins_off
-                #     original_random[i+ shifted_index] = make_random_spin(epsilon_off)
-                # end
+                original_random = make_spiral_state(L, (2) / N_val)
+                shifted_index = div(length(original_random), 2) - div(num_spins_off, 2)
+                for i in 1:num_spins_off
+                    original_random[i+ shifted_index] = make_random_spin(epsilon_off)
+                end
 
-                original_random = make_random_state(L)
+                # original_random = make_random_state(L)
 
-                returned_states = state_evolve_func(original_random, a_val, L*J, Tau_F, S_NAUGHT)
+                returned_states = state_evolve_func(copy(J_vec), original_random, a_val, L*J, Tau_F, S_NAUGHT)
 
                 current_spin_delta[i] = [get_delta_spin(state, S_NAUGHT) for state in returned_states]
             end

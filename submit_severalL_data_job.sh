@@ -6,15 +6,15 @@
 
 #SBATCH --job-name=bvar_Nvar_etavar         # Assign a short name to your job
 
-#SBATCH --nodes=2                   # Number of nodes you require
+#SBATCH --nodes=7                   # Number of nodes you require
 
-#SBATCH --ntasks=50                 # Total # of tasks across all nodes
+#SBATCH --ntasks=448                 # Total # of tasks across all nodes
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
-#SBATCH --mem=50000               # Real memory (RAM) required (MB)
+#SBATCH --mem=150000               # Real memory (RAM) required (MB)
 
-#SBATCH --time=01:00:00             # Total run time limit (HH:MM:SS)
+#SBATCH --time=48:00:00             # Total run time limit (HH:MM:SS)
 
 #SBATCH --output=slurm.%N.%j.out    # STDOUT output file
 
@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
- ~/.juliaup/bin/julia -p 50 julia_code/lyapunov_exponents/get_good_data_severalL.jl 
+ ~/.juliaup/bin/julia -p 448 julia_code/lyapunov_exponents/get_good_data_severalL.jl
 
