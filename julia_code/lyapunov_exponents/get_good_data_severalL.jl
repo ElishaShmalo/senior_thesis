@@ -2,7 +2,7 @@
 using Distributed
 
 # Imports
-@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, StaticArrays, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
+@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
 
 # Other files   
 @everywhere include("../utils/make_spins.jl")
@@ -19,7 +19,7 @@ Plots.theme(:dark)
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
 # @everywhere num_unit_cells_vals = [8, 16, 32]
-@everywhere num_unit_cells_vals = [64]
+@everywhere num_unit_cells_vals = [8, 16, 32, 64]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -30,10 +30,9 @@ Plots.theme(:dark)
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+# a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# trans_a_vals = [0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8]
-# a_vals = sort(union(a_vals, trans_a_vals))
+a_vals = [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675] # extra trans a_vals
 
 @everywhere epsilon = 0.1
 
@@ -191,7 +190,8 @@ for L in num_unit_cells_vals * N_val
           label="L=$L",
           linestyle=:solid,
           markersize=5,
-          linewidth=1)
+          linewidth=1,
+          marker = :circle)
 end
 
 var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_Vars.png"
@@ -240,4 +240,3 @@ CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")
 
 end
-
