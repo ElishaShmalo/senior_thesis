@@ -103,7 +103,7 @@ for num_unit_cells in num_unit_cells_vals
                 
                 sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
                 make_path_exist(sample_filepath)
-                df = DataFrame(t = 1:n, lambda = calculate_lambda_per_time(current_spin_dists, epsilon), delta_s = current_sdiffs)
+                df = DataFrame("t" => 1:n, "lambda" => calculate_lambda_per_time(current_spin_dists, epsilon), "delta_s" => current_sdiffs)
                 CSV.write(sample_filepath, df)
 
                 # return the calculated lambda

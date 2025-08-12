@@ -1,4 +1,5 @@
 # --- Equation of Motion and Utils for Runge Kutta ---
+using StaticArrays
 
 # Unroll state into a flat vector
 # We need to do this to use runge kutta

@@ -30,6 +30,10 @@ function calculate_lambda_per_time(spin_dists, epsilon_val)
     return map(log, spin_dists ./ epsilon_val)
 end
 
+function calculate_lambda_from_lambda_per_time(lambda_per_time, tau_val, n_val)
+    return sum(lambda_per_time) / (n_val * tau_val)
+end
+
 ## I've chosen to keep this *WRONG* implementation of Benettin for nostalgic pourpouses
 ## Note that this is the wrong way to do Benettin (though it may seem legit).
 ## If you want to hear why this is incorrect, feel free to contact me (Elisha Shmalo)
