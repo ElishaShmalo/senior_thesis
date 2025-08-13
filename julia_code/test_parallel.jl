@@ -1,4 +1,5 @@
 using Distributed
+using ClusterManagers
 
 addprocs(SlurmManager()) 
 
