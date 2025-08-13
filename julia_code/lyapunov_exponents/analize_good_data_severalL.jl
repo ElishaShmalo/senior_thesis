@@ -36,6 +36,8 @@ epsilon = 0.1
 
 N_val = 4
 
+# --- Lyop Analysis
+
 skip_fracts = [1/2, 3/5, 7/10, 7/8, 4/5, 9/10]
 
 for skip_fract in skip_fracts
@@ -43,8 +45,6 @@ for skip_fract in skip_fracts
     # Our dict for recording results
     collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
     collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
-    collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
-
 
     avrage_window_name = replace("$(round(1-skip_fract, digits=3))", "." => "p")
 
@@ -66,23 +66,18 @@ for skip_fract in skip_fracts
         # Initializes results for this N_val
         collected_lambdas[L] = Dict(a => 0 for a in a_vals)
         collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
-        collected_S_diffs[L] = Dict(a => zeros(n) for a in a_vals)
 
         for a_val in a_vals
             println("L_val: $L | a_val: $a_val")
             a_val_name = replace("$a_val", "." => "p")
             # We will avrage over this later
             current_lambdas = zeros(Float64, num_initial_conds)
-            current_S_diffs = zeros(Float64, n)
 
             for init_cond in 1:num_initial_conds
                 current_spin_dists = zeros(n)
-                current_sdiffs = zeros(n)
 
                 sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
                 df = CSV.read(sample_filepath, DataFrame)
-
-                current_spin_dists = current_spin_dists .+ df[!, "delta_s"]
 
                 sample_lambdas = df[!, "lambda"]
                 current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:end], tau, n - num_skip)
@@ -90,12 +85,10 @@ for skip_fract in skip_fracts
 
             collected_lambdas[L][a_val] = mean(current_lambdas)
             collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
-
-            current_S_diffs ./ num_initial_conds
         end
     end
 
-    # Save the plot
+    # --- Save the plot ---
     println("Making Plot")
     plt = plot()
     plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$avrage_window_name"
@@ -121,7 +114,7 @@ for skip_fract in skip_fracts
     savefig("figs/lambda_per_a/" * plot_path * ".png")
     println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
-    # Save varience plot
+    # --- Varience plot ---
     # Create plot
     plt = plot(
         title="Var(λ(a)) for N=$N_val",
@@ -157,7 +150,7 @@ for skip_fract in skip_fracts
         end
     end
 
-    # Colapsing varience plot
+    # --- Colapsing varience plot ---
     # Create plot
     plt = plot(
         title="Colapssing λ(a) for N=$N_val",
@@ -182,3 +175,94 @@ for skip_fract in skip_fracts
     savefig(collapsed_var_plot_path)
     println("Saved Plot: $(collapsed_var_plot_path)")
 end
+
+# --- S_diff analysis
+
+collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
+
+# --- Load in and take avrages from all samples ---
+for num_unit_cells in num_unit_cells_vals
+    L = num_unit_cells * N_val
+    println("L_val: $L")
+
+    # number of pushes we are going to do
+    n = Int(round(L^1.6))
+
+    states_evolve_func = random_evolve_spins_to_time
+
+    # Define s_naught to be used during control step
+    S_NAUGHT = make_spiral_state(L, (2) / N_val)
+
+    # Initializes results for this N_val
+    collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+
+    for a_val in a_vals
+        println("L_val: $L | a_val: $a_val")
+        a_val_name = replace("$a_val", "." => "p")
+        # We will avrage over this later
+        current_S_diffs = zeros(Float64, n)
+
+        for init_cond in 1:num_initial_conds
+
+            sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+            df = CSV.read(sample_filepath, DataFrame)
+
+            current_S_diffs = current_S_diffs .+ df[!, "delta_s"]
+        end
+
+        collected_S_diffs[L][a_val] = current_S_diffs ./ num_initial_conds
+    end
+end
+
+# --- Making S_diff Plots ---
+
+num_unit_cell_to_plot = num_unit_cells_vals[end]
+L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
+
+# Create plot
+plt = plot(
+    title="SDiff for N=$N_val | L = $(L_val_to_plot)",
+    xlabel="t",
+    ylabel="S_Diif"
+)
+a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76]
+# Plot data for each a_val
+for a_val in a_vals_to_plot
+
+    plot!(plt, collected_S_diffs[L_val_to_plot][a_val],
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,)
+end
+
+s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+make_path_exist(s_diff_plot_path)
+savefig(s_diff_plot_path)
+println("Saved Plot: $(s_diff_plot_path)")
+
+# --- Making Log(S_Diff) Plots ---
+
+num_unit_cell_to_plot = num_unit_cells_vals[end]
+L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
+
+# Create plot
+plt = plot(
+    title="SDiff for N=$N_val | L = $(L_val_to_plot)",
+    xlabel="t",
+    ylabel="S_Diif"
+)
+a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76]
+# Plot data for each a_val
+for a_val in a_vals_to_plot
+
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:2000]),
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,)
+end
+
+log_s_diff_plot_path = "figs/log_delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/Log_S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+make_path_exist(log_s_diff_plot_path)
+savefig(log_s_diff_plot_path)
+println("Saved Plot: $(log_s_diff_plot_path)")
+
