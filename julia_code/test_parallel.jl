@@ -1,10 +1,8 @@
 using Distributed
 
-@everywhere hostname = gethostname()
-hostnames = fetch.([@spawnat w hostname for w in workers()])
-
-println("Number of workers: ", nworkers())
-println("Worker hostnames: ", sort(unique(hostnames)))
+@everywhere begin
+    println("Hello from worker $(myid()) on host $(gethostname())")
+end
 
 @everywhere begin
     # Code in this block runs on all workers
