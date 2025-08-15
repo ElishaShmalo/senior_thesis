@@ -1,7 +1,10 @@
 using Distributed
-using ClusterManagers
 
-addprocs(SlurmManager()) 
+@everywhere hostname = gethostname()
+hostnames = fetch.([@spawnat w hostname for w in workers()])
+
+println("Number of workers: ", nworkers())
+println("Worker hostnames: ", sort(unique(hostnames)))
 
 @everywhere begin
     # Code in this block runs on all workers
@@ -23,3 +26,6 @@ println("Running parallel computation on ", nworkers(), " workers...")
 end
 
 println("Done:")
+
+
+

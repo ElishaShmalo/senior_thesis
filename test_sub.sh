@@ -24,6 +24,6 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
-srun ~/.juliaup/bin/julia julia_code/test_parallel.jl
+srun ~/.juliaup/bin/julia -p $((SLURM_NTASKS - 1)) julia_code/lyapunov_exponents/get_good_data_severalL.jl
 
 
