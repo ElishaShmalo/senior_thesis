@@ -4,6 +4,10 @@ using SlurmClusterManager
 
 addprocs(SlurmManager())
 
+@everywhere begin
+    println("Hello from worker $(myid()) on host $(gethostname())")
+end
+
 # Imports
 @everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
 
