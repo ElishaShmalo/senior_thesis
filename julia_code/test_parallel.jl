@@ -1,4 +1,7 @@
 using Distributed
+using SlurmClusterManager
+
+addprocs(SlurmManager())
 
 @everywhere begin
     println("Hello from worker $(myid()) on host $(gethostname())")

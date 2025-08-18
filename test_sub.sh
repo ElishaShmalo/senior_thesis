@@ -8,7 +8,7 @@
 
 #SBATCH --nodes=2                   # Number of nodes you require
 
-#SBATCH --ntasks=20               # Total # of tasks across all nodes
+#SBATCH --ntasks=128               # Total # of tasks across all nodes
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
