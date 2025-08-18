@@ -1,5 +1,8 @@
 # In this file we numerically approximate the Lyapunov for diffrent a-vals and N (for the spiral) vals using the tech from Benettin
 using Distributed
+using SlurmClusterManager
+
+addprocs(SlurmManager())
 
 # Imports
 @everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
@@ -18,8 +21,8 @@ Plots.theme(:dark)
 
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
-# @everywhere num_unit_cells_vals = [8, 16, 32]
-@everywhere num_unit_cells_vals = [8, 16, 32, 64]
+@everywhere num_unit_cells_vals = [8]
+# @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -142,7 +145,7 @@ for num_unit_cells in num_unit_cells_vals
     end
 end
 
-# Save the plot
+# --- Save the plot ---
 println("Making Plot")
 plt = plot()
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))"
@@ -175,7 +178,7 @@ mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
-# Save varience plot
+# --- Save varience plot ---
 # Create plot
 plt = plot(
     title="Var(λ(a)) for N=$N_val",
@@ -199,7 +202,7 @@ make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
 
-# Save CSV
+# --- Save CSV ---
 print("Saving CSVs")
 for L in num_unit_cells_vals * N_val
     L = Int(L)
