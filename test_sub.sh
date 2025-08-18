@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
-srun --ntasks=128 ~/.juliaup/bin/julia julia_code/test_parallel.jl
+srun ~/.juliaup/bin/julia julia_code/test_parallel.jl
 
