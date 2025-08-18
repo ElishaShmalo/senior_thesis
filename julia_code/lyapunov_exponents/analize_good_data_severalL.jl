@@ -36,7 +36,7 @@ epsilon = 0.1
 
 N_val = 4
 
-# --- Lyop Analysis
+# --- Lyop Analysis ---
 
 skip_fracts = [1/2, 3/5, 7/10, 7/8, 4/5, 9/10]
 
@@ -85,6 +85,26 @@ for skip_fract in skip_fracts
 
             collected_lambdas[L][a_val] = mean(current_lambdas)
             collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
+        end
+
+        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)"
+
+        # Make large .csv file
+        # Extract and sort keys and values
+        lambda_dict = collected_lambdas[L]
+        sems_dict = collected_lambda_SEMs[L]
+        dict_keys = sort(collect(keys(lambda_dict)))
+
+        # Prepare rows: each row is [aval, lambda, lambda_sem]
+        rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
+
+        # Make output CSV path
+        csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
+
+        # Write to CSV with header
+        open(csv_path, "w") do io
+            writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
+            writedlm(io, rows, ',')                                # Data rows
         end
     end
 
