@@ -1,7 +1,5 @@
 using Distributed
 
-addprocs(20)
-
 @everywhere begin
     println("Hello from worker $(myid()) on host $(gethostname())")
 end
