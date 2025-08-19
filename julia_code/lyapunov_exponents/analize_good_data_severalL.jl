@@ -261,7 +261,7 @@ L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76, 0.77]
 
-t_limit = Int(round(min(2000, L_val_to_plot^1.6)))
+t_limit = Int(round(min(1000, L_val_to_plot^1.6)))
 
 # Create plot
 plt = plot(
@@ -285,7 +285,7 @@ savefig(log_s_diff_plot_path)
 println("Saved Plot: $(log_s_diff_plot_path)")
 
 # Zoomed in plot
-y_lims = (-15, 0)
+y_min = (-15, nothing)
 
 # Create plot
 plt = plot(
@@ -348,7 +348,7 @@ plt = plot(
 for a_val in a_vals_to_plot
     xs = 1:length(log_s_diff_to_fit[a_val])
 
-    plot!(plt, log_s_diff_to_fit[a_val],
+    plot!(plt, xs, log_s_diff_to_fit[a_val],
         label="a = $(a_val)",
         linestyle=:solid,
         linewidth=1,)
@@ -382,9 +382,8 @@ make_path_exist(fitted_log_s_diff_csv_path)
 CSV.write(fitted_log_s_diff_csv_path, fit_df)
 
 
-
 # --- Decay Timescale as Func of a for all L --- 
-min_val = -10
+min_val = -7
 
 # a_vals = [val for val in a_vals if 0.74 <= val <= 0.78]
 
@@ -415,7 +414,7 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, a_vals, [1/val for val in values(sort(all_log_s_diff_slopes[L]))],
+    plot!(plt, a_vals, [-1/val for val in values(sort(all_log_s_diff_slopes[L]))],
         label="L=$L",
         linestyle=:solid,
         markersize=5,
