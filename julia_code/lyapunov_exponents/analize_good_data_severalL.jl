@@ -1,6 +1,6 @@
 
 # Imports
-using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
+using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -55,8 +55,6 @@ for skip_fract in skip_fracts
 
         # number of pushes we are going to do
         n = Int(round(L^1.6))
-
-        states_evolve_func = random_evolve_spins_to_time
 
         num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
@@ -208,8 +206,6 @@ for num_unit_cells in num_unit_cells_vals
     # number of pushes we are going to do
     n = Int(round(L^1.6))
 
-    states_evolve_func = random_evolve_spins_to_time
-
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
@@ -245,7 +241,7 @@ plt = plot(
     xlabel="t",
     ylabel="S_Diif"
 )
-a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76]
+a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76, 0.77]
 # Plot data for each a_val
 for a_val in a_vals_to_plot
 
@@ -261,21 +257,23 @@ savefig(s_diff_plot_path)
 println("Saved Plot: $(s_diff_plot_path)")
 
 # --- Making Log(S_Diff) Plots ---
-
-num_unit_cell_to_plot = num_unit_cells_vals[end]
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
+
+a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76, 0.77]
+
+t_limit = Int(round(min(2000, L_val_to_plot^1.6)))
 
 # Create plot
 plt = plot(
-    title="SDiff for N=$N_val | L = $(L_val_to_plot)",
+    title="Log(SDiff )for N=$N_val | L = $(L_val_to_plot)",
     xlabel="t",
-    ylabel="S_Diif"
+    ylabel="Log(S_Diif)",
 )
-a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76]
+
 # Plot data for each a_val
 for a_val in a_vals_to_plot
 
-    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:2000]),
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:t_limit]),
         label="a = $(a_val)",
         linestyle=:solid,
         linewidth=1,)
@@ -286,3 +284,146 @@ make_path_exist(log_s_diff_plot_path)
 savefig(log_s_diff_plot_path)
 println("Saved Plot: $(log_s_diff_plot_path)")
 
+# Zoomed in plot
+y_lims = (-15, 0)
+
+# Create plot
+plt = plot(
+    title="Log(SDiff )for N=$N_val | L = $(L_val_to_plot)",
+    xlabel="t",
+    ylabel="Log(S_Diif)",
+    ylims=y_lims
+)
+
+# Plot data for each a_val
+for a_val in a_vals_to_plot
+
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:t_limit]),
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,)
+end
+
+log_s_diff_plot_path = "figs/log_delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/Zoomed_Log_S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+make_path_exist(log_s_diff_plot_path)
+savefig(log_s_diff_plot_path)
+println("Saved Plot: $(log_s_diff_plot_path)")
+
+# --- Fitting Log of S_diff ---
+# From the analysis of the plots, it seems that the first linear domain is as long as Log(S_diff) > some value, so we will 
+# Fit accordingly
+
+min_val = -7
+
+# Getting data to fit
+# Plot data for each a_val
+log_s_diff_to_fit = Dict{Float64, Vector{Float64}}()
+for a_val in a_vals_to_plot
+    println("a_val: $(a_val)")
+    log_s_diff_to_fit[a_val] = [val for val in log.(collected_S_diffs[L_val_to_plot][a_val][1:t_limit]) if val >= min_val]
+end
+
+log_s_diff_fits = Dict{Float64, Vector{Float64}}()
+# Get slope and intercept for each a_val
+for a_val in a_vals_to_plot
+    println("Fitting for a_val: $(a_val)")
+    data = log_s_diff_to_fit[a_val]
+    xs = 1:length(data)
+
+    df = DataFrame(x=xs, y=data)
+    model = lm(@formula(y ~ x), df)
+
+    log_s_diff_fits[a_val] = coef(model)  # gives [intercept, slope]
+end
+
+# Plotting the old data along with the fits
+# Create plot
+plt = plot(
+    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
+    xlabel="t",
+    ylabel="Log(S_Diif)",
+)
+
+# Plot data for each a_val
+for a_val in a_vals_to_plot
+    xs = 1:length(log_s_diff_to_fit[a_val])
+
+    plot!(plt, log_s_diff_to_fit[a_val],
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,)
+
+    plot!(plt, xs, log_s_diff_fits[a_val][2] .* xs .+ log_s_diff_fits[a_val][1],
+        label="a = $(a_val)",
+        linestyle=:dash,
+        linewidth=1,)
+end
+
+fitted_log_s_diff_plot_path = "figs/log_delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/Fitted_Log_S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+make_path_exist(fitted_log_s_diff_plot_path)
+savefig(fitted_log_s_diff_plot_path)
+println("Saved Plot: $(fitted_log_s_diff_plot_path)")
+
+# Making fit params csv file
+# Build a DataFrame with columns: a_val, intercept, slope
+fit_df = DataFrame(
+    a_val = Float64[],
+    intercept = Float64[],
+    slope = Float64[]
+)
+
+for (a_val, coeffs) in log_s_diff_fits
+    push!(fit_df, (a_val, coeffs[1], coeffs[2]))
+end
+
+# Save to CSV
+fitted_log_s_diff_csv_path = "data/log_delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/Fit_Params_Log_S_diff$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).csv"
+make_path_exist(fitted_log_s_diff_csv_path)
+CSV.write(fitted_log_s_diff_csv_path, fit_df)
+
+
+
+# --- Decay Timescale as Func of a for all L --- 
+min_val = -10
+
+# a_vals = [val for val in a_vals if 0.74 <= val <= 0.78]
+
+# Calculating the fits
+all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
+
+for L_val in N_val .* num_unit_cells_vals
+    all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
+    for a_val in a_vals
+        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val]) if val >= min_val]
+
+        xs = 1:length(log_s_diff_to_fit)
+
+        df = DataFrame(x=xs, y=log_s_diff_to_fit)
+        model = lm(@formula(y ~ x), df)
+
+        all_log_s_diff_slopes[L_val][a_val] = coef(model)[2]  # gives [intercept, slope]
+    end
+end
+
+# Create plot
+plt = plot(
+    title="Decay As Func of a",
+    xlabel="a",
+    ylabel="Decay"
+)
+
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    plot!(plt, a_vals, [1/val for val in values(sort(all_log_s_diff_slopes[L]))],
+        label="L=$L",
+        linestyle=:solid,
+        markersize=5,
+        linewidth=1,
+        marker = :circle)
+end
+
+decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
+make_path_exist(decay_per_a_plot_path)
+savefig(decay_per_a_plot_path)
+println("Saved Plot: $(decay_per_a_plot_path)")
