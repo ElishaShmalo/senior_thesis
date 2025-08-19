@@ -14,7 +14,7 @@
 
 #SBATCH --mem=255000               # Real memory (RAM) required (MB)
 
-#SBATCH --time=48:00:00             # Total run time limit (HH:MM:SS)
+#SBATCH --time=07:00:00             # Total run time limit (HH:MM:SS)
 
 #SBATCH --output=slurm.%N.%j.out    # STDOUT output file
 
