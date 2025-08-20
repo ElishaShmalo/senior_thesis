@@ -26,7 +26,7 @@ Plots.theme(:dark)
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
 # @everywhere num_unit_cells_vals = [8]
-@everywhere num_unit_cells_vals = [64]
+@everywhere num_unit_cells_vals = [8]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -39,7 +39,7 @@ Plots.theme(:dark)
 @everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
 # a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675] # extra trans a_vals
+a_vals = [0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.7, 0.8, 0.9] # trans a_vals
 
 @everywhere epsilon = 0.1
 
