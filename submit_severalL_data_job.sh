@@ -12,9 +12,9 @@
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
-#SBATCH --mem=512000               # Real memory (RAM) required (MB)
+#SBATCH --mem=250000               # Real memory (RAM) required (MB)
 
-#SBATCH --time=1:00:00             # Total run time limit (HH:MM:SS)
+#SBATCH --time=24:00:00             # Total run time limit (HH:MM:SS)
 
 #SBATCH --output=slurm.%N.%j.out    # STDOUT output file
 
