@@ -1,3 +1,0 @@
-GKS: cannot open display - headless operation mode active
-┌ Warning: Assignment to `csv_path` in soft scope is ambiguous because a global variable by the same name exists: `csv_path` will be treated as a new local. Disambiguate by using `local csv_path` to suppress this warning or `global csv_path` to assign to the existing global variable.
-└ @ /cache/home/es1074/senior_thesis/julia_code/lyapunov_exponents/get_good_data_severalL.jl:143
