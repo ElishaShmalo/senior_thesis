@@ -28,6 +28,7 @@ num_unit_cells_vals = [8, 16, 32, 64]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
+trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # a_vals = [0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77] # trans a_vals
@@ -37,86 +38,110 @@ epsilon = 0.1
 N_val = 4
 
 # --- Lyop Analysis ---
+avraging_windows = [1/2, 1/4, 1/8, 1/16, 1/32]
 
-skip_fracts = [1/2, 3/5, 6/8, 7/8, 4/5, 10/11]
-skip_fract = skip_fracts[4]
+collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
+collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
+for avraging_window in avraging_windows
+    skip_fract = 1 - avraging_window
+    avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
+    # Our dict for recording results
+    current_collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
+    current_collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
 
-# Our dict for recording results
-collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
-collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+    # --- Load in and take avrages from all samples ---
+    for num_unit_cells in num_unit_cells_vals
+        L = num_unit_cells * N_val
+        println("L_val: $L")
 
-avrage_window_name = replace("$(round(1-skip_fract, digits=3))", "." => "p")
+        # number of pushes we are going to do
+        n = Int(round(L^1.6))
 
-# --- Load in and take avrages from all samples ---
-for num_unit_cells in num_unit_cells_vals
-    L = num_unit_cells * N_val
-    println("L_val: $L")
+        num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
-    # number of pushes we are going to do
-    n = Int(round(L^1.6))
+        # Define s_naught to be used during control step
+        S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
-    num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
+        # Initializes results for this N_val
+        current_collected_lambdas[L] = Dict(a => 0 for a in a_vals)
+        current_collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
 
-    # Define s_naught to be used during control step
-    S_NAUGHT = make_spiral_state(L, (2) / N_val)
+        for a_val in a_vals
+            println("L_val: $L | a_val: $a_val")
+            a_val_name = replace("$a_val", "." => "p")
+            # We will avrage over this later
+            current_lambdas = zeros(Float64, num_initial_conds)
 
-    # Initializes results for this N_val
-    collected_lambdas[L] = Dict(a => 0 for a in a_vals)
-    collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
+            for init_cond in 1:num_initial_conds
+                current_spin_dists = zeros(n)
 
-    for a_val in a_vals
-        println("L_val: $L | a_val: $a_val")
-        a_val_name = replace("$a_val", "." => "p")
-        # We will avrage over this later
-        current_lambdas = zeros(Float64, num_initial_conds)
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+                df = CSV.read(sample_filepath, DataFrame)
 
-        for init_cond in 1:num_initial_conds
-            current_spin_dists = zeros(n)
+                sample_lambdas = df[!, "lambda"]
+                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:end], tau, n - num_skip)
+            end
 
-            sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
-            df = CSV.read(sample_filepath, DataFrame)
-
-            sample_lambdas = df[!, "lambda"]
-            current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:end], tau, n - num_skip)
+            current_collected_lambdas[L][a_val] = mean(current_lambdas)
+            current_collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
         end
 
-        collected_lambdas[L][a_val] = mean(current_lambdas)
-        collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
+        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)"
+
+        # Make large .csv file
+        # Extract and sort keys and values
+        lambda_dict = current_collected_lambdas[L]
+        sems_dict = current_collected_lambda_SEMs[L]
+        dict_keys = sort(collect(keys(lambda_dict)))
+
+        # Prepare rows: each row is [aval, lambda, lambda_sem]
+        rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
+
+        # Make output CSV path
+        csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
+
+        # Write to CSV with header
+        open(csv_path, "w") do io
+            writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
+            writedlm(io, rows, ',')                                # Data rows
+        end
     end
+    collected_lambdas[avraging_window] = current_collected_lambdas
+    collected_lambdas_SEMs[avraging_window] = current_collected_lambda_SEMs
+end
 
-    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)"
+# save_data_to_collapse
+for avraging_window in avraging_windows
+    avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
-    # Make large .csv file
-    # Extract and sort keys and values
-    lambda_dict = collected_lambdas[L]
-    sems_dict = collected_lambda_SEMs[L]
-    dict_keys = sort(collect(keys(lambda_dict)))
-
-    # Prepare rows: each row is [aval, lambda, lambda_sem]
-    rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
-
-    # Make output CSV path
-    csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
-
-    # Write to CSV with header
-    open(csv_path, "w") do io
-        writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
-        writedlm(io, rows, ',')                                # Data rows
+    for L in num_unit_cells_vals * N_val
+        L = Int(L)
+        data = Dict{Float64, Float64}()
+        for a_val in trans_a_vals
+            data[a_val] = collected_lambdas_SEMs[avraging_window][L][a_val] .* sqrt(num_initial_conds-1)
+        end
+        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(trans_a_vals))_$(maximum(trans_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name).csv"
+        save_simple_dict_to_csv(data, filepath)
     end
 end
+
+# --- Using Loaded Data ---
+avraging_window = 1/4
+avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
+
 
 # --- Save the plot ---
 println("Making Plot")
 plt = plot()
-plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$avrage_window_name"
+plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$avraging_window_name"
 
 for L in num_unit_cells_vals * N_val
     L = Int(L)
     plot!(
         sort(a_vals), 
-        [val for val in values(sort(collected_lambdas[L]))], 
-        yerror=[val for val in values(sort(collected_lambda_SEMs[L]))], 
+        [val for val in values(sort(collected_lambdas[avraging_window][L]))], 
+        yerror=[val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))], 
         marker = :circle, label="L=$L")
 end
 
@@ -135,7 +160,7 @@ println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 # --- Varience plot ---
 # Create plot
 plt = plot(
-    title="Var(λ(a)) for N=$N_val",
+    title="Var(λ(a)) for N=$N_val | AW=$avraging_window_name",
     xlabel="a",
     ylabel="Var(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)
@@ -144,7 +169,7 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, a_vals, [val for val in values(sort(collected_lambda_SEMs[L]))] * sqrt(num_initial_conds-1),
+    plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
         label="L=$L",
         linestyle=:solid,
         markersize=2,
@@ -152,24 +177,29 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avrage_window_name)_Vars.png"
+var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars.png"
 make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
 
 # --- Colapsing varience plot ---
+avraging_window = 1/32
+avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
+
+
+a_crit = 0.76285796	
+nu = 1.72541695
 # Create plot
 plt = plot(
-    title="Colapssing λ(a) for N=$N_val",
+    title="Colapss Var: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
     xlabel="a",
-    ylabel="Scaled Var(λ)"
+    ylabel="Scaled Var(λ) | AW=$avraging_window_name"
 )
-a_crit = 0.7625
-nu = 1.5
+
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, (a_vals .- a_crit) .* L^(1/nu), [val for val in values(sort(collected_lambda_SEMs[L]))] * sqrt(num_initial_conds-1),
+    plot!(plt, (a_vals .- a_crit) .* L^(1/nu), [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
         label="L=$L",
         linestyle=:dash,
         markersize=2,
@@ -177,12 +207,36 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avrage_window_name)_Vars_Collapsed.png"
+collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars_Collapsed.png"
 make_path_exist(collapsed_var_plot_path)
 savefig(collapsed_var_plot_path)
 println("Saved Plot: $(collapsed_var_plot_path)")
 
+# --- Zoomed Colapsing varience plot ---
+# Create plot
+plt = plot(
+    title="Colapss Var: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
+    xlabel="a",
+    ylabel="Scaled Var(λ) | AW=$avraging_window_name"
+)
 
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    plot!(plt, (trans_a_vals .- a_crit) .* L^(1/nu), [collected_lambdas_SEMs[avraging_window][L][a_val] for a_val in sort(trans_a_vals)] * sqrt(num_initial_conds-1),
+        label="L=$L",
+        linestyle=:dash,
+        markersize=2,
+        linewidth=1,
+        marker = :circle)
+end
+
+zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars_Collapsed.png"
+make_path_exist(zoomed_collapsed_var_plot_path)
+savefig(zoomed_collapsed_var_plot_path)
+println("Saved Plot: $(zoomed_collapsed_var_plot_path)")
+
+ 
 
 # ---------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------
@@ -283,13 +337,13 @@ println("Saved Plot: $(log_s_diff_plot_path)")
 display(plt)
 
 # Zoomed in plot
-num_unit_cell_to_plot = 8
+num_unit_cell_to_plot = 64
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 # y_lims = (-15, 0)
-a_vals_to_plot = [0.72, 0.73]
-t_limits = [1, 256]
-x_tick = 12
+a_vals_to_plot = [0.75, 0.7525]
+t_limits = [1, Int(round(L_val_to_plot^1.6))]
+x_tick = 500
 # Create plot
 plt = plot(
     title="Log(SDiff )for N=$N_val | L = $(L_val_to_plot)",
@@ -319,15 +373,15 @@ display(plt)
 # Fit accordingly
 
 times_to_fit = Dict{Int, Dict{Float64, Vector{Int}}}()
-times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [3, 70],
-                                               0.68 => [3, 80], 
-                                               0.69 => [3, 105], 
-                                               0.7 => [3, 150], 
-                                               0.71 => [3, 250], 
-                                               0.72 => [3, 400], 
-                                               0.73 => [3, 850], 
-                                               0.74 => [100, 1700], 
-                                               0.75 => [200, 3700], 
+times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
+                                               0.68 => [5, 80], 
+                                               0.69 => [5, 100], 
+                                               0.7 => [5, 120], 
+                                               0.71 => [10, 200], 
+                                               0.72 => [10, 325], 
+                                               0.73 => [100, 650], 
+                                               0.74 => [200, 1400], 
+                                               0.75 => [200, 3500], 
                                                0.7525 => [400, 5200], 
                                                0.755 => [300, 6500], 
                                                0.7575 => [200, Int(round(256^1.6))], 
@@ -336,14 +390,14 @@ times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [3, 70],
                                                0.765 => [200, Int(round(256^1.6))], 
                                                0.7675 => [200, Int(round(256^1.6))], 
                                                0.77 => [200, Int(round(256^1.6))])
-times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [3, 70],
-                                               0.68 => [3, 90], 
-                                               0.69 => [3, 110], 
-                                               0.7 => [3, 130], 
-                                               0.71 => [3, 210], 
-                                               0.72 => [3, 350], 
-                                               0.73 => [3, 810], 
-                                               0.74 => [100, 1550], 
+times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
+                                               0.68 => [5, 84], 
+                                               0.69 => [5, 96], 
+                                               0.7 => [5, 120], 
+                                               0.71 => [5, 180], 
+                                               0.72 => [5, 250], 
+                                               0.73 => [5, 500], 
+                                               0.74 => [100, 1350], 
                                                0.75 => [150, Int(round(128^1.6))-50], 
                                                0.7525 => [150, Int(round(128^1.6))], 
                                                0.755 => [150, Int(round(128^1.6))], 
@@ -461,15 +515,16 @@ CSV.write(fitted_log_s_diff_csv_path, fit_df)
 
 # --- Decay Timescale as Func of a for all L --- 
 
-# a_vals = [val for val in a_vals if 0.74 <= val <= 0.78]
+decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.76]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
 
 for L_val in N_val .* num_unit_cells_vals
     all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
-    for a_val in keys(times_to_fit[L_val])
-        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val][times_to_fit[L_val_to_plot][a_val][1]:times_to_fit[L_val_to_plot][a_val][2]])]
+    for a_val in decay_a_vals
+        println("L: $L_val | a_val: $a_val")
+        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val][times_to_fit[L_val][a_val][1]:times_to_fit[L_val][a_val][2]])]
 
         xs = 1:length(log_s_diff_to_fit)
 
@@ -490,7 +545,7 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, sort([a_val for a_val in keys(times_to_fit[L])]), [-1/val for val in values(sort(all_log_s_diff_slopes[L]))],
+    plot!(plt, sort([a_val for a_val in decay_a_vals]), [-1/val for val in values(sort(all_log_s_diff_slopes[L]))],
         label="L=$L",
         linestyle=:solid,
         markersize=5,
@@ -498,7 +553,116 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
+decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
 make_path_exist(decay_per_a_plot_path)
 savefig(decay_per_a_plot_path)
 println("Saved Plot: $(decay_per_a_plot_path)")
+
+# --- Scaled Decay Timescale as Func of a for all L --- 
+
+decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.7625]
+
+# Calculating the fits
+all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
+
+for L_val in N_val .* num_unit_cells_vals
+    all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
+    for a_val in decay_a_vals
+        println("L: $L_val | a_val: $a_val")
+        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val][times_to_fit[L_val][a_val][1]:times_to_fit[L_val][a_val][2]])]
+
+        xs = 1:length(log_s_diff_to_fit)
+
+        df = DataFrame(x=xs, y=log_s_diff_to_fit)
+        model = lm(@formula(y ~ x), df)
+
+        all_log_s_diff_slopes[L_val][a_val] = coef(model)[2]  # gives [intercept, slope]
+    end
+end
+
+a_crit = 0.76238656
+nu = 1.44235505
+z = 1.80503638
+
+# Create plot
+plt = plot(
+    title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 3)))",
+    xlabel="(a - a_c)L^(1/ν)",
+    ylabel="ξ_τ / L^{z}"
+)
+
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/val for val in values(sort(all_log_s_diff_slopes[L]))] ./ (L^z),
+        label="L=$L",
+        linestyle=:solid,
+        markersize=2,
+        linewidth=1,
+        marker = :circle)
+end
+
+scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
+make_path_exist(scaled_decay_per_a_plot_path)
+savefig(scaled_decay_per_a_plot_path)
+println("Saved Plot: $(scaled_decay_per_a_plot_path)")
+
+# save_data_to_collapse
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    data = Dict{Float64, Float64}()
+    for a_val in decay_a_vals
+        data[a_val] = -1/all_log_s_diff_slopes[L][a_val]
+    end
+    filepath = "data_to_collapse/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L).csv"
+    save_simple_dict_to_csv(data, filepath)
+end
+
+# --- Log Scaled Decay Timescale as Func of a for all L --- 
+
+decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.76]
+
+# Calculating the fits
+all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
+
+for L_val in N_val .* num_unit_cells_vals
+    all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
+    for a_val in decay_a_vals
+        println("L: $L_val | a_val: $a_val")
+        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val][times_to_fit[L_val][a_val][1]:times_to_fit[L_val][a_val][2]])]
+
+        xs = 1:length(log_s_diff_to_fit)
+
+        df = DataFrame(x=xs, y=log_s_diff_to_fit)
+        model = lm(@formula(y ~ x), df)
+
+        all_log_s_diff_slopes[L_val][a_val] = coef(model)[2]  # gives [intercept, slope]
+    end
+end
+
+a_crit = 0.76
+nu = 1.1
+z = 1.9
+
+# Create plot
+plt = plot(
+    title="Log Scaled ξ_τ (z=$(z),nu = $(nu),a_c = $(a_crit))",
+    xlabel="(a - a_c)L^(1/ν)",
+    ylabel="Log(ξ_τ / L^{z})"
+)
+
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), log.([-1/val for val in values(sort(all_log_s_diff_slopes[L]))] ./ (L^z)),
+        label="L=$L",
+        linestyle=:solid,
+        markersize=2,
+        linewidth=1,
+        marker = :circle)
+end
+
+log_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/log_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
+make_path_exist(log_scaled_decay_per_a_plot_path)
+savefig(log_scaled_decay_per_a_plot_path)
+println("Saved Plot: $(log_scaled_decay_per_a_plot_path)")

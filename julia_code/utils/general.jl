@@ -1,4 +1,4 @@
-using Distributed
+using Distributed, Interpolations
 
 function get_nearest(N, L)
     """Returns the nearest integer to L that is a multiple of N"""
@@ -43,4 +43,9 @@ function make_path_exist(path)
     mkpath(parent_dir)
 end
 
-
+function save_simple_dict_to_csv(dict::Dict{Float64, Float64}, filepath::String)
+    df = DataFrame("a" => collect(keys(dict)), "observations" => collect(values(dict)))
+    make_path_exist(filepath)
+    CSV.write(filepath, df)
+    println("Wrote csv $(filepath)")
+end
