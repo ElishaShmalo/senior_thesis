@@ -6,9 +6,9 @@
 
 #SBATCH --job-name=bvar_Nvar_etavar         # Assign a short name to your job
 
-#SBATCH --nodes=16                  # Number of nodes you require
+#SBATCH --nodes=8                  # Number of nodes you require
 
-#SBATCH --ntasks=1000                 # Total # of tasks across all nodes
+#SBATCH --ntasks=500                 # Total # of tasks across all nodes
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
