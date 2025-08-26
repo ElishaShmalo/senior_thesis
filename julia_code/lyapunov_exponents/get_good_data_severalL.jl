@@ -27,7 +27,7 @@ Plots.theme(:dark)
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64, 128]
 # @everywhere num_unit_cells_vals = [8]
-@everywhere num_unit_cells_vals = [128]
+@everywhere num_unit_cells_vals = [8]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -37,10 +37,9 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 2 # We are avraging over x initial conditions
-# a_vals = [round(0.6 + i*0.01, digits=2) for i in 0:25] # general a_vals
+@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
+a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.75 + 0.0025*i for i in 0:8])) # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.81, 0.82] # trans a_vals
 
 @everywhere epsilon = 0.1
 
@@ -79,8 +78,9 @@ for num_unit_cells in num_unit_cells_vals
         # define the variables for the workers to use
         let a_val=a_val, L=L, n=n, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func, num_skip=num_skip
             current_lambdas = @distributed (vcat) for init_cond in 1:num_initial_conds
-
                 println("L_val: $L | a_val: $a_val | IC: $init_cond / $num_initial_conds")
+
+                J_vec = J .* [1, 1, 1]
 
                 spin_chain_A = make_random_state(L) # our S_A
 
@@ -98,7 +98,7 @@ for num_unit_cells in num_unit_cells_vals
                     # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
 
                     # evolve both to time t' = t + tau with control
-                    evolved_results = states_evolve_func(copy(J_vec), spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
+                    evolved_results = states_evolve_func(J_vec, spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
                     spin_chain_A = evolved_results[1][end]
                     spin_chain_B = evolved_results[2][end]
 
@@ -149,63 +149,6 @@ for num_unit_cells in num_unit_cells_vals
         writedlm(io, rows, ',')                                # Data rows
     end
 end
-
-# --- Save the plot ---
-println("Making Plot")
-plt = plot()
-plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))"
-
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
-    collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
-        deserialize(io)
-    end
-    collected_lambda_SEMs[L] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
-        deserialize(io)
-    end
-    plot!(
-        sort(a_vals), 
-        [val for val in values(sort(collected_lambdas[L]))], 
-        yerror=[val for val in values(sort(collected_lambda_SEMs[L]))], 
-        marker = :circle, label="L=$L")
-end
-
-x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
-
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for N=$N_val")
-
-xlabel!("a")
-ylabel!("λ")
-# display(plt)
-
-mkpath(dirname("figs/lambda_per_a/" * plot_path))
-savefig("figs/lambda_per_a/" * plot_path * ".png")
-println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
-
-# --- Save varience plot ---
-# Create plot
-plt = plot(
-    title="Var(λ(a)) for N=$N_val",
-    xlabel="a",
-    ylabel="Var(λ)"
-)
-
-# Plot data for each L
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    plot!(plt, a_vals, [val for val in values(sort(collected_lambda_SEMs[L]))] * sqrt(num_initial_conds-1),
-          label="L=$L",
-          linestyle=:solid,
-          markersize=5,
-          linewidth=1,
-          marker = :circle)
-end
-
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_Vars.png"
-make_path_exist(var_plot_path)
-savefig(var_plot_path)
-println("Saved Plot: $(var_plot_path)")
 
 # --- Save CSV ---
 print("Saving CSVs")

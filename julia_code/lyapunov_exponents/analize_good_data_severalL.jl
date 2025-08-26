@@ -23,14 +23,14 @@ tau = 1 * J
 
 # General Variables
 # num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [8, 16, 32, 64]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 # num_unit_cells_vals = [8]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
 trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
-# a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+# a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
+a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # a_vals = [0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77] # trans a_vals
 
 epsilon = 0.1
@@ -38,7 +38,7 @@ epsilon = 0.1
 N_val = 4
 
 # --- Lyop Analysis ---
-avraging_windows = [1/2, 1/4, 1/8, 1/16, 1/32]
+avraging_windows = [1/32]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -127,9 +127,8 @@ for avraging_window in avraging_windows
 end
 
 # --- Using Loaded Data ---
-avraging_window = 1/4
+avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
-
 
 # --- Save the plot ---
 println("Making Plot")
@@ -142,12 +141,13 @@ for L in num_unit_cells_vals * N_val
         sort(a_vals), 
         [val for val in values(sort(collected_lambdas[avraging_window][L]))], 
         yerror=[val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))], 
-        marker = :circle, label="L=$L")
+        marker = :circle, markersize=2, label="L=$L")
 end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = 1, length = 1000)
 
 plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for N=$N_val")
+vline!(plt, [0.763], color=:red, lw=1) 
 
 xlabel!("a")
 ylabel!("λ")
@@ -157,12 +157,12 @@ mkpath(dirname("figs/lambda_per_a/" * plot_path))
 savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
-# --- Varience plot ---
+# --- Std plot ---
 # Create plot
 plt = plot(
-    title="Var(λ(a)) for N=$N_val | AW=$avraging_window_name",
+    title="Std(λ(a)) for N=$N_val | AW=$avraging_window_name",
     xlabel="a",
-    ylabel="Var(λ)",
+    ylabel="Std(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)
 )
 
@@ -177,12 +177,12 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars.png"
+var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds.png"
 make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
 
-# --- Colapsing varience plot ---
+# --- Colapsing std plot ---
 avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
@@ -191,9 +191,9 @@ a_crit = 0.76285796
 nu = 1.72541695
 # Create plot
 plt = plot(
-    title="Colapss Var: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
+    title="Colapss Std: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
     xlabel="a",
-    ylabel="Scaled Var(λ) | AW=$avraging_window_name"
+    ylabel="Scaled Std(λ) | AW=$avraging_window_name"
 )
 
 # Plot data for each L
@@ -207,17 +207,17 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars_Collapsed.png"
+collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds_Collapsed.png"
 make_path_exist(collapsed_var_plot_path)
 savefig(collapsed_var_plot_path)
 println("Saved Plot: $(collapsed_var_plot_path)")
 
-# --- Zoomed Colapsing varience plot ---
+# --- Zoomed Colapsing std plot ---
 # Create plot
 plt = plot(
-    title="Colapss Var: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
+    title="Colapss Std: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
     xlabel="a",
-    ylabel="Scaled Var(λ) | AW=$avraging_window_name"
+    ylabel="Scaled Std(λ) | AW=$avraging_window_name"
 )
 
 # Plot data for each L
@@ -231,12 +231,62 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Vars_Collapsed.png"
+zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds_Collapsed.png"
 make_path_exist(zoomed_collapsed_var_plot_path)
 savefig(zoomed_collapsed_var_plot_path)
 println("Saved Plot: $(zoomed_collapsed_var_plot_path)")
 
- 
+# --- Plotting Length and Height of Jump as Function of L
+jump_start_a_vals = Dict{Int, Float64}(32 => 0.72, 64 => 0.74, 128 => 0.75, 256 => 0.7525)
+jump_end_a_vals = Dict{Int, Float64}(32 => 0.8, 64 => 0.79, 128 => 0.785, 256 => 0.78)
+jump_start_lambda_vals = Dict{Int, Float64}(32 => -0.296, 64 => -0.264, 128 =>  -0.244, 256 =>  -0.243)
+jump_end_lambda_vals = Dict{Int, Float64}(32 => 0.390, 64 => 0.370, 128 =>  0.380, 256 =>  0.380)
+
+base_plot_path = "figs/lambda_analysis/N$N_val/IC$num_initial_conds/SeveralLs/lambda_gap_analysis_N$(N_val)_IC$(num_initial_conds)_L$(join(sort(num_unit_cells_vals)*N_val))"
+make_path_exist(base_plot_path)
+
+# Ploting width
+plt = plot(
+    title="Jump Width",
+    xlabel="L",
+    ylabel="a diffrence"
+)
+plot!(plt, log.([L for L in keys(sort(jump_start_a_vals))]), log.([jump_end_a_vals[L] - jump_start_a_vals[L] for L in keys(sort(jump_start_a_vals))]))
+savefig("$(base_plot_path)_jump_width.png")
+println("Saved ", "$(base_plot_path)_jump_width.png")
+
+# Plotting width gap
+plt = plot(
+    title="Jump a_val limits",
+    xlabel="L",
+    ylabel="a"
+)
+plot!(plt, [L for L in keys(sort(jump_start_a_vals))], [jump_start_a_vals[L] for L in keys(sort(jump_start_a_vals))], label="a_min")
+plot!(plt, [L for L in keys(sort(jump_start_a_vals))], [jump_end_a_vals[L] for L in keys(sort(jump_start_a_vals))], label="a_max")
+savefig("$(base_plot_path)_jump_width_gap.png")
+println("Saved ", "$(base_plot_path)_jump_width_gap.png")
+
+# Plotting height
+plt = plot(
+    title="Jump Height",
+    xlabel="L",
+    ylabel="lambda diffrence"
+)
+plot!(plt, [L for L in keys(sort(jump_end_lambda_vals))], [jump_end_lambda_vals[L] - jump_start_lambda_vals[L] for L in keys(sort(jump_start_a_vals))])
+savefig("$(base_plot_path)_jump_height.png")
+println("Saved ", "$(base_plot_path)_jump_height.png")
+
+# Plotting height gap
+plt = plot(
+    title="Jump lambda limits",
+    xlabel="L",
+    ylabel="lambda"
+)
+plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_start_lambda_vals[L] for L in keys(sort(jump_start_a_vals))], label="lambda_min")
+plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_end_lambda_vals[L] for L in keys(sort(jump_start_a_vals))], label="lambda_max")
+savefig("$(base_plot_path)_jump_height_gap.png")
+println("Saved ", "$(base_plot_path)_jump_height_gap.png")
+
 
 # ---------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------
@@ -580,9 +630,22 @@ for L_val in N_val .* num_unit_cells_vals
     end
 end
 
-a_crit = 0.76238656
-nu = 1.44235505
-z = 1.80503638
+# save_data_to_collapse
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    data = Dict{Float64, Float64}()
+    for a_val in decay_a_vals
+        data[a_val] = -1/all_log_s_diff_slopes[L][a_val]
+    end
+    filepath = "data_to_collapse/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L).csv"
+    save_simple_dict_to_csv(data, filepath)
+end
+
+# Plotting the collapse
+
+a_crit = 0.76285796
+nu = 1.72541695
+z = 1.6
 
 # Create plot
 plt = plot(
@@ -607,48 +670,18 @@ make_path_exist(scaled_decay_per_a_plot_path)
 savefig(scaled_decay_per_a_plot_path)
 println("Saved Plot: $(scaled_decay_per_a_plot_path)")
 
-# save_data_to_collapse
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    data = Dict{Float64, Float64}()
-    for a_val in decay_a_vals
-        data[a_val] = -1/all_log_s_diff_slopes[L][a_val]
-    end
-    filepath = "data_to_collapse/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L).csv"
-    save_simple_dict_to_csv(data, filepath)
-end
+# Plotting log of the collapse
 
-# --- Log Scaled Decay Timescale as Func of a for all L --- 
-
-decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.76]
-
-# Calculating the fits
-all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
-
-for L_val in N_val .* num_unit_cells_vals
-    all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
-    for a_val in decay_a_vals
-        println("L: $L_val | a_val: $a_val")
-        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L_val][a_val][times_to_fit[L_val][a_val][1]:times_to_fit[L_val][a_val][2]])]
-
-        xs = 1:length(log_s_diff_to_fit)
-
-        df = DataFrame(x=xs, y=log_s_diff_to_fit)
-        model = lm(@formula(y ~ x), df)
-
-        all_log_s_diff_slopes[L_val][a_val] = coef(model)[2]  # gives [intercept, slope]
-    end
-end
-
-a_crit = 0.76
-nu = 1.1
-z = 1.9
+a_crit = 0.76285796
+nu = 1.72541695
+z = 1.7
 
 # Create plot
 plt = plot(
-    title="Log Scaled ξ_τ (z=$(z),nu = $(nu),a_c = $(a_crit))",
+    title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 3)))",
     xlabel="(a - a_c)L^(1/ν)",
-    ylabel="Log(ξ_τ / L^{z})"
+    ylabel="ξ_τ / L^{z}",
+    xlims=(-1, 0)
 )
 
 # Plot data for each L

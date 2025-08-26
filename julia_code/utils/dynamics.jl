@@ -127,7 +127,7 @@ end
 function random_global_control_evolve(L_J_vec, original_state, a_val, T, t_step, s_0)
     current_u = flatten_state(original_state)
     us_of_time = Vector{Vector{Float64}}([zeros(length(current_u)) for _ in 0:div(T, t_step)])
-
+    println(length(us_of_time))
     us_of_time[1] = current_u
     t = t_step
     while t < T + t_step
