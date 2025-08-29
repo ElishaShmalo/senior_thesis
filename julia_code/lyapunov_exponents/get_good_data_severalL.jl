@@ -38,12 +38,16 @@ Plots.theme(:dark)
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.75 + 0.0025*i for i in 0:8])) # general a_vals
+# a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.75 + 0.0025*i for i in 0:8])) # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+a_vals = [0.763]
 
 @everywhere epsilon = 0.1
 
 @everywhere N_val = 4
+
+z_val = 1.8
+z_val_name = replace("$z_val", "." => "p")
 
 # --- Calculating Lambdas ---
 
@@ -56,7 +60,7 @@ for num_unit_cells in num_unit_cells_vals
     println("L_val: $L")
 
     # number of pushes we are going to do
-    n = Int(round(L^1.6))
+    n = Int(round(L^z_val))
 
     states_evolve_func = random_evolve_spins_to_time
 
@@ -109,7 +113,7 @@ for num_unit_cells in num_unit_cells_vals
                 end
                 lambda = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
                 
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val)_sample$(init_cond)"
                 make_path_exist(sample_filepath)
                 df = DataFrame("t" => 1:n, "lambda" => calculate_lambda_per_time(current_spin_dists, epsilon), "delta_s" => current_sdiffs)
                 CSV.write(sample_filepath, df)
@@ -125,7 +129,7 @@ for num_unit_cells in num_unit_cells_vals
     end
 
     # Save the results for each L_val sepratly
-    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
+    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name)"
 
 
     make_data_file("data/spin_chain_lambdas/" * filepath * ".dat", collected_lambdas[L])
@@ -154,7 +158,7 @@ end
 print("Saving CSVs")
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)"
+    filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name)"
     collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
         deserialize(io)
     end
@@ -185,7 +189,7 @@ end
 
 # Convert to DataFrame and save
 df = DataFrame(cols, Symbol.(col_names))
-csv_path = "data/spin_chain_lambdas/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(num_unit_cells_vals * N_val)).csv"
+csv_path = "data/spin_chain_lambdas/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(num_unit_cells_vals * N_val))_z$(z_val_name).csv"
 mkpath(dirname(csv_path))
 CSV.write(csv_path, df)
 println("Saved CsV: $csv_path")

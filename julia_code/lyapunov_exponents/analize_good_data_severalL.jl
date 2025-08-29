@@ -169,6 +169,9 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
+    if L != 32
+        continue
+    end
     plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
         label="L=$L",
         linestyle=:solid,
