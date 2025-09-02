@@ -76,8 +76,8 @@ for N_val in N_vals
                     J_vec[2] *= (rand() > 0.5) ? -1 : 1
                 end
 
-                spin_chain_A = global_control_evolve(spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
-                spin_chain_B = global_control_evolve(spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_A = global_control_evolve(J_vec, spin_chain_A, a_val, tau, J, S_NAUGHT)[end]
+                spin_chain_B = global_control_evolve(J_vec, spin_chain_B, a_val, tau, J, S_NAUGHT)[end]
 
                 d_abs = calculate_spin_distence(spin_chain_A, spin_chain_B)
                 spin_chain_B = push_back(spin_chain_A, spin_chain_B, epsilon)
@@ -89,7 +89,7 @@ for N_val in N_vals
 
         avrage_spin_dists ./= num_initial_conds
 
-        lambda_of_times[N_val][a_val] = calculate_lambda_per_time(avrage_spin_dists, tau, epsilon, n)
+        lambda_of_times[N_val][a_val] = calculate_lambda_per_time(avrage_spin_dists, epsilon)
 
         plot!(lambda_of_times[N_val][a_val], label="a = $(a_val)")
     end

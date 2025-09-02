@@ -37,12 +37,16 @@ epsilon = 0.1
 
 N_val = 4
 
+z_val = 1.6
+z_val_name = replace("$z_val", "." => "p")
+
 # --- Lyop Analysis ---
-avraging_windows = [1/32]
+avraging_windows = [1/2, 1/4, 1/8, 1/16, 1/32, 1/64]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 for avraging_window in avraging_windows
+    println("Aw: $(avraging_window)")
     skip_fract = 1 - avraging_window
     avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
@@ -56,7 +60,7 @@ for avraging_window in avraging_windows
         println("L_val: $L")
 
         # number of pushes we are going to do
-        n = Int(round(L^1.6))
+        n = Int(round(L^z_val))
 
         num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
@@ -76,7 +80,7 @@ for avraging_window in avraging_windows
             for init_cond in 1:num_initial_conds
                 current_spin_dists = zeros(n)
 
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
                 df = CSV.read(sample_filepath, DataFrame)
 
                 sample_lambdas = df[!, "lambda"]
@@ -184,6 +188,32 @@ var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/Seve
 make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
+
+# --- Make seprate plot for each L with window curves ---
+avraging_windows_names = replace("$(join(avraging_windows))", "." => "p")
+for L in num_unit_cells_vals * N_val
+    plt = plot(
+    title="λ(a) for N=$N_val | L = $L",
+    xlabel="a",
+    ylabel="λ",
+    xticks = minimum(a_vals):0.02:maximum(a_vals)
+    )
+
+    L = Int(L)
+    for avraging_window in avraging_windows
+        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
+            label="Aw = $avraging_window",
+            linestyle=:solid,
+            markersize=2,
+            linewidth=1,
+            marker = :circle)
+    end
+
+    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
+    make_path_exist(plot_path)
+    savefig(plot_path)
+    println("Saved Plot: $(plot_path)")
+end
 
 # --- Colapsing std plot ---
 avraging_window = 1/32
