@@ -23,14 +23,14 @@ tau = 1 * J
 
 # General Variables
 # num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
-trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-# a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:25], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
-a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
+trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
+a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
+# a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # a_vals = [0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77] # trans a_vals
 
 epsilon = 0.1
@@ -353,7 +353,7 @@ for num_unit_cells in num_unit_cells_vals
 
         for init_cond in 1:num_initial_conds
 
-            sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_sample$(init_cond)"
+            sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
             df = CSV.read(sample_filepath, DataFrame)
 
             current_S_diffs = current_S_diffs .+ df[!, "delta_s"]

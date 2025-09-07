@@ -24,7 +24,6 @@ class DataCollapse:
         adaptive_func : function, optional
             Arbitary way to select data, by default None
         """
-        print("ASDASDASD")
         self.p_range=p_range
         self.Lmin=0 if Lmin is None else Lmin
         self.Lmax=1000 if Lmax is None else Lmax
@@ -65,8 +64,8 @@ class DataCollapse:
         x_i=(self.p_i-p_c)*(self.L_i)**(1/nu)
         order=x_i.argsort()
         x_i_ordered=x_i[order]
-        y_i_ordered=self.y_i[order] / self.L_i[order]**(beta)
-        d_i_ordered=self.d_i[order] / self.L_i[order]**(beta)
+        y_i_ordered=self.y_i[order] * self.L_i[order]**(beta/nu)
+        d_i_ordered=self.d_i[order] * self.L_i[order]**(beta/nu)
         x={i:x_i_ordered[1+i:x_i_ordered.shape[0]-1+i] for i in [-1,0,1]}
         d={i:d_i_ordered[1+i:d_i_ordered.shape[0]-1+i] for i in [-1,0,1]}
         y={i:y_i_ordered[1+i:y_i_ordered.shape[0]-1+i] for i in [-1,0,1]}
@@ -107,14 +106,13 @@ class DataCollapse:
         """data collapse without drift, x_i=(p_i-p_c)L^{1/nu}, and try to make x_i vs y_i collapse to a smooth line
         when beta exist, y_i is scaled by L^{beta/nu}"""
         from lmfit import minimize, Parameters
-        
+
         params=Parameters()
         params.add('p_c',value=p_c,min=p_c_range[0],max=p_c_range[1],vary=p_c_vary)
         params.add('nu',value=nu,min=nu_range[0],max=nu_range[1],vary=nu_vary)
         params.add('beta',value=beta,min=beta_range[0],max=beta_range[1],vary=beta_vary)
         def residual(params):
             p_c,nu, beta=params['p_c'],params['nu'], params['beta']
-            print(self.loss(p_c,nu,beta))
             return self.loss(p_c,nu,beta)
 
         res=minimize(residual,params,**kwargs)
@@ -210,7 +208,7 @@ class DataCollapse:
 
 
 
-    def plot_data_collapse(self,ax=None,drift=False,driftcollapse=False,plot_irrelevant=True,errorbar=False,abs=False,**kwargs):
+    def plot_data_collapse(self,ax=None,drift=False,driftcollapse=False,plot_irrelevant=True,errorbar=False,abs=False,color_iter=None,**kwargs):
         import matplotlib.pyplot as plt
         x_i=(self.p_i-self.p_c)*(self.L_i)**(1/self.nu)
         y_i= self.y_i*self.L_i**(self.beta/self.nu)
@@ -222,11 +220,12 @@ class DataCollapse:
         idx_list=[0]+(np.cumsum([self.df.xs(key=L,level=self.L_).shape[0] for L in L_list])).tolist()
         L_dict={L:(start_idx,end_idx) for L,start_idx,end_idx in zip(L_list,idx_list[:-1],idx_list[1:])}
         # color_iter=iter(plt.cm.rainbow(np.linspace(0,1,len(L_list))))
-        color_iter = iter(plt.cm.Blues(0.4+0.6*(i/L_list.shape[0])) for i in range(L_list.shape[0]))
+        if color_iter is None:
+            color_iter = iter(plt.cm.Blues(0.4+0.6*(i/L_list.shape[0])) for i in range(L_list.shape[0]))
         color_r_iter = iter(plt.cm.Reds(0.4+0.6*(i/L_list.shape[0])) for i in range(L_list.shape[0]))
         if drift and driftcollapse and plot_irrelevant:
             ax2=ax.twinx()
-            ax2.set_ylabel(r'$y_{irre}$')
+            ax2.set_ylabel(r'$y_{irre}$')  # TODO: needs to adapt finite beta
         for L,(start_idx,end_idx) in L_dict.items():
             color=next(color_iter)
             if drift:
@@ -260,7 +259,7 @@ class DataCollapse:
 
                 
 
-        ax.set_ylabel(r'$y_i$')
+        ax.set_ylabel(r'$y_i L^{\beta/\nu}$')
         if drift:
             if not driftcollapse:
                 ax.set_xlabel(f'${{{self.p_}}}_i$')
@@ -277,7 +276,7 @@ class DataCollapse:
                 except:
                     ax.set_title(rf'${{{self.p_}}}_c$={self.p_c:.3f},$\nu$={self.nu:.3f},$y$= {self.y:.3f}')
 
-                ax.set_ylabel(r'$y_i-y_{irre}$')
+                ax.set_ylabel(r'$y_i-y_{irre}$') # TODO: needs to adapt finite beta
         else:
             if abs:
                 ax.set_xlabel(f'$|{{{self.p_}}}_i-{{{self.p_}}}_c|{{{self.L_}}}^{{1/\\nu}}$')
@@ -397,7 +396,6 @@ def plot_extrapolate_fitting(dc,ax=None):
     ax.set_xlabel('Threshold of SV')
     ax.set_ylabel(r'$\nu$',color='k')
     ax2.set_ylabel(r'$p_c$',color='b')
-    
 class optimal_df:
     def __init__(self,names=['Metrics', 'p_proj', 'p_ctrl']):
         import pandas as pd
@@ -450,3 +448,4 @@ def bootstrapping(df,params,p_,L_,p_range,nu,p_c,rng=0,Lmin=None,Lmax=None,size=
     dc=DataCollapse(df=df_resample,params=params,Lmin=Lmin,Lmax=Lmax,p_range=p_range,p_=p_,L_=L_,**kwargs)
     dc.datacollapse(nu=nu,p_c=p_c,method=method,p_c_vary=p_c_vary,nu_range=nu_range)
     return dc
+
