@@ -22,14 +22,14 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-# num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [8, 16, 32, 64]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
+# num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
 trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
-a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675])) # general a_vals
+a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763])) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # a_vals = [0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77] # trans a_vals
 
@@ -42,6 +42,7 @@ z_val_name = replace("$z_val", "." => "p")
 
 # --- Lyop Analysis ---
 avraging_windows = [1/2, 1/4, 1/8, 1/16, 1/32, 1/64]
+# avraging_windows = [1/32]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -173,9 +174,6 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    if L != 32
-        continue
-    end
     plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
         label="L=$L",
         linestyle=:solid,
@@ -192,10 +190,11 @@ println("Saved Plot: $(var_plot_path)")
 # --- Make seprate plot for each L with window curves ---
 avraging_windows_names = replace("$(join(avraging_windows))", "." => "p")
 for L in num_unit_cells_vals * N_val
+    # Plot Std(lambda)
     plt = plot(
-    title="λ(a) for N=$N_val | L = $L",
+    title="Std(λ(a)) for N=$N_val | L = $L",
     xlabel="a",
-    ylabel="λ",
+    ylabel="Std(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)
     )
 
@@ -209,7 +208,29 @@ for L in num_unit_cells_vals * N_val
             marker = :circle)
     end
 
-    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
+    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/std_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
+    make_path_exist(plot_path)
+    savefig(plot_path)
+    println("Saved Plot: $(plot_path)")
+    
+    plt = plot(
+    title="λ(a) for N=$N_val | L = $L",
+    xlabel="a",
+    ylabel="λ",
+    xticks = minimum(a_vals):0.02:maximum(a_vals)
+    )
+
+    L = Int(L)
+    for avraging_window in avraging_windows
+        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas[avraging_window][L]))],
+            label="Aw = $avraging_window",
+            linestyle=:solid,
+            markersize=2,
+            linewidth=1,
+            marker = :circle)
+    end
+
+    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
     make_path_exist(plot_path)
     savefig(plot_path)
     println("Saved Plot: $(plot_path)")
@@ -220,8 +241,8 @@ avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 
-a_crit = 0.76285796	
-nu = 1.72541695
+a_crit = 0.7615
+nu = 1.6
 # Create plot
 plt = plot(
     title="Colapss Std: N=$N_val,a_c = $(round(a_crit, digits=3)),nu = $(round(nu, digits=3))",
@@ -330,6 +351,7 @@ println("Saved ", "$(base_plot_path)_jump_height_gap.png")
 # --- S_diff analysis ---
 
 collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
+collected_S_diff_SEMs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
 
 # --- Load in and take avrages from all samples ---
 for num_unit_cells in num_unit_cells_vals
@@ -344,27 +366,29 @@ for num_unit_cells in num_unit_cells_vals
 
     # Initializes results for this N_val
     collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+    collected_S_diff_SEMs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
 
     for a_val in a_vals
         println("L_val: $L | a_val: $a_val")
         a_val_name = replace("$a_val", "." => "p")
         # We will avrage over this later
-        current_S_diffs = zeros(Float64, n)
+        current_S_diffs = [zeros(Float64, n) for _ in 1:num_initial_conds]
 
         for init_cond in 1:num_initial_conds
 
             sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
             df = CSV.read(sample_filepath, DataFrame)
 
-            current_S_diffs = current_S_diffs .+ df[!, "delta_s"]
+            current_S_diffs[init_cond] = df[!, "delta_s"]
         end
 
-        collected_S_diffs[L][a_val] = current_S_diffs ./ num_initial_conds
+        collected_S_diffs[L][a_val] = mean(current_S_diffs)
+        collected_S_diff_SEMs[L][a_val] = std(current_S_diffs) / sqrt(num_initial_conds)
     end
 end
 
 # --- Making S_diff Plots ---
-a_vals_to_plot = [0.6, 0.65, 0.68, 0.7, 0.71, 0.73, 0.76, 0.77]
+a_vals_to_plot = [0.6, 0.68, 0.7, 0.71, 0.72, 0.76, 0.763, 0.77]
 num_unit_cell_to_plot = num_unit_cells_vals[end]
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
@@ -372,28 +396,67 @@ L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 plt = plot(
     title="SDiff for N=$N_val | L = $(L_val_to_plot)",
     xlabel="t",
-    ylabel="S_Diif"
+    ylabel="S_Diff"
 )
 
 # Plot data for each a_val
-for a_val in a_vals_to_plot
+for (i, a_val) in enumerate(a_vals_to_plot)
+    # pick the color Plots.jl will use for series i
+    c = Plots.palette(:auto)[i]
 
-    plot!(plt, collected_S_diffs[L_val_to_plot][a_val],
+    plot!(plt, collected_S_diffs[L_val_to_plot][a_val][1:L_val_to_plot],
+        yerr=collected_S_diff_SEMs[L_val_to_plot][a_val][1:L_val_to_plot],
         label="a = $(a_val)",
         linestyle=:solid,
-        linewidth=1,)
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c # (optional) markers match too
+        )
 end
 
-s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
 make_path_exist(s_diff_plot_path)
 savefig(s_diff_plot_path)
 println("Saved Plot: $(s_diff_plot_path)")
 display(plt)
 
+# --- Making S_diff as function of a ---
+plt = plot(
+    title="SDiff(t=L^$(z_val)) for N=$N_val as Function of a",
+    xlabel="a",
+    ylabel="S_Diff(t=L^$(z_val))"
+)
+
+L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
+
+# Plot data for each a_val
+for (i, L_val) in enumerate(L_vals_to_plot)
+    # pick the color Plots.jl will use for series i
+    c = Plots.palette(:auto)[i]
+
+
+    plot!(plt, [a_val for a_val in sort(a_vals)], [collected_S_diffs[L_val][a_val][end] for a_val in sort(a_vals)],
+        yerr=[collected_S_diff_SEMs[L_val][a_val][end] for a_val in sort(a_vals)],
+        label="L = $(L_val)",
+        linestyle=:solid,
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c # (optional) markers match too
+        )
+end
+
+s_diff_per_val_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff_per_aval_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot).png"
+make_path_exist(s_diff_per_val_plot_path)
+savefig(s_diff_per_val_plot_path)
+println("Saved Plot: $(s_diff_per_val_plot_path)")
+display(plt)
+
 # --- Making Log(S_Diff) Plots ---
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
-a_vals_to_plot = [0.67, 0.68]
+a_vals_to_plot = [0.67, 0.68, 0.73]
 
 t_limit = Int(round(min(L_val_to_plot^1.6, L_val_to_plot^1.6)))
 
@@ -420,13 +483,13 @@ println("Saved Plot: $(log_s_diff_plot_path)")
 display(plt)
 
 # Zoomed in plot
-num_unit_cell_to_plot = 64
+num_unit_cell_to_plot = 128
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 # y_lims = (-15, 0)
-a_vals_to_plot = [0.75, 0.7525]
-t_limits = [1, Int(round(L_val_to_plot^1.6))]
-x_tick = 500
+a_vals_to_plot = [0.7625, 0.763]
+t_limits = [1, 1000]
+x_tick = 100
 # Create plot
 plt = plot(
     title="Log(SDiff )for N=$N_val | L = $(L_val_to_plot)",
@@ -456,6 +519,21 @@ display(plt)
 # Fit accordingly
 
 times_to_fit = Dict{Int, Dict{Float64, Vector{Int}}}()
+times_to_fit[512] = Dict{Float64, Vector{Int}}(0.67 => [5, 80],
+                                               0.68 => [5, 90],
+                                               0.69 => [5, 100],
+                                               0.70 => [5, 140],
+                                               0.71 => [5, 160],
+                                               0.72 => [20, 256],
+                                               0.73 => [40, 410],
+                                               0.74 => [60, 900],
+                                               0.75 => [80, 3150],
+                                               0.7525 => [175, 4350],
+                                               0.755 => [80, 1.250 * 10^4],
+                                               0.7575 => [400, Int(round(512^1.6))],
+                                               0.76 => [400, Int(round(512^1.6))],
+                                               0.7625 => [400, Int(round(512^1.6))],
+                                               0.763 => [400, Int(round(512^1.6))])
 times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.68 => [5, 80], 
                                                0.69 => [5, 100], 
@@ -470,9 +548,7 @@ times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.7575 => [200, Int(round(256^1.6))], 
                                                0.76 => [200, Int(round(256^1.6))], 
                                                0.7625 => [200, Int(round(256^1.6))], 
-                                               0.765 => [200, Int(round(256^1.6))], 
-                                               0.7675 => [200, Int(round(256^1.6))], 
-                                               0.77 => [200, Int(round(256^1.6))])
+                                               0.763 => [200, Int(round(256^1.6))])
 times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.68 => [5, 84], 
                                                0.69 => [5, 96], 
@@ -487,9 +563,7 @@ times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.7575 => [150, Int(round(128^1.6))], 
                                                0.76 => [200, Int(round(128^1.6))], 
                                                0.7625 => [200, Int(round(128^1.6))], 
-                                               0.765 => [200, Int(round(128^1.6))], 
-                                               0.7675 => [200, Int(round(128^1.6))], 
-                                               0.77 => [200, Int(round(128^1.6))])
+                                               0.763 => [200, Int(round(128^1.6))])
 times_to_fit[64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.68 => [1, 90], 
                                                0.69 => [1, 100], 
@@ -504,9 +578,7 @@ times_to_fit[64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.7575 => [1, Int(round(64^1.6))], 
                                                0.76 => [1, Int(round(64^1.6))], 
                                                0.7625 => [1, Int(round(64^1.6))], 
-                                               0.765 => [1, Int(round(64^1.6))], 
-                                               0.7675 => [1, Int(round(64^1.6))], 
-                                               0.77 => [1, Int(round(64^1.6))])
+                                               0.763=> [1, Int(round(64^1.6))],)
 
 times_to_fit[32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.68 => [1, 70], 
@@ -522,9 +594,7 @@ times_to_fit[32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.7575 => [1, Int(round(32^1.6))], 
                                                0.76 => [1, Int(round(32^1.6))], 
                                                0.7625 => [1, Int(round(32^1.6))], 
-                                               0.765 => [1, Int(round(32^1.6))], 
-                                               0.7675 => [1, Int(round(32^1.6))], 
-                                               0.77 => [1, Int(round(32^1.6))])
+                                               0.763 => [1, Int(round(32^1.6))])
 
 
 # Getting data to fit
@@ -598,7 +668,7 @@ CSV.write(fitted_log_s_diff_csv_path, fit_df)
 
 # --- Decay Timescale as Func of a for all L --- 
 
-decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.76]
+decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.763]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
@@ -643,7 +713,7 @@ println("Saved Plot: $(decay_per_a_plot_path)")
 
 # --- Scaled Decay Timescale as Func of a for all L --- 
 
-decay_a_vals = [val for val in a_vals if 0.67 <= val <= 0.7625]
+decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.76]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
@@ -675,9 +745,8 @@ for L in num_unit_cells_vals * N_val
 end
 
 # Plotting the collapse
-
-a_crit = 0.76285796
-nu = 1.72541695
+a_crit = 0.76
+nu = 1.44
 z = 1.6
 
 # Create plot
@@ -690,7 +759,7 @@ plt = plot(
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/val for val in values(sort(all_log_s_diff_slopes[L]))] ./ (L^z),
+    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z),
         label="L=$L",
         linestyle=:solid,
         markersize=2,
@@ -703,24 +772,23 @@ make_path_exist(scaled_decay_per_a_plot_path)
 savefig(scaled_decay_per_a_plot_path)
 println("Saved Plot: $(scaled_decay_per_a_plot_path)")
 
-# Plotting log of the collapse
+# Plotting log-log of the collapse
 
-a_crit = 0.76285796
-nu = 1.72541695
-z = 1.7
+a_crit = 0.76
+nu = 1.44
+z = 1.6
 
 # Create plot
 plt = plot(
     title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 3)))",
-    xlabel="(a - a_c)L^(1/ν)",
-    ylabel="ξ_τ / L^{z}",
-    xlims=(-1, 0)
+    xlabel="log(|a - a_c|L^(1/ν))",
+    ylabel="log(ξ_τ / L^{z})"
 )
 
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
-    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), log.([-1/val for val in values(sort(all_log_s_diff_slopes[L]))] ./ (L^z)),
+    plot!(plt, log.([abs.(a_val-a_crit) for a_val in sort(decay_a_vals)] .* L^(1/nu)), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z)),
         label="L=$L",
         linestyle=:solid,
         markersize=2,
@@ -732,3 +800,4 @@ log_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_
 make_path_exist(log_scaled_decay_per_a_plot_path)
 savefig(log_scaled_decay_per_a_plot_path)
 println("Saved Plot: $(log_scaled_decay_per_a_plot_path)")
+

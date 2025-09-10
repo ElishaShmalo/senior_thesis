@@ -25,11 +25,11 @@ tau = 1 * J
 num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
-# --- Trying to Replecate Results ---
+
 num_initial_conds = 1000 # We are avraging over x initial conditions
 # trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 # a_vals = sort(union([round(0.7 + i*0.02, digits=2) for i in 0:4], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763])) # general a_vals
-a_vals = [0.763]
+a_vals = [0.76, 0.7625, 0.763, 0.765, 0.7675, 0.78]
 # a_vals = sort([0.7625, 0.76, 0.763, 0.765]) # trans a_vals
 println("a vals: $(a_vals)")
 epsilon = 0.1
@@ -208,7 +208,7 @@ for L in num_unit_cells_vals * N_val
     display(plt)
 end
 
-# Now we plo the values along with a linear fit
+# Now we plot the values along with a linear fit
 plt = plot(
     title="log(t_peak) as a function of L",
     xlabel="L",
@@ -238,6 +238,27 @@ for L in num_unit_cells_vals * N_val
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         plot!(log.((trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) ./ (L^z_collapse_val)),
             (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+            # yerror=collected_lambda_STD_series[L][a_val],
+            label="L = $L")
+    end
+end
+
+zoomed_col_log_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/zoomed_std_lambda_per_log_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)_col"
+make_path_exist(zoomed_col_log_t_plot_path)
+savefig(zoomed_col_log_t_plot_path)
+println("Saved Plot: $(zoomed_col_log_t_plot_path).png")
+
+plt = plot(
+    title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
+    xlabel="log(t / L^z)",
+    ylabel="Var(λ)"
+)
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    for a_val in a_vals_to_plot
+        num_time_steps = length(collected_lambda_STD_series[L][a_val])
+        plot!((1:num_time_steps) ./ (L^z_collapse_val),
+            (collected_lambda_STD_series[L][a_val].^2), 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="L = $L")
     end

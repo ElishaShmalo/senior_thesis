@@ -27,7 +27,7 @@ a_val = 0.74
 aval_path = "$(replace("$a_val", "." => "p"))"[1:3]
 
 # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
-results_file_path = "N4/a0p7/a0p74/IC1/L256/N4_a0p74_IC1_L256_rand1_avg.dat" # 
+results_file_path = "N4/a0p7/IC1/L256/N4_a0p77_IC1_L256_rand0_seksolNumOff40_EppOff0p01_true_rand_avg.dat" # 
 
 delta_spins = open("data/delta_evolved_spins/" * results_file_path, "r") do io
     deserialize(io)

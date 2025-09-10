@@ -25,8 +25,8 @@ end
 Plots.theme(:dark)
 
 # General Variables
-# @everywhere num_unit_cells_vals = [8, 16, 32, 64]
-@everywhere num_unit_cells_vals = [128]
+@everywhere num_unit_cells_vals = [8, 16, 32, 64]
+# @everywhere num_unit_cells_vals = [128]
 # @everywhere num_unit_cells_vals = [8]
 @everywhere J = 1    # energy factor
 
@@ -38,7 +38,7 @@ Plots.theme(:dark)
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:9])) # general a_vals
+a_vals = sort(union([round(0.82 + i*0.02, digits=2) for i in 0:4])) # general a_vals
 # a_vals = [0.6, 0.7, 0.8] # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 
 @everywhere epsilon = 0.1
@@ -112,7 +112,7 @@ for num_unit_cells in num_unit_cells_vals
                 end
                 lambda = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
                 
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond)"
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
                 make_path_exist(sample_filepath)
                 df = DataFrame("t" => 1:n, "lambda" => calculate_lambda_per_time(current_spin_dists, epsilon), "delta_s" => current_sdiffs)
                 CSV.write(sample_filepath, df)
