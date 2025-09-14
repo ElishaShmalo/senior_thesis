@@ -159,6 +159,7 @@ log_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LS
 make_path_exist(log_t_plot_path)
 savefig(log_t_plot_path)
 println("Saved Plot: $(log_t_plot_path).png")
+display(plt)
 
 # --- Log scale t, find peak limits ---
 a_vals_to_plot = [0.763]
