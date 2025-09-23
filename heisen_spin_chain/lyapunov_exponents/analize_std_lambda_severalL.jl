@@ -22,17 +22,18 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
-trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# a_vals = [0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77] # trans a_vals
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79]
+trans_a_vals = [a_val for a_val in a_vals if 0.7525 <=a_val <= 0.77]
+print(trans_a_vals)
 
 epsilon = 0.1
 
@@ -40,6 +41,9 @@ N_val = 4
 
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
+
+z_fit = 1.65
+z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
 avraging_windows = [1/32]
@@ -62,7 +66,7 @@ for avraging_window in avraging_windows
         println("L_val: $L")
 
         # number of pushes we are going to do
-        n = Int(round(L^z_val))
+        n = Int(round(L^z_fit))
 
         num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
@@ -86,7 +90,7 @@ for avraging_window in avraging_windows
                 df = CSV.read(sample_filepath, DataFrame)
 
                 sample_lambdas = df[!, "lambda"]
-                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:end], tau, n - num_skip)
+                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:n], tau, n - num_skip)
             end
 
             current_collected_lambdas[L][a_val] = mean(current_lambdas)

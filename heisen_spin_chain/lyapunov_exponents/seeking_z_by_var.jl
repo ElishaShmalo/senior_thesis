@@ -223,36 +223,36 @@ plot!([k for k in keys(sort(log_peak_times))],
 
 display(plt)
 
-# --- Collapsed Log scale t ---
+# --- Collapsed scale t ---
 a_vals_to_plot = [0.7625]
 
 z_collapse_val = 1.65
 
 plt = plot(
     title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="log(t / L^z)",
+    xlabel="t / L^z",
     ylabel="Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
     for a_val in a_vals_to_plot
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
-        plot!(log.((trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) ./ (L^z_collapse_val)),
+        plot!((trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) ./ (L^z_collapse_val),
             (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="L = $L")
     end
 end
 
-zoomed_col_log_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/zoomed_std_lambda_per_log_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)_col"
-make_path_exist(zoomed_col_log_t_plot_path)
-savefig(zoomed_col_log_t_plot_path)
-println("Saved Plot: $(zoomed_col_log_t_plot_path).png")
+zoomed_col_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/zoomed_std_lambda_per_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)_col"
+make_path_exist(zoomed_col_t_plot_path)
+savefig(zoomed_col_t_plot_path)
+println("Saved Plot: $(zoomed_col_t_plot_path).png")
 display(plt)
 
 plt = plot(
     title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="log(t / L^z)",
+    xlabel="t / L^z",
     ylabel="Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
@@ -266,8 +266,8 @@ for L in num_unit_cells_vals * N_val
     end
 end
 
-col_log_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/std_lambda_per_log_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)_col"
-make_path_exist(col_log_t_plot_path)
-savefig(col_log_t_plot_path)
-println("Saved Plot: $(col_log_t_plot_path).png")
+col_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/std_lambda_per_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)_col"
+make_path_exist(col_t_plot_path)
+savefig(col_t_plot_path)
+println("Saved Plot: $(col_t_plot_path).png")
 display(plt)
