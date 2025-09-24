@@ -11,8 +11,6 @@ addprocs(SlurmManager())
     using Random
     using LinearAlgebra
     using Plots
-    using DifferentialEquations
-    using StaticArrays
     using Serialization
     using Statistics
     using DelimitedFiles, SharedArrays, CSV, DataFrames
@@ -22,12 +20,12 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [8000]
+    L_vals = [20]
     epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
 
     time_prefact = 200
 
-    num_initial_conds = 500
+    num_initial_conds = 5
     initial_state_prob = 0.5
 end
 
