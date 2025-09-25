@@ -22,7 +22,7 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [8, 16, 32, 64]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 # num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
@@ -31,7 +31,7 @@ num_initial_conds = 1000 # We are avraging over x initial conditions
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79]
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 trans_a_vals = [a_val for a_val in a_vals if 0.7525 <=a_val <= 0.77]
 print(trans_a_vals)
 
@@ -42,7 +42,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.65
+z_fit = 1.6
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -131,7 +131,7 @@ for avraging_window in avraging_windows
         for a_val in trans_a_vals
             data[a_val] = collected_lambdas_SEMs[avraging_window][L][a_val] .* sqrt(num_initial_conds-1)
         end
-        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(trans_a_vals))_$(maximum(trans_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name).csv"
+        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(trans_a_vals))_$(maximum(trans_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_AW$(avraging_window_name).csv"
         save_simple_dict_to_csv(data, filepath)
     end
 end
@@ -143,7 +143,7 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 # --- Save the plot ---
 println("Making Plot")
 plt = plot()
-plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$avraging_window_name"
+plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$avraging_window_name"
 
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -186,7 +186,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds.png"
+var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds.png"
 make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
@@ -248,10 +248,10 @@ avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 
-a_crit = 0.76154106	# pm 2.3231e-04
-nu = 1.72930133 # 0.06886529
-# a_crit = 0.76185071
-# nu = 1.72930133
+a_crit = 0.7626	# pm 4.4469e-05
+nu = 1.95	# pm 0.03305943
+a_crit = 0.76230361
+nu = 2.25968484
 
 # Create plot
 plt = plot(
@@ -271,7 +271,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds_Collapsed.png"
+collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
 make_path_exist(collapsed_var_plot_path)
 savefig(collapsed_var_plot_path)
 println("Saved Plot: $(collapsed_var_plot_path)")
@@ -279,7 +279,7 @@ display(plt)
 
 # --- Zoomed Colapsing std plot ---
 
-a_vals_to_plot = [a_val for a_val in a_vals if a_crit - 0.05 < a_val < a_crit + 0.05]
+a_vals_to_plot = [a_val for a_val in a_vals if a_crit - 0.02 < a_val < a_crit + 0.02]
 
 # Create plot
 plt = plot(
@@ -299,7 +299,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_AW$(avraging_window_name)_Stds_Collapsed.png"
+zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
 make_path_exist(zoomed_collapsed_var_plot_path)
 savefig(zoomed_collapsed_var_plot_path)
 println("Saved Plot: $(zoomed_collapsed_var_plot_path)")

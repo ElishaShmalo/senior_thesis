@@ -33,14 +33,17 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79]
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79]
 
 epsilon = 0.1
 
 N_val = 4
 
-z_val = 1.6
+z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
+
+z_fit_val = 1.65
+z_fit_val_name = replace("$z_fit_val", "." => "p")
 
 collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
 collected_S_diff_SEMs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
@@ -51,7 +54,7 @@ for num_unit_cells in num_unit_cells_vals
     println("L_val: $L")
 
     # number of pushes we are going to do
-    n = Int(round(L^1.6))
+    n = Int(round(L^z_fit_val))
 
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
@@ -71,7 +74,7 @@ for num_unit_cells in num_unit_cells_vals
             sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
             df = CSV.read(sample_filepath, DataFrame)
 
-            current_S_diffs[init_cond] = df[!, "delta_s"]
+            current_S_diffs[init_cond] = df[!, "delta_s"][1:n]
         end
 
         collected_S_diffs[L][a_val] = mean(current_S_diffs)
@@ -280,8 +283,11 @@ display(plt)
 # From the analysis of the plots, it seems that the first linear domain is as long as Log(S_diff) > some value, so we will 
 # Fit accordingly
 
-times_to_fit = Dict{Int, Dict{Float64, Vector{Int}}}()
-times_to_fit[512] = Dict{Float64, Vector{Int}}(0.67 => [5, 80],
+times_to_fit = Dict{Float64, Dict{Int, Dict{Float64, Vector{Int}}}}() # z_val, L_val, a_val, (min, max)
+
+# Now we do for z = 1.6
+times_to_fit[1.6] = Dict{Int, Dict{Float64, Vector{Int}}}()
+times_to_fit[1.6][512] = Dict{Float64, Vector{Int}}(0.67 => [5, 80],
                                                0.68 => [5, 90],
                                                0.69 => [5, 100],
                                                0.70 => [5, 140],
@@ -296,7 +302,7 @@ times_to_fit[512] = Dict{Float64, Vector{Int}}(0.67 => [5, 80],
                                                0.76 => [400, Int(round(512^1.6))],
                                                0.7625 => [400, Int(round(512^1.6))],
                                                0.763 => [400, Int(round(512^1.6))])
-times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
+times_to_fit[1.6][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.68 => [5, 80], 
                                                0.69 => [5, 100], 
                                                0.7 => [5, 120], 
@@ -311,7 +317,7 @@ times_to_fit[256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.76 => [200, Int(round(256^1.6))], 
                                                0.7625 => [200, Int(round(256^1.6))], 
                                                0.763 => [200, Int(round(256^1.6))])
-times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
+times_to_fit[1.6][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.68 => [5, 84], 
                                                0.69 => [5, 96], 
                                                0.7 => [5, 120], 
@@ -326,7 +332,7 @@ times_to_fit[128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.76 => [200, Int(round(128^1.6))], 
                                                0.7625 => [200, Int(round(128^1.6))], 
                                                0.763 => [200, Int(round(128^1.6))])
-times_to_fit[64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
+times_to_fit[1.6][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.68 => [1, 90], 
                                                0.69 => [1, 100], 
                                                0.7 => [1, 140], 
@@ -342,7 +348,116 @@ times_to_fit[64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.7625 => [1, Int(round(64^1.6))], 
                                                0.763=> [1, Int(round(64^1.6))],)
 
-times_to_fit[32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
+times_to_fit[1.6][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
+                                               0.68 => [1, 70], 
+                                               0.69 => [1, 90], 
+                                               0.7 => [1, 120], 
+                                               0.71 => [1, 168], 
+                                               0.72 => [1, 240], 
+                                               0.73 => [1, Int(round(32^1.6))], 
+                                               0.74 => [1, Int(round(32^1.6))], 
+                                               0.75 => [1, Int(round(32^1.6))], 
+                                               0.7525 => [1, Int(round(32^1.6))], 
+                                               0.755 => [1, Int(round(32^1.6))], 
+                                               0.7575 => [1, Int(round(32^1.6))], 
+                                               0.76 => [1, Int(round(32^1.6))], 
+                                               0.7625 => [1, Int(round(32^1.6))], 
+                                               0.763 => [1, Int(round(32^1.6))])
+# ----------------------
+# Now we do for z = 1.65
+num_unit_cell_to_plot = 128
+L_val_to_plot = num_unit_cell_to_plot * N_val
+y_lims = (-30, 0)
+x_lims = (0, 120)
+a_vals_to_plot = [0.68, 0.69]
+
+# Create plot
+plt = plot(
+    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
+    xlabel="t",
+    ylabel="Log(S_Diif)",
+    ylims=y_lims,
+    xlims = x_lims
+)
+
+# Plot data for each a_val
+for (i,a_val) in enumerate(a_vals_to_plot)
+    c = Plots.palette(:auto)[i]
+
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)]),
+    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)],
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+display(plt)
+# ----------------------
+times_to_fit[1.65][512] = Dict{Float64, Vector{Int}}(0.67 => [5, 80],
+                                               0.68 => [5, 90],
+                                               0.69 => [5, 100],
+                                               0.70 => [5, 140],
+                                               0.71 => [5, 160],
+                                               0.72 => [20, 256],
+                                               0.73 => [40, 410],
+                                               0.74 => [60, 900],
+                                               0.75 => [80, 3150],
+                                               0.7525 => [175, 4350],
+                                               0.755 => [80, 1.250 * 10^4],
+                                               0.7575 => [400, Int(round(512^1.6))],
+                                               0.76 => [400, Int(round(512^1.6))],
+                                               0.7625 => [400, Int(round(512^1.6))],
+                                               0.763 => [400, Int(round(512^1.6))])
+times_to_fit[1.65][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
+                                               0.68 => [5, 80], 
+                                               0.69 => [5, 100], 
+                                               0.7 => [5, 120], 
+                                               0.71 => [10, 200], 
+                                               0.72 => [10, 325], 
+                                               0.73 => [100, 650], 
+                                               0.74 => [200, 1400], 
+                                               0.75 => [200, 3500], 
+                                               0.7525 => [400, 5200], 
+                                               0.755 => [300, 6500], 
+                                               0.7575 => [200, Int(round(256^1.6))], 
+                                               0.76 => [200, Int(round(256^1.6))], 
+                                               0.7625 => [200, Int(round(256^1.6))], 
+                                               0.763 => [200, Int(round(256^1.6))])
+times_to_fit[1.65][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
+                                               0.68 => [5, 84], 
+                                               0.69 => [5, 96], 
+                                               0.7 => [5, 120], 
+                                               0.71 => [5, 180], 
+                                               0.72 => [5, 250], 
+                                               0.73 => [5, 500], 
+                                               0.74 => [100, 1350], 
+                                               0.75 => [150, Int(round(128^1.6))-50], 
+                                               0.7525 => [150, Int(round(128^1.6))], 
+                                               0.755 => [150, Int(round(128^1.6))], 
+                                               0.7575 => [150, Int(round(128^1.6))], 
+                                               0.76 => [200, Int(round(128^1.6))], 
+                                               0.7625 => [200, Int(round(128^1.6))], 
+                                               0.763 => [200, Int(round(128^1.6))])
+times_to_fit[1.65][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
+                                               0.68 => [1, 90], 
+                                               0.69 => [1, 100], 
+                                               0.7 => [1, 140], 
+                                               0.71 => [1, 220], 
+                                               0.72 => [1, 280], 
+                                               0.73 => [1, 340], 
+                                               0.74 => [1, Int(round(64^1.6))], 
+                                               0.75 => [1, Int(round(64^1.6))], 
+                                               0.7525 => [1, Int(round(64^1.6))], 
+                                               0.755 => [1, Int(round(64^1.6))], 
+                                               0.7575 => [1, Int(round(64^1.6))], 
+                                               0.76 => [1, Int(round(64^1.6))], 
+                                               0.7625 => [1, Int(round(64^1.6))], 
+                                               0.763=> [1, Int(round(64^1.6))],)
+
+times_to_fit[1.65][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.68 => [1, 70], 
                                                0.69 => [1, 90], 
                                                0.7 => [1, 120], 
@@ -359,6 +474,8 @@ times_to_fit[32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.763 => [1, Int(round(32^1.6))])
 
 
+
+# -----------------------------------------
 # Getting data to fit
 # Plot data for each a_val
 L_val_to_plot = 256
