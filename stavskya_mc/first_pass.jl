@@ -21,7 +21,8 @@ addprocs(SlurmManager())
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [8000]
-    epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
+    # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
+    epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
 
     time_prefact = 200
 
@@ -31,6 +32,8 @@ end
 
 collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
 
+@time begin
+    
 # get all the data
 for L_val in L_vals
     println("L_val: $(L_val)")
@@ -63,3 +66,4 @@ for L_val in L_vals
 
 end
 
+end

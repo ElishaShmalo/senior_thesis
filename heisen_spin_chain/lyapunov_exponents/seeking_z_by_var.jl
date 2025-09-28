@@ -27,10 +27,10 @@ num_unit_cells_vals = [8, 16, 32, 64]
 
 
 num_initial_conds = 1000 # We are avraging over x initial conditions
-# trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-# a_vals = sort(union([round(0.7 + i*0.02, digits=2) for i in 0:4], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763])) # general a_vals
-a_vals = [0.7625]
-# a_vals = sort([0.7625, 0.76, 0.763, 0.765]) # trans a_vals
+# trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+# a_vals = sort(union([round(0.7 + i*0.02, digits=2) for i in 0:4], [0.7525, 0.755, 0.7575, 0.763, 0.765, 0.7675], [0.763])) # general a_vals
+a_vals = [0.763]
+# a_vals = sort([0.763, 0.76, 0.763, 0.765]) # trans a_vals
 println("a vals: $(a_vals)")
 epsilon = 0.1
 
@@ -70,7 +70,7 @@ for num_unit_cells in num_unit_cells_vals
         println("L_val: $L | a_val: $a_val")
         a_val_name = replace("$a_val", "." => "p")
         # We will avrage over this later
-        current_lambdas = [zeros(Float64, Int(round(L^z_val))) for _ in 1:num_initial_conds]
+        current_lambdas = [zeros(Float64, Int(round(L^z_val)))[num_skip:end] for _ in 1:num_initial_conds]
 
         for init_cond in 1:num_initial_conds
             current_spin_dists = zeros(n)
@@ -90,7 +90,7 @@ end
 # --- Save the plot ---
 println("Making Plot")
 
-a_vals_to_plot = [0.7625]
+a_vals_to_plot = [0.763]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
@@ -113,7 +113,7 @@ end
 
 # Varience as func of time
 println("Making Plot")
-a_vals_to_plot = [0.7625]
+a_vals_to_plot = [0.763]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
@@ -134,11 +134,12 @@ for L in num_unit_cells_vals * N_val
     make_path_exist(plot_path)
     savefig(plot_path)
     println("Saved Plot: $(plot_path).png")
+    display(plt)
 end
 
 
 # --- Log scale t ---
-a_vals_to_plot = [0.7625]
+a_vals_to_plot = [0.763]
 
 plt = plot(
     title="Var(λ(t)) for N=$N_val | t_f=L^$(z_val)",
@@ -161,8 +162,8 @@ savefig(log_t_plot_path)
 println("Saved Plot: $(log_t_plot_path).png")
 display(plt)
 
-# --- Log scale t, find peak limits ---
-a_vals_to_plot = [0.7625]
+# --- t, find peak limits ---
+a_vals_to_plot = [0.763]
 peak_frac_lims = [1/30, 9/10]
 
 plt = plot(
@@ -183,50 +184,24 @@ end
 
 display(plt)
 
-# --- Getting z properly ---
-
-# first lets get the log(time) in which there is a peak
-log_peak_times = Dict{Int, Float64}(32 => 5.854, 64 => 6.919, 128 => 8.177, 256 => 9.231)
-
-a_vals_to_plot = [0.7625]
-peak_frac_lims = [1/30, 9/10]
-
+# -- Save data to collapse
+a_val_to_save = [0.763]
 for L in num_unit_cells_vals * N_val
-    plt = plot(
-        title="Var(λ(t)) for N=$N_val | t_f=L^$(z_val)",
-        xlabel="log(t)",
-        ylabel="Var(λ)"
-    )
     L = Int(L)
     for a_val in a_vals_to_plot
+        data = Dict{Float64, Float64}()
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
-        plot!(log.(trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])),
-            (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
-            # yerror=collected_lambda_STD_series[L][a_val],
-            label="L = $L")
+        for t_step in trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])
+            data[t_step] = (collected_lambda_STD_series[L][a_val].^2)[t_step]
+        end
+        save_simple_dict_to_csv(data, "data_to_collapse/lambda_var_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L)/lambda_var_per_t_N$(N_val)_a$(replace("$(a_val)", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name).csv")
     end
-    vline!(plt, [log_peak_times[L]], label="x = $(log_peak_times[L])")
-    display(plt)
 end
 
-# Now we plot the values along with a linear fit
-plt = plot(
-    title="log(t_peak) as a function of L",
-    xlabel="L",
-    ylabel="log(t)"
-)
-
-plot!([k for k in keys(sort(log_peak_times))],
-    [log_peak_times[k] for k in keys(sort(log_peak_times))], 
-    # yerror=collected_lambda_STD_series[L][a_val],
-    marker = :circle)
-
-display(plt)
-
 # --- Collapsed scale t ---
-a_vals_to_plot = [0.7625]
+a_vals_to_plot = [0.763]
 
-z_collapse_val = 1.65
+z_collapse_val = 1.7
 
 plt = plot(
     title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
@@ -270,4 +245,29 @@ col_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LS
 make_path_exist(col_t_plot_path)
 savefig(col_t_plot_path)
 println("Saved Plot: $(col_t_plot_path).png")
+display(plt)
+
+
+# -- Log(t) collapse
+
+a_vals_to_plot = [0.763]
+
+z_collapse_val = 2.0
+
+plt = plot(
+    title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
+    xlabel="t / L^z",
+    ylabel="Var(λ)"
+)
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    for a_val in a_vals_to_plot
+        num_time_steps = length(collected_lambda_STD_series[L][a_val])
+        plot!(log.(trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) ./ log(L^z_collapse_val),
+            (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+            # yerror=collected_lambda_STD_series[L][a_val],
+            label="L = $L")
+    end
+end
+
 display(plt)

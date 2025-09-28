@@ -49,3 +49,11 @@ function save_simple_dict_to_csv(dict::Dict{Float64, Float64}, filepath::String)
     CSV.write(filepath, df)
     println("Wrote csv $(filepath)")
 end
+
+function save_simple_dict_to_csv(dict::Dict{Float64, Vector{Float64}}, filepath::String)
+    df = DataFrame("a" => collect(keys(dict)), "observations" => [obs[1] for obs in collect(values(dict))], "observations_errs" => [obs[2] for obs in collect(values(dict))])
+    make_path_exist(filepath)
+    CSV.write(filepath, df)
+    println("Wrote csv $(filepath)")
+end
+

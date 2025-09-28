@@ -42,7 +42,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.6
+z_fit = 1.65
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -250,8 +250,8 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 
 a_crit = 0.7626	# pm 4.4469e-05
 nu = 1.95	# pm 0.03305943
-a_crit = 0.76230361
-nu = 2.25968484
+a_crit = 0.7634
+nu = 2.21529155
 
 # Create plot
 plt = plot(
