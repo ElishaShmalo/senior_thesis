@@ -20,7 +20,7 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [8000]
+    L_vals = [10_000]
     epsilon_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350], [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]))
     epsilon_vals = [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
@@ -61,7 +61,7 @@ for L_val in L_vals
 
         collected_rhos[L_val][epsilon_val] = all_init_outputs
         # Save init cond data as csv
-        sample_filepath = "stavskya_mc/data/rho_per_epsilon/IC1/L$(L_val)/IC1_L$(L_val)_epsilon$(epsilon_val).csv"
+        sample_filepath = "stavskya_mc/data/rho_per_epsilon/IC1/L$(L_val)/IC1_L$(L_val)_epsilon$(epsilon_val_name).csv"
         make_path_exist(sample_filepath)
         df = DataFrame("sample" => 1:num_initial_conds, "rho" => collected_rhos[L_val][epsilon_val])
         CSV.write(sample_filepath, df)
