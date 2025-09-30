@@ -20,8 +20,8 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [8000]
-    epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
+    L_vals = [10_000]
+    epsilon_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350], [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]))
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
 
     time_prefact = 200
@@ -43,6 +43,8 @@ for L_val in L_vals
     for epsilon_val in epsilon_vals
         println("L_val: $(L_val) | Epsilon $(epsilon_val)")
         all_init_outputs = [0.0 for _ in 1:num_initial_conds]
+
+        epsilon_val_name = replace("$epsilon_val", "." => "p")
 
         let epsilon_val=epsilon_val, L_val=L_val, num_initial_conds=num_initial_conds
             all_init_outputs = @distributed (vcat) for init_cond in 1:num_initial_conds
