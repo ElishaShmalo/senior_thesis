@@ -117,7 +117,7 @@ println("Saved Plot: $(s_diff_plot_path)")
 display(plt)
 
 # --- Making S_diff(t=L^z) as function of a ---
-z_val = 1.7
+z_val = 1.6
 z_val_name = replace("$(z_val)", "." => "p")
 
 plt = plot(
@@ -151,20 +151,52 @@ savefig(s_diff_per_val_plot_path)
 println("Saved Plot: $(s_diff_per_val_plot_path)")
 display(plt)
 
+# Zoomed S_diff
+zoomed_a_vals = [a_val for a_val in sort(a_vals) if 0.75 <= a_val <= 0.77]
+plt = plot(
+    title="S_Diff(t=L^$(z_val)) for N=$N_val as Function of a",
+    xlabel="a",
+    ylabel="S_Diff(t=L^$(z_val))"
+)
+
+L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
+
+# Plot data for each a_val
+for (i, L_val) in enumerate(L_vals_to_plot)
+    # pick the color Plots.jl will use for series i
+    c = Plots.palette(:auto)[i]
+
+
+    plot!(plt, [a_val for a_val in sort(zoomed_a_vals)], [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(zoomed_a_vals)],
+        yerr=[collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
+        label="L = $(L_val)",
+        linestyle=:dash,
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c # (optional) markers match too
+        )
+end
+
+zoomed_s_diff_per_val_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_S_diff_per_aval_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(num_unit_cells_vals .* N_val))_z$(z_val_name).png"
+make_path_exist(zoomed_s_diff_per_val_plot_path)
+savefig(zoomed_s_diff_per_val_plot_path)
+println("Saved Plot: $(zoomed_s_diff_per_val_plot_path)")
+display(plt)
+
 # --- Collapsing S_Diff as a function of a ---
-
-a_vals_to_collapse = [a_val for a_val in a_vals if 0.75 <= a_val <=0.77]
 a_vals_to_collapse = [a_val for a_val in a_vals]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 
-z_val = 1.7
+z_val = 1.6
 z_val_name = replace("$(z_val)", "." => "p")
 
-a_crit = 0.76295719	# pm 4.2327e-05
-nu = 1.95526433	# pm 0.04645631
-beta = 0.15387046 #pm 0.02122481
+a_crit = 0.76250000	# 6.5168e-06
+nu = 2.23820148 # 0.08610375
+beta = 0.03991301 # 0.02658450
 
 plt = plot(
-    title="FSS S_Diff(t=L^$(z_val)) | N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 3))",
+    title="FSS S_Diff(t=L^$(z_val)) \n N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 4))",
     xlabel="(a-a_c)L^{1/ν}",
     ylabel="S_Diff(t=L^$(z_val)) L^{β/ν}"
 )
@@ -201,7 +233,7 @@ display(plt)
 a_vals_to_collapse = [a_val for a_val in a_vals if 0.75 <= a_val <=0.77]
 
 plt = plot(
-    title="FSS S_Diff(t=L^$(z_val)) | N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 3))",
+    title="Zoomed FSS S_Diff(t=L^$(z_val)) \n N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 4))",
     xlabel="(a-a_c)L^{1/ν}",
     ylabel="S_Diff(t=L^$(z_val)) L^{β/ν}"
 )
@@ -568,10 +600,10 @@ times_to_fit[1.7][512] = Dict{Float64, Vector{Int}}(
                                                0.7575 => [400, Int(round(512^1.7))],
                                                0.76 => [400, Int(round(512^1.7))],
                                                0.7605 => [400, Int(round(512^1.7))],
-                                               0.761 => [400, Int(round(512^1.7))],
-                                               0.7615 => [400, Int(round(512^1.7))],
-                                               0.7625 => [400, Int(round(512^1.7))],
-                                               0.763 => [400, Int(round(512^1.7))])
+                                               0.761 => [600, Int(round(512^1.7))],
+                                               0.7615 => [600, Int(round(512^1.7))],
+                                               0.7625 => [600, Int(round(512^1.7))],
+                                               0.763 => [600, Int(round(512^1.7))])
 times_to_fit[1.7][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.68 => [5, 80], 
                                                0.69 => [5, 100], 
@@ -586,10 +618,10 @@ times_to_fit[1.7][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.7575 => [200, Int(round(256^1.7))], 
                                                0.76 => [200, Int(round(256^1.7))], 
                                                0.7605 => [200, Int(round(256^1.7))], 
-                                               0.761 => [200, Int(round(256^1.7))], 
-                                               0.7615 => [200, Int(round(256^1.7))], 
-                                               0.7625 => [200, Int(round(256^1.7))], 
-                                               0.763 => [200, Int(round(256^1.7))])
+                                               0.761 => [500, Int(round(256^1.7))], 
+                                               0.7615 => [500, Int(round(256^1.7))], 
+                                               0.7625 => [500, Int(round(256^1.7))], 
+                                               0.763 => [500, Int(round(256^1.7))])
 times_to_fit[1.7][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.68 => [5, 84], 
                                                0.69 => [5, 96], 
@@ -597,17 +629,17 @@ times_to_fit[1.7][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.71 => [5, 180], 
                                                0.72 => [5, 250], 
                                                0.73 => [5, 500], 
-                                               0.74 => [100, 1350], 
+                                               0.74 => [100, 1000], 
                                                0.75 => [150, 2000], 
                                                0.7525 => [150, Int(round(128^1.67))], 
-                                               0.755 => [150, Int(round(128^1.67))], 
-                                               0.7575 => [150, Int(round(128^1.67))], 
+                                               0.755 => [150, Int(round(128^1.68))], 
+                                               0.7575 => [150, Int(round(128^1.69))], 
                                                0.76 => [200, Int(round(128^1.7))], 
-                                               0.7605 => [200, Int(round(128^1.7))], 
-                                               0.761 => [200, Int(round(128^1.7))], 
-                                               0.7615 => [200, Int(round(128^1.7))], 
-                                               0.7625 => [200, Int(round(128^1.7))], 
-                                               0.763 => [200, Int(round(128^1.7))])
+                                               0.7605 => [500, Int(round(128^1.7))], 
+                                               0.761 => [500, Int(round(128^1.7))], 
+                                               0.7615 => [500, Int(round(128^1.7))], 
+                                               0.7625 => [500, Int(round(128^1.7))], 
+                                               0.763 => [500, Int(round(128^1.7))])
 times_to_fit[1.7][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.68 => [1, 90], 
                                                0.69 => [1, 100], 
@@ -622,10 +654,10 @@ times_to_fit[1.7][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.7575 => [1, Int(round(64^1.67))], 
                                                0.76 => [1, Int(round(64^1.67))], 
                                                0.7605 => [1, Int(round(64^1.67))], 
-                                               0.761 => [1, Int(round(64^1.67))], 
-                                               0.7615 => [1, Int(round(64^1.67))], 
-                                               0.7625 => [1, Int(round(64^1.67))], 
-                                               0.763=> [1, Int(round(64^1.67))],)
+                                               0.761 => [500, Int(round(64^1.67))], 
+                                               0.7615 => [500, Int(round(64^1.67))], 
+                                               0.7625 => [500, Int(round(64^1.67))], 
+                                               0.763=> [500, Int(round(64^1.67))],)
 
 times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.68 => [1, 70], 
@@ -641,10 +673,10 @@ times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.7575 => [1, Int(round(32^1.7))], 
                                                0.76 => [1, Int(round(32^1.7))], 
                                                0.7605 => [1, Int(round(32^1.7))], 
-                                               0.761 => [1, Int(round(32^1.7))], 
-                                               0.7615 => [1, Int(round(32^1.7))], 
-                                               0.7625 => [1, Int(round(32^1.7))], 
-                                               0.763 => [1, Int(round(32^1.7))])
+                                               0.761 => [100, Int(round(32^1.7))], 
+                                               0.7615 => [100, Int(round(32^1.7))], 
+                                               0.7625 => [100, Int(round(32^1.7))], 
+                                               0.763 => [100, Int(round(32^1.7))])
 
 
 
@@ -652,16 +684,22 @@ times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
 
 # ---------------------- 
 
+
 # --- Decay Timescale as Func of a for all L --- 
+
+z_fit_val = 1.7
+z_fit_name = replace("$(z_fit_name)", "." => "p")
 
 decay_a_vals = [val for val in a_vals if 0.68 <= val <= 0.7615]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
+all_log_s_diff_offsets = Dict{Int, Dict{Float64, Float64}}()
 all_log_s_diff_slope_errs = Dict{Int, Dict{Float64, Float64}}()
 
 for L_val in N_val .* num_unit_cells_vals
     all_log_s_diff_slopes[L_val] = Dict{Float64, Float64}()
+    all_log_s_diff_offsets[L_val] = Dict{Float64, Float64}()
     all_log_s_diff_slope_errs[L_val] = Dict{Float64, Float64}()
 
     for a_val in decay_a_vals
@@ -673,10 +711,83 @@ for L_val in N_val .* num_unit_cells_vals
         df = DataFrame(x=xs, y=log_s_diff_to_fit)
         model = lm(@formula(y ~ x), df)
 
+        all_log_s_diff_offsets[L_val][a_val] = coef(model)[1]
         all_log_s_diff_slopes[L_val][a_val] = coef(model)[2]
         all_log_s_diff_slope_errs[L_val][a_val] = stderror(model)[2]
     end
 end
+
+# Plot(Verify) the fits
+fitted_a_vals_to_plot = [val for val in a_vals if 0.75 <= val <= 0.7575]
+# Plot data for each L
+for L in num_unit_cells_vals * N_val
+    L = Int(L)
+    plt = plot(
+        title="Log(S_diff) As Func of t | L = $(L)",
+        xlabel="t",
+        ylabel="Log(S_diif)"
+    )
+    for (i, a_val) in enumerate(fitted_a_vals_to_plot)
+        c = Plots.palette(:auto)[i]
+        log_s_diff_to_fit = [val for val in log.(collected_S_diffs[L][a_val][times_to_fit[z_fit_val][L][a_val][1]:times_to_fit[z_fit_val][L][a_val][2]])]
+        plot!(plt, log_s_diff_to_fit,
+            label="a=$(a_val)",
+            linestyle=:solid,
+            linewidth=1,
+            color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c)
+
+
+        xs = 1:length(log_s_diff_to_fit)
+
+        plot!(plt, xs, 
+            all_log_s_diff_offsets[L][a_val] .+ (all_log_s_diff_slopes[L][a_val] .* xs),
+            label="a=$(a_val)",
+            linestyle=:dash,
+            linewidth=1,
+            color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c)
+
+    end
+    display(plt)
+end
+
+
+# Plot t^*
+
+z_fit_val = 1.7
+z_fit_name = replace("$(z_fit_name)", "." => "p")
+
+decay_a_vals = [val for val in a_vals if 0.68 <= val <= 0.7615]
+
+plt = plot(
+    title="t^* As Func of a",
+    xlabel="a",
+    ylabel="t^*"
+)
+
+# Plot data for each L
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    c = Plots.palette(:auto)[i]
+    L = Int(L)
+    plot!(plt, sort([a_val for a_val in sort(decay_a_vals)]), 
+        [times_to_fit[z_fit_val][L][a_val][2] for a_val in sort(decay_a_vals)],
+        label="L=$L",
+        linestyle=:solid,
+        linewidth=1,
+        marker = :dash,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+t_star_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/t_star_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
+make_path_exist(t_star_per_a_plot_path)
+savefig(t_star_per_a_plot_path)
+display(plt)
+println("Saved Plot: $(t_star_per_a_plot_path)")
 
 # save_data_to_collapse
 for L in num_unit_cells_vals * N_val
@@ -712,8 +823,8 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
 end
 
 decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
-make_path_exist(decay_per_a_plot_path)
-savefig(decay_per_a_plot_path)
+# make_path_exist(decay_per_a_plot_path)
+# savefig(decay_per_a_plot_path)
 display(plt)
 println("Saved Plot: $(decay_per_a_plot_path)")
 
@@ -780,22 +891,17 @@ display(plt)
 
 decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.7615]
 
-# Plotting the collapse
-# a_crit = 0.76150000  # pm 4.6599e-04
-# nu = 1.59192864 # pm 0.05413757
-# beta = -2.63062017	# pm 0.09477604
-# z = -beta/nu
-
-a_crit = 0.7631 #pm 1.0971e-04	
-nu, dnu = 2.22441143, 1.2245e-07
-beta, dbeta = -3.81842556, 0.03636239
+a_crit, d_acrit = 0.76204372, 4.8679e-05
+nu, dnu = 1.43462415, 0.03842713
+beta, dbeta = -2.29834352, 0.06650638
 z = -beta/nu
+
 println(z)
 println(sqrt((dbeta/nu)^2 + ((beta*dnu)/(nu^2))^2))
 
 # Create plot
 plt = plot(
-    title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 4)))",
+    title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 5)))",
     xlabel="(a - a_c)L^(1/ν)",
     ylabel="ξ_τ / L^{z}"
 )
@@ -807,7 +913,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z),
         yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="L=$L",
-        linestyle=:solid,
+        linestyle=:dash,
         markersize=2,
         linewidth=1,
         marker = :circle,
@@ -842,7 +948,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     plot!(plt, log.([abs.(a_val-a_crit) for a_val in sort(decay_a_vals)] .* L^(1/nu)), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z)),
         # yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="L=$L",
-        linestyle=:solid,
+        linestyle=:dash,
         markersize=2,
         linewidth=1,
         marker = :circle,

@@ -22,14 +22,14 @@ tau = 1 * J
 
 # General Variables
 # num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [8, 16, 32, 64]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 # num_unit_cells_vals = [8]
 
 
 num_initial_conds = 1000 # We are avraging over x initial conditions
 # trans_a_vals = [0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 # a_vals = sort(union([round(0.7 + i*0.02, digits=2) for i in 0:4], [0.7525, 0.755, 0.7575, 0.763, 0.765, 0.7675], [0.763])) # general a_vals
-a_vals = [0.763]
+a_vals = [0.7615]
 # a_vals = sort([0.763, 0.76, 0.763, 0.765]) # trans a_vals
 println("a vals: $(a_vals)")
 epsilon = 0.1
@@ -40,7 +40,7 @@ avraging_window = 1
 skip_fract = 1 - avraging_window
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
-z_val = 2.0
+z_val = 1.7
 z_val_name = replace("$(z_val)", "." => "p")
 
 # --- Load in and take avrages from all samples ---
@@ -90,7 +90,7 @@ end
 # --- Save the plot ---
 println("Making Plot")
 
-a_vals_to_plot = [0.763]
+a_vals_to_plot = [0.7615]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
@@ -113,7 +113,7 @@ end
 
 # Varience as func of time
 println("Making Plot")
-a_vals_to_plot = [0.763]
+a_vals_to_plot = [0.7615]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
@@ -139,7 +139,7 @@ end
 
 
 # --- Log scale t ---
-a_vals_to_plot = [0.763]
+a_vals_to_plot = [0.7615]
 
 plt = plot(
     title="Var(λ(t)) for N=$N_val | t_f=L^$(z_val)",
@@ -163,7 +163,7 @@ println("Saved Plot: $(log_t_plot_path).png")
 display(plt)
 
 # --- t, find peak limits ---
-a_vals_to_plot = [0.763]
+a_vals_to_plot = [0.7615]
 peak_frac_lims = [1/30, 9/10]
 
 plt = plot(
@@ -185,7 +185,7 @@ end
 display(plt)
 
 # -- Save data to collapse
-a_val_to_save = [0.763]
+a_val_to_save = [0.7615]
 for L in num_unit_cells_vals * N_val
     L = Int(L)
     for a_val in a_vals_to_plot
@@ -199,12 +199,12 @@ for L in num_unit_cells_vals * N_val
 end
 
 # --- Collapsed scale t ---
-a_vals_to_plot = [0.763]
+a_vals_to_plot = [0.7615]
 
-z_collapse_val = 1.7
+z_collapse_val = round(1.58499999120325, digits=4) # 6.459684070797505e-08
 
 plt = plot(
-    title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
+    title="Collapsed Var(λ(t)) for N=$N_val \n t_f=L^$(z_val) | z=$(z_collapse_val)",
     xlabel="t / L^z",
     ylabel="Var(λ)"
 )
@@ -250,13 +250,11 @@ display(plt)
 
 # -- Log(t) collapse
 
-a_vals_to_plot = [0.763]
-
-z_collapse_val = 2.0
+a_vals_to_plot = [0.7615]
 
 plt = plot(
-    title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="t / L^z",
+    title="Collapsed Var(λ(t)) for N=$N_val \n t_f=L^$(z_val) | z=$(z_collapse_val)",
+    xlabel="log(t / L^z)",
     ylabel="Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
@@ -271,3 +269,7 @@ for L in num_unit_cells_vals * N_val
 end
 
 display(plt)
+log_col_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/log_collapsed_std_lambda_per_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)"
+make_path_exist(log_col_t_plot_path)
+savefig(log_col_t_plot_path)
+println("Saved Plot: $(log_col_t_plot_path).png")

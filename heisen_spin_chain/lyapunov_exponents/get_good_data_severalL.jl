@@ -25,9 +25,9 @@ end
 Plots.theme(:dark)
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16, 32, 64]
+# @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
-# @everywhere num_unit_cells_vals = [8]
+@everywhere num_unit_cells_vals = [32]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -37,14 +37,15 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-a_vals = [0.62, 0.64, 0.66, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8, 0.82, 0.84, 0.86] # general a_vals
+@everywhere num_initial_conds = 9000 # We are avraging over x initial conditions
+@everywhere init_cond_name_offset = 1000
+a_vals = [0.7615] # general a_vals
 
 @everywhere epsilon = 0.1
 
 @everywhere N_val = 4
 
-z_val = 1.7
+z_val = 1.6
 z_val_name = replace("$z_val", "." => "p")
 
 # --- Calculating Lambdas ---
@@ -111,7 +112,7 @@ for num_unit_cells in num_unit_cells_vals
                 end
                 lambda = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
                 
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
+                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
                 df = DataFrame("t" => 1:n, "lambda" => calculate_lambda_per_time(current_spin_dists, epsilon), "delta_s" => current_sdiffs)
                 CSV.write(sample_filepath, df)

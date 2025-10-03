@@ -42,7 +42,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.65
+z_fit = 1.6
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -186,7 +186,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds.png"
+var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds.png"
 make_path_exist(var_plot_path)
 savefig(var_plot_path)
 println("Saved Plot: $(var_plot_path)")
@@ -247,11 +247,10 @@ end
 avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 
-a_crit = 0.7626	# pm 4.4469e-05
-nu = 1.95	# pm 0.03305943
-a_crit = 0.7634
-nu = 2.21529155
+a_crit = 0.76164776 # 1.0415e-04
+nu = 2.25551240 # 0.03422701
 
 # Create plot
 plt = plot(
@@ -271,7 +270,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
+collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/collapsed_stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
 make_path_exist(collapsed_var_plot_path)
 savefig(collapsed_var_plot_path)
 println("Saved Plot: $(collapsed_var_plot_path)")
@@ -299,7 +298,7 @@ for L in num_unit_cells_vals * N_val
         marker = :circle)
 end
 
-zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
+zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_stds_collapsed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name).png"
 make_path_exist(zoomed_collapsed_var_plot_path)
 savefig(zoomed_collapsed_var_plot_path)
 println("Saved Plot: $(zoomed_collapsed_var_plot_path)")
