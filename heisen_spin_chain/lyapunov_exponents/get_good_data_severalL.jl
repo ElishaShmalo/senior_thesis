@@ -39,7 +39,7 @@ Plots.theme(:dark)
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 10000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
-a_vals = [0.7615] # general a_vals
+a_vals = [0.762] # general a_vals
 
 @everywhere epsilon = 0.1
 
