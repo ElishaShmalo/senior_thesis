@@ -1,6 +1,6 @@
 
 # Imports
-using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM
+using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM, LaTeXStrings
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -9,6 +9,12 @@ include("../utils/dynamics.jl")
 include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
 
+
+default(
+    xlabelfont = 15,   # font size for x-axis label
+    ylabelfont = 15,   # font size for y-axis label
+    guidefont = 14     # alternative, some backends use 'guidefont'
+)
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -156,10 +162,10 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = "ln(a)", title="λ(a) for N=$N_val")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$")
 
-xlabel!("a")
-ylabel!("λ")
+xlabel!(L"a")
+ylabel!(L"λ")
 display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
@@ -169,9 +175,9 @@ println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 # --- Std plot ---
 # Create plot
 plt = plot(
-    title="Std(λ(a)) for N=$N_val | AW=$avraging_window_name",
-    xlabel="a",
-    ylabel="Std(λ)",
+    title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$avraging_window$",
+    xlabel=L"a",
+    ylabel=L"Std(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)
 )
 
@@ -197,9 +203,9 @@ avraging_windows_names = replace("$(join(avraging_windows))", "." => "p")
 for L in num_unit_cells_vals * N_val
     # Plot Std(lambda)
     plt = plot(
-    title="Std(λ(a)) for N=$N_val | L = $L",
-    xlabel="a",
-    ylabel="Std(λ)",
+    title=L"$Std(λ(a))$ for $N=%$N_val | L = %$L$",
+    xlabel=L"a",
+    ylabel=L"Std(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)
     )
 
@@ -254,9 +260,9 @@ nu = 2.25551240 # 0.03422701
 
 # Create plot
 plt = plot(
-    title="Colapss Std: N=$N_val,a_c = $(round(a_crit, digits = 4)),nu = $(round(nu, digits=3))",
-    xlabel="(a - a_c) * L^{1/ν}",
-    ylabel="Scaled Std(λ) | AW=$avraging_window_name"
+    title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 4)),ν = %$(round(nu, digits=3))$",
+    xlabel=L"$(a - a_c) * L^{1/ν}$",
+    ylabel=L"Scaled $Std(λ) | AW=%$avraging_window$"
 )
 
 # Plot data for each L
@@ -282,9 +288,9 @@ a_vals_to_plot = [a_val for a_val in a_vals if a_crit - 0.02 < a_val < a_crit + 
 
 # Create plot
 plt = plot(
-    title="Colapss Std: N=$N_val,a_c = $(round(a_crit, digits = 5)),nu = $(round(nu, digits=3))",
-    xlabel="(a - a_c) * L^{1/ν}",
-    ylabel="Scaled Std(λ) | AW=$avraging_window_name"
+    title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 5)),ν = %$(round(nu, digits=3))$",
+    xlabel=L"(a - a_c) * L^{1/ν}",
+    ylabel=L"Scaled $Std(λ)$ | $AW=%$avraging_window$"
 )
 
 # Plot data for each L

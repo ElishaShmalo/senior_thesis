@@ -1,7 +1,7 @@
 # --- S_diff analysis ---
 
 # Imports
-using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM
+using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM, LaTeXStrings
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -10,6 +10,11 @@ include("../utils/dynamics.jl")
 include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
 
+default(
+    xlabelfont = 14,   # font size for x-axis label
+    ylabelfont = 14,   # font size for y-axis label
+    guidefont = 14     # alternative, some backends use 'guidefont'
+)
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -89,9 +94,9 @@ L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 # Create plot
 plt = plot(
-    title="SDiff for N=$N_val | L = $(L_val_to_plot)",
-    xlabel="t",
-    ylabel="S_Diff"
+    title=L"$S_{Diff} for N=%$(N_val)$ | L = %$(L_val_to_plot)",
+    xlabel=L"t",
+    ylabel=L"$S_{Diff}$"
 )
 
 # Plot data for each a_val
@@ -121,9 +126,9 @@ z_val = 1.6
 z_val_name = replace("$(z_val)", "." => "p")
 
 plt = plot(
-    title="S_Diff(t=L^$(z_val)) for N=$N_val as Function of a",
-    xlabel="a",
-    ylabel="S_Diff(t=L^$(z_val))"
+    title=L"$S_{Diff}(t=L^{ %$(z_val) })$ for N=%$(N_val) as Function of a",
+    xlabel=L"a",
+    ylabel=L"S_{Diff}(t=L^{ %$(z_val) })"
 )
 
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -154,9 +159,9 @@ display(plt)
 # Zoomed S_diff
 zoomed_a_vals = [a_val for a_val in sort(a_vals) if 0.75 <= a_val <= 0.77]
 plt = plot(
-    title="S_Diff(t=L^$(z_val)) for N=$N_val as Function of a",
-    xlabel="a",
-    ylabel="S_Diff(t=L^$(z_val))"
+    title=L"$S_{Diff}(t=L^%$(z_val))$ for N=$N_val as Function of a",
+    xlabel=L"a",
+    ylabel=L"$S_{Diff}(t=L^%$(z_val))$"
 )
 
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -196,9 +201,9 @@ nu = 2.23820148 # 0.08610375
 beta = 0.03991301 # 0.02658450
 
 plt = plot(
-    title="FSS S_Diff(t=L^$(z_val)) \n N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 4))",
-    xlabel="(a-a_c)L^{1/ν}",
-    ylabel="S_Diff(t=L^$(z_val)) L^{β/ν}"
+    title=L"FSS $S_{Diff}(t=L^{%$(z_val)})$" * "\n" * L"N=%$N_val, β=%$(round(beta, digits=3)), ν=%$(round(nu, digits=3)), a_c=%$(round(a_crit, digits = 4))",
+    xlabel=L"$(a-a_c)L^{1/ν}$",
+    ylabel=L"$S_{Diff}(t=L^{%$(z_val)}) L^{β/ν}$"
 )
 
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -233,9 +238,9 @@ display(plt)
 a_vals_to_collapse = [a_val for a_val in a_vals if 0.75 <= a_val <=0.77]
 
 plt = plot(
-    title="Zoomed FSS S_Diff(t=L^$(z_val)) \n N=$N_val, β=$(round(beta, digits=3)), ν=$(round(nu, digits=3)), a_crit=$(round(a_crit, digits = 4))",
-    xlabel="(a-a_c)L^{1/ν}",
-    ylabel="S_Diff(t=L^$(z_val)) L^{β/ν}"
+    title=L"Zoomed FSS $S_{Diff}(t=L^{%$(z_val)})$"* " \n " * L"N=%$N_val, β=%$(round(beta, digits=3)), ν=%$(round(nu, digits=3)), a_c=%$(round(a_crit, digits = 4))",
+    xlabel=L"$(a-a_c)L^{1/ν}$",
+    ylabel=L"S_{Diff}(t=L^{%$(z_val)}) L^{β/ν}"
 )
 
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -266,7 +271,7 @@ savefig(zoomed_fss_s_diff_per_val_plot_path)
 println("Saved Plot: $(zoomed_fss_s_diff_per_val_plot_path)")
 display(plt)
 
-# --- Making Log(S_Diff) Plots ---
+# --- Making log(S_Diff) Plots ---
 
 # First we calculate the error on the log(s_diff)
 collected_log_S_diff_errs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
@@ -286,9 +291,9 @@ a_vals_to_plot = [0.68, 0.7, 0.7615, 0.77, 0.78]
 
 # Create plot
 plt = plot(
-    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
-    xlabel="t",
-    ylabel="Log(S_Diff)",
+    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    xlabel=L"t",
+    ylabel=L"log(S_{Diff})",
 )
 
 # Plot data for each a_val
@@ -318,10 +323,9 @@ y_lims = (-30, 0)
 
 # Create plot
 plt = plot(
-    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
-    xlabel="t",
-    ylabel="Log(S_Diif)",
-    ylims=y_lims,
+    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    xlabel=L"t",
+    ylabel=L"log(S_{Diff})",
 )
 
 # Plot data for each a_val
@@ -344,8 +348,8 @@ savefig(log_s_diff_plot_path)
 println("Saved Plot: $(log_s_diff_plot_path)")
 display(plt)
 
-# --- Fitting Log of S_diff ---
-# From the analysis of the plots, it seems that the first linear domain is as long as Log(S_diff) > some value, so we will 
+# --- Fitting log of S_diff ---
+# From the analysis of the plots, it seems that the first linear domain is as long as log(S_diff) > some value, so we will 
 # Fit accordingly
 
 times_to_fit = Dict{Float64, Dict{Int, Dict{Float64, Vector{Int}}}}() # z_val, L_val, a_val, (min, max)
@@ -438,9 +442,9 @@ a_vals_to_plot = [0.7575, 0.76]
 
 # Create plot
 plt = plot(
-    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
-    xlabel="t",
-    ylabel="Log(S_Diif)",
+    title=L"log(S_{Diff}) for N=%$(N_val) | L = %$(L_val_to_plot)",
+    xlabel=L"t",
+    ylabel=L"log(S_{Diff})",
     xlims = x_lims
 )
 
@@ -565,9 +569,9 @@ a_vals_to_plot = [0.755, 0.7575]
 
 # Create plot
 plt = plot(
-    title="Log(SDiff) for N=$N_val | L = $(L_val_to_plot)",
-    xlabel="t",
-    ylabel="Log(S_Diif)",
+    title=L"$log(S_{Diff})$ for $N=%$(N_val)$ | $L = %$(L_val_to_plot)$",
+    xlabel=L"t",
+    ylabel=L"log(S_{Diff})",
     xlims = x_lims
 )
 
@@ -723,9 +727,9 @@ fitted_a_vals_to_plot = [val for val in a_vals if 0.75 <= val <= 0.7575]
 for L in num_unit_cells_vals * N_val
     L = Int(L)
     plt = plot(
-        title="Log(S_diff) As Func of t | L = $(L)",
+        title="log(S_diff) As Func of t | L = $(L)",
         xlabel="t",
-        ylabel="Log(S_diif)"
+        ylabel="log(S_diif)"
     )
     for (i, a_val) in enumerate(fitted_a_vals_to_plot)
         c = Plots.palette(:auto)[i]
@@ -763,9 +767,9 @@ z_fit_name = replace("$(z_fit_name)", "." => "p")
 decay_a_vals = [val for val in a_vals if 0.68 <= val <= 0.7615]
 
 plt = plot(
-    title="t^* As Func of a",
-    xlabel="a",
-    ylabel="t^*"
+    title=L"$t^{*}$ As Func of a",
+    xlabel=L"a",
+    ylabel=L"$t^{*}$"
 )
 
 # Plot data for each L
@@ -802,9 +806,9 @@ end
 
 # Create plot
 plt = plot(
-    title="ξ_τ As Func of a",
-    xlabel="a",
-    ylabel="ξ_τ"
+    title=L"$ξ_τ$ As Func of a",
+    xlabel=L"a",
+    ylabel=L"$ξ_τ$"
 )
 
 # Plot data for each L
@@ -831,9 +835,9 @@ println("Saved Plot: $(decay_per_a_plot_path)")
 # Zoomed plot 
 zoomed_decay_a_vals = [a_val for a_val in decay_a_vals if 0.75 <= a_val <= 0.7575]
 plt = plot(
-    title="ξ_τ As Func of a",
+    title=L"$ξ_τ$ As Func of a",
     xlabel="a",
-    ylabel="ξ_τ"
+    ylabel=L"$ξ_τ$"
 )
 
 # Plot data for each L
@@ -854,15 +858,15 @@ end
 display(plt)
 
 
-# Log of decay Timescale
+# log of decay Timescale
 
-a_crit = 0.76
+a_crit = 0.762
 
 # Create plot
 plt = plot(
-    title="log(ξ_τ) as Function of a",
-    xlabel="log(|a - a_c|)",
-    ylabel="log(ξ_τ)"
+    title=L"$log(ξ_τ)$ as Function of a $a_c = %$(a_crit)$",
+    xlabel=L"$log(|a - a_c|)$",
+    ylabel=L"$log(ξ_τ)$"
 )
 
 # Plot data for each L
@@ -891,9 +895,9 @@ display(plt)
 
 decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.7615]
 
-a_crit, d_acrit = 0.76204372, 4.8679e-05
-nu, dnu = 1.43462415, 0.03842713
-beta, dbeta = -2.29834352, 0.06650638
+a_crit, d_acrit = 0.7620, 4.8679e-05
+nu, dnu = 1.993, 0.049
+beta, dbeta = -1.658*nu, 0.06650638
 z = -beta/nu
 
 println(z)
@@ -901,9 +905,9 @@ println(sqrt((dbeta/nu)^2 + ((beta*dnu)/(nu^2))^2))
 
 # Create plot
 plt = plot(
-    title="Scaled ξ_τ (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 5)))",
-    xlabel="(a - a_c)L^(1/ν)",
-    ylabel="ξ_τ / L^{z}"
+    title=L"Scaled $ξ_τ$ $(z=%$(round(z, digits=3)),ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    xlabel=L"$(a - a_c)L^{1/ν}$",
+    ylabel=L"$ξ_τ / L^{z}$"
 )
 
 # Plot data for each L
@@ -936,9 +940,9 @@ display(plt)
 
 # Create plot
 plt = plot(
-    title="Scaled log(ξ_τ) (z=$(round(z, digits=3)),nu = $(round(nu, digits = 3)),a_c = $(round(a_crit, digits = 4)))",
-    xlabel="log(|a - a_c|L^(1/ν))",
-    ylabel="log(ξ_τ / L^{z})"
+    title=L"Scaled $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    xlabel=L"$log(|a - a_c|L^{1/ν})$",
+    ylabel=L"$log(ξ_τ / L^{z})$"
 )
 
 # Plot data for each L

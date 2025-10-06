@@ -1,5 +1,5 @@
 # Imports
-using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM
+using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM, LaTeXStrings
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -8,6 +8,12 @@ include("../utils/dynamics.jl")
 include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
 
+
+default(
+    xlabelfont = 15,   # font size for x-axis label
+    ylabelfont = 15,   # font size for y-axis label
+    guidefont = 14     # alternative, some backends use 'guidefont'
+)
 
 # Set plotting theme
 Plots.theme(:dark)
@@ -94,9 +100,9 @@ a_vals_to_plot = [0.7615]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
-        title="λ(t) for N=$N_val | L = $L | z=$(z_val_name) | AW=$avraging_window_name",
-        xlabel="t",
-        ylabel="λ"
+        title=L"$λ(t)$ for $N=%$N_val$ | $L = %$L$ | $z=%$(z_val)$",
+        xlabel=L"t",
+        ylabel=L"λ"
     )
 
     L = Int(L)
@@ -117,9 +123,9 @@ a_vals_to_plot = [0.7615]
 
 for L in num_unit_cells_vals * N_val
     plt = plot(
-        title="Var(λ(t)) for N=$N_val | z=$(z_val_name) |  L = $L | AW=$avraging_window_name",
-        xlabel="t",
-        ylabel="Var(λ)"
+        title=L"$Var(λ(t))$ for $N=%$N_val$ | $z=%$(z_val_name)$ |  $L = %$(L)$",
+        xlabel=L"t",
+        ylabel=L"Var(λ)"
     )
 
     L = Int(L)
@@ -142,9 +148,9 @@ end
 a_vals_to_plot = [0.7615]
 
 plt = plot(
-    title="Var(λ(t)) for N=$N_val | t_f=L^$(z_val)",
-    xlabel="log(t)",
-    ylabel="Var(λ)"
+    title=L"$Var(λ(t))$ for $N=%$N_val$ | $t_f=L^{%$(z_val)}$",
+    xlabel=L"log(t)",
+    ylabel=L"Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -167,9 +173,9 @@ a_vals_to_plot = [0.7615]
 peak_frac_lims = [1/30, 9/10]
 
 plt = plot(
-    title="Var(λ(t)) for N=$N_val | t_f=L^$(z_val)",
-    xlabel="log(t)",
-    ylabel="Var(λ)"
+    title=L"$Var(λ(t))$ for $N=%$N_val$ | $t_f=L^%$(z_val)$",
+    xlabel=L"log(t)",
+    ylabel=L"Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -204,9 +210,9 @@ a_vals_to_plot = [0.7615]
 z_collapse_val = round(1.58499999120325, digits=4) # 6.459684070797505e-08
 
 plt = plot(
-    title="Collapsed Var(λ(t)) for N=$N_val \n t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="t / L^z",
-    ylabel="Var(λ)"
+    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$ " * " \n " * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    xlabel=L"\frac{t}{L^z}",
+    ylabel=L"Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -226,9 +232,9 @@ println("Saved Plot: $(zoomed_col_t_plot_path).png")
 display(plt)
 
 plt = plot(
-    title="Collapsed Var(λ(t)) for N=$N_val | t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="t / L^z",
-    ylabel="Var(λ)"
+    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    xlabel=L"\frac{t}{L^z}",
+    ylabel=L"Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -253,9 +259,9 @@ display(plt)
 a_vals_to_plot = [0.7615]
 
 plt = plot(
-    title="Collapsed Var(λ(t)) for N=$N_val \n t_f=L^$(z_val) | z=$(z_collapse_val)",
-    xlabel="log(t / L^z)",
-    ylabel="Var(λ)"
+    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    xlabel=L"log(\frac{t}{L^z})",
+    ylabel=L"Var(λ)"
 )
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -273,3 +279,4 @@ log_col_t_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_cond
 make_path_exist(log_col_t_plot_path)
 savefig(log_col_t_plot_path)
 println("Saved Plot: $(log_col_t_plot_path).png")
+
