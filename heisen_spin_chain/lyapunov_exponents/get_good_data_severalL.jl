@@ -45,7 +45,7 @@ a_vals = [0.78] # general a_vals
 
 @everywhere N_val = 4
 
-z_val = 1.6
+z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
 # --- Calculating Lambdas ---
