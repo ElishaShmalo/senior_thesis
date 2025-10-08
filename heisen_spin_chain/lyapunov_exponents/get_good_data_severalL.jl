@@ -27,7 +27,7 @@ Plots.theme(:dark)
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
-@everywhere num_unit_cells_vals = [32]
+@everywhere num_unit_cells_vals = [64, 128]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -37,9 +37,9 @@ Plots.theme(:dark)
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 10000 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
-a_vals = [0.762] # general a_vals
+a_vals = [0.78] # general a_vals
 
 @everywhere epsilon = 0.1
 

@@ -694,7 +694,7 @@ times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
 z_fit_val = 1.7
 z_fit_name = replace("$(z_fit_name)", "." => "p")
 
-decay_a_vals = [val for val in a_vals if 0.68 <= val <= 0.7615]
+decay_a_vals = [val for val in a_vals if 0.68 <= val <= 0.7625]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
@@ -893,11 +893,12 @@ display(plt)
 
 # --- Scaled Decay Timescale as Func of a for all L --- 
 
-decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.7615]
+decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.7605]
 
-a_crit, d_acrit = 0.7620, 4.8679e-05
-nu, dnu = 1.993, 0.049
-beta, dbeta = -1.658*nu, 0.06650638
+a_crit, d_acrit = 0.76062372, 5.2624e-05
+nu, dnu = 1.62546957, 0.04204397
+beta, dbeta = -2.62954666, 0.05085922
+
 z = -beta/nu
 
 println(z)
@@ -915,7 +916,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = Plots.palette(:auto)[i]
     L = Int(L)
     plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z),
-        yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
+        yerr = yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip([all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)], [all_log_s_diff_slope_errs[L][a_val] for a_val in sort(decay_a_vals)])],
         label="L=$L",
         linestyle=:dash,
         markersize=2,
@@ -932,6 +933,39 @@ savefig(scaled_decay_per_a_plot_path)
 println("Saved Plot: $(scaled_decay_per_a_plot_path)")
 display(plt)
 
+# Zoomed on collapsed plot
+a_vals_collapsed = [a_val for a_val in decay_a_vals if 0.73 <= a_val <= 0.7605]
+
+# Create plot
+plt = plot(
+    title=L"Zoomed Scaled $ξ_τ$ $(z=%$(round(z, digits=3)),ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    xlabel=L"$(a - a_c)L^{1/ν}$",
+    ylabel=L"$ξ_τ / L^{z}$"
+)
+
+# Plot data for each L
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    c = Plots.palette(:auto)[i]
+    L = Int(L)
+    plot!(plt, sort([a_val-a_crit for a_val in a_vals_collapsed]) .* L^(1/nu), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(a_vals_collapsed)] ./ (L^z),
+        yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip([all_log_s_diff_slopes[L][a_val] for a_val in sort(a_vals_collapsed)], [all_log_s_diff_slope_errs[L][a_val] for a_val in sort(a_vals_collapsed)])],
+        label="L=$L",
+        linestyle=:dash,
+        markersize=2,
+        linewidth=1,
+        marker = :circle,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals_collapsed))_$(maximum(a_vals_collapsed))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))z$(z_fit_name).png"
+make_path_exist(scaled_decay_per_a_plot_path)
+savefig(scaled_decay_per_a_plot_path)
+println("Saved Plot: $(scaled_decay_per_a_plot_path)")
+display(plt)
+
+
 # Plotting log-log of the collapse
 
 # a_crit = 0.7623
@@ -940,7 +974,7 @@ display(plt)
 
 # Create plot
 plt = plot(
-    title=L"Scaled $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    title=L"FSS $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
     xlabel=L"$log(|a - a_c|L^{1/ν})$",
     ylabel=L"$log(ξ_τ / L^{z})$"
 )
@@ -962,6 +996,37 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
 end
 
 log_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/log_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
+make_path_exist(log_scaled_decay_per_a_plot_path)
+savefig(log_scaled_decay_per_a_plot_path)
+println("Saved Plot: $(log_scaled_decay_per_a_plot_path)")
+display(plt)
+
+# Zoomed log log
+
+# Create plot
+plt = plot(
+    title=L"FSS Zoomed $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    xlabel=L"$log(|a - a_c|L^{1/ν})$",
+    ylabel=L"$log(ξ_τ / L^{z})$"
+)
+
+# Plot data for each L
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    c = Plots.palette(:auto)[i]
+    L = Int(L)
+    plot!(plt, log.([abs.(a_val-a_crit) for a_val in sort(a_vals_collapsed)] .* L^(1/nu)), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(a_vals_collapsed)] ./ (L^z)),
+        # yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
+        label="L=$L",
+        linestyle=:dash,
+        markersize=2,
+        linewidth=1,
+        marker = :circle,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+log_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/log_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals_collapsed))_$(maximum(a_vals_collapsed))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(log_scaled_decay_per_a_plot_path)
 savefig(log_scaled_decay_per_a_plot_path)
 println("Saved Plot: $(log_scaled_decay_per_a_plot_path)")

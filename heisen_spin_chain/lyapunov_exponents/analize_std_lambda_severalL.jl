@@ -52,7 +52,7 @@ z_fit = 1.6
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/32]
+avraging_windows = [1/8, 1/16, 1/32, 1/64]
 # avraging_windows = [1/32]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -127,6 +127,8 @@ for avraging_window in avraging_windows
     collected_lambdas_SEMs[avraging_window] = current_collected_lambda_SEMs
 end
 
+collapse_a_vals = [a_val for a_val in a_vals if 0.73 <=a_val <= 0.78]
+
 # save_data_to_collapse
 for avraging_window in avraging_windows
     avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
@@ -134,10 +136,10 @@ for avraging_window in avraging_windows
     for L in num_unit_cells_vals * N_val
         L = Int(L)
         data = Dict{Float64, Float64}()
-        for a_val in trans_a_vals
+        for a_val in collapse_a_vals
             data[a_val] = collected_lambdas_SEMs[avraging_window][L][a_val] .* sqrt(num_initial_conds-1)
         end
-        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(trans_a_vals))_$(maximum(trans_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_AW$(avraging_window_name).csv"
+        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(collapse_a_vals))_$(maximum(collapse_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_AW$(avraging_window_name).csv"
         save_simple_dict_to_csv(data, filepath)
     end
 end
@@ -173,6 +175,29 @@ savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
 # --- Std plot ---
+
+for local_avraging_window in avraging_windows
+    # Create plot
+    plt = plot(
+        title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$",
+        xlabel=L"a",
+        ylabel=L"Std(λ)",
+        xticks = minimum(a_vals):0.02:maximum(a_vals)
+    )
+
+    # Plot data for each L
+    for L in num_unit_cells_vals * N_val
+        L = Int(L)
+        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[local_avraging_window][L]))] * sqrt(num_initial_conds-1),
+            label="L=$L",
+            linestyle=:solid,
+            markersize=2,
+            linewidth=1,
+            marker = :circle)
+    end
+    display(plt)
+end
+
 # Create plot
 plt = plot(
     title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$avraging_window$",
