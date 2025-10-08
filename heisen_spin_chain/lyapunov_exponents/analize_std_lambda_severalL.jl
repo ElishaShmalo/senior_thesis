@@ -52,8 +52,7 @@ z_fit = 1.6
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/8, 1/16, 1/32, 1/64]
-# avraging_windows = [1/32]
+avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/64, 1/128]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -65,13 +64,13 @@ for avraging_window in avraging_windows
     # Our dict for recording results
     current_collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
     current_collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
-
+    
     # --- Load in and take avrages from all samples ---
     for num_unit_cells in num_unit_cells_vals
         L = num_unit_cells * N_val
         println("L_val: $L")
 
-        # number of pushes we are going to do
+        # T_f
         n = Int(round(L^z_fit))
 
         num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
@@ -90,20 +89,19 @@ for avraging_window in avraging_windows
             current_lambdas = zeros(Float64, num_initial_conds)
 
             for init_cond in 1:num_initial_conds
-                current_spin_dists = zeros(n)
 
                 sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
                 df = CSV.read(sample_filepath, DataFrame)
 
                 sample_lambdas = df[!, "lambda"]
-                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip+1:n], tau, n - num_skip)
+                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip:n], tau, length(sample_lambdas[num_skip:n]))
             end
 
             current_collected_lambdas[L][a_val] = mean(current_lambdas)
             current_collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
         end
 
-        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)"
+        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)_z$(z_fit_name)"
 
         # Make large .csv file
         # Extract and sort keys and values
@@ -127,7 +125,48 @@ for avraging_window in avraging_windows
     collected_lambdas_SEMs[avraging_window] = current_collected_lambda_SEMs
 end
 
-collapse_a_vals = [a_val for a_val in a_vals if 0.73 <=a_val <= 0.78]
+# --- Load from saved csvs ---
+
+for avraging_window in avraging_windows
+    println("Aw: $(avraging_window)")
+    skip_fract = 1 - avraging_window
+    avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
+
+    # Our dict for recording results
+    # current_collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
+    # current_collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+    
+    current_collected_lambdas = collected_lambdas[avraging_window] # Int: L_val, Float64: a_val, Float64: avrg lambda
+    current_collected_lambda_SEMs = collected_lambdas_SEMs[avraging_window] # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+    
+    # --- Load in and take avrages from all samples ---
+    for num_unit_cells in num_unit_cells_vals
+        L = num_unit_cells * N_val
+        println("L_val: $L")
+
+        current_collected_lambdas[L] = Dict(a => 0 for a in a_vals)
+        current_collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
+
+        data_filepath = "data/spin_chain_lambdas/N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)_z$(z_fit_name).csv"
+        df = CSV.read(data_filepath, DataFrame)
+        for a_val in a_vals
+            println("L_val: $L | a_val: $a_val")
+            a_val_name = replace("$a_val", "." => "p")
+            row = df[df.aval .== a_val, :]
+            lambda_val = 
+            lambda_sem_val = row.lambda_sem[1]
+            current_collected_lambdas[L][a_val] = row.lambda[1]
+            current_collected_lambda_SEMs[L][a_val] = row.lambda_sem[1]
+        end
+    end
+
+    collected_lambdas[avraging_window] = current_collected_lambdas
+    collected_lambdas_SEMs[avraging_window] = current_collected_lambda_SEMs
+end
+
+# --- Using Loaded Data ---
+
+collapse_a_vals = [a_val for a_val in a_vals if 0.7 <=a_val <= 0.8]
 
 # save_data_to_collapse
 for avraging_window in avraging_windows
@@ -145,7 +184,7 @@ for avraging_window in avraging_windows
 end
 
 # --- Using Loaded Data ---
-avraging_window = 1/32
+avraging_window = 1/8
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 # --- Save the plot ---
@@ -280,14 +319,15 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 
 num_unit_cells_vals = [8, 16, 32, 64, 128]
 
-a_crit = 0.76164776 # 1.0415e-04
-nu = 2.25551240 # 0.03422701
+a_crit = 0.76250508 # 1.0415e-04
+nu = 1.72444793 # 0.03422701
 
 # Create plot
 plt = plot(
     title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 4)),ν = %$(round(nu, digits=3))$",
     xlabel=L"$(a - a_c) * L^{1/ν}$",
     ylabel=L"Scaled $Std(λ) | AW=%$avraging_window$"
+    # xlims=[-7.5,5]
 )
 
 # Plot data for each L

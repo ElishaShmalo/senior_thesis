@@ -38,7 +38,7 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79]
+a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 
 epsilon = 0.1
 
@@ -64,9 +64,9 @@ for num_unit_cells in num_unit_cells_vals
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
-    # Initializes results for this N_val
-    collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
-    collected_S_diff_SEMs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+    # # Initializes results for this N_val
+    # collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+    # collected_S_diff_SEMs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
 
     for a_val in a_vals
         println("L_val: $L | a_val: $a_val")
@@ -224,7 +224,7 @@ for (i, L_val) in enumerate(L_vals_to_plot)
         color = c,          # sets line color
         seriescolor = c,    # ensures error bars match
         markerstrokecolor = c, # (optional) markers match too
-        marker = :circle, markersize=2,
+        marker = :circle, 
         )
 end
 
@@ -261,7 +261,7 @@ for (i, L_val) in enumerate(L_vals_to_plot)
         color = c,          # sets line color
         seriescolor = c,    # ensures error bars match
         markerstrokecolor = c, # (optional) markers match too
-        marker = :circle, markersize=2,
+        marker = :circle, 
         )
 end
 
@@ -877,7 +877,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="L=$L",
         linestyle=:solid,
-        markersize=2,
+        
         linewidth=1,
         marker = :circle,
         color = c,          # sets line color
@@ -893,11 +893,11 @@ display(plt)
 
 # --- Scaled Decay Timescale as Func of a for all L --- 
 
-decay_a_vals = [val for val in a_vals if 0.67 <= val < 0.7605]
+decay_a_vals = [val for val in a_vals if 0.68 <= val < 0.7605]
 
-a_crit, d_acrit = 0.76062372, 5.2624e-05
-nu, dnu = 1.62546957, 0.04204397
-beta, dbeta = -2.62954666, 0.05085922
+a_crit, d_acrit = 0.76156934, 8.0445e-05
+nu, dnu = 1.61578043, 0.01863365
+beta, dbeta = -2.69677082,  0.03032276
 
 z = -beta/nu
 
@@ -919,7 +919,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         yerr = yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip([all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)], [all_log_s_diff_slope_errs[L][a_val] for a_val in sort(decay_a_vals)])],
         label="L=$L",
         linestyle=:dash,
-        markersize=2,
+        # seriestype = :scatter,
         linewidth=1,
         marker = :circle,
         color = c,          # sets line color
@@ -951,7 +951,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip([all_log_s_diff_slopes[L][a_val] for a_val in sort(a_vals_collapsed)], [all_log_s_diff_slope_errs[L][a_val] for a_val in sort(a_vals_collapsed)])],
         label="L=$L",
         linestyle=:dash,
-        markersize=2,
+        
         linewidth=1,
         marker = :circle,
         color = c,          # sets line color
@@ -987,7 +987,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         # yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="L=$L",
         linestyle=:dash,
-        markersize=2,
+        
         linewidth=1,
         marker = :circle,
         color = c,          # sets line color
@@ -1018,7 +1018,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         # yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="L=$L",
         linestyle=:dash,
-        markersize=2,
+        
         linewidth=1,
         marker = :circle,
         color = c,          # sets line color
