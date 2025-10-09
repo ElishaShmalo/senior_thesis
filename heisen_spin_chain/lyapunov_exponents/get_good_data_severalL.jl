@@ -27,7 +27,7 @@ Plots.theme(:dark)
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
-@everywhere num_unit_cells_vals = [32, 64, 128]
+@everywhere num_unit_cells_vals = [8, 16]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness

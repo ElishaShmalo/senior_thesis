@@ -34,16 +34,15 @@ num_unit_cells_vals = [8, 16, 32, 64, 128]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
-post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
-a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
-# a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-trans_a_vals = [a_val for a_val in a_vals if 0.7525 <=a_val <= 0.77]
-print(trans_a_vals)
+# post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
+# a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
+general_a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 
 epsilon = 0.1
 
 N_val = 4
+
+high_L_vals = [N_val * num_uc for num_uc in num_unit_cells_vals if 32 <= num_uc <= 128]
 
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
@@ -54,8 +53,6 @@ z_fit_name = replace("$z_fit", "." => "p")
 # --- Lyop Analysis ---
 avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/64, 1/128]
 
-collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
-collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 for avraging_window in avraging_windows
     println("Aw: $(avraging_window)")
     skip_fract = 1 - avraging_window
@@ -100,8 +97,8 @@ for avraging_window in avraging_windows
             current_collected_lambdas[L][a_val] = mean(current_lambdas)
             current_collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
         end
-
-        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)_z$(z_fit_name)"
+        
+        filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name)_z$(z_fit_name)"
 
         # Make large .csv file
         # Extract and sort keys and values
@@ -116,17 +113,17 @@ for avraging_window in avraging_windows
         csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
 
         # Write to CSV with header
+        make_path_exist(csv_path)
         open(csv_path, "w") do io
             writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
             writedlm(io, rows, ',')                                # Data rows
         end
     end
-    collected_lambdas[avraging_window] = current_collected_lambdas
-    collected_lambdas_SEMs[avraging_window] = current_collected_lambda_SEMs
 end
 
 # --- Load from saved csvs ---
-
+collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
+collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 for avraging_window in avraging_windows
     println("Aw: $(avraging_window)")
     skip_fract = 1 - avraging_window
@@ -147,7 +144,7 @@ for avraging_window in avraging_windows
         current_collected_lambdas[L] = Dict(a => 0 for a in a_vals)
         current_collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
 
-        data_filepath = "data/spin_chain_lambdas/N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_FracSkip$(skip_fract)_z$(z_fit_name).csv"
+        data_filepath = "data/spin_chain_lambdas/N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name)_z$(z_fit_name).csv"
         df = CSV.read(data_filepath, DataFrame)
         for a_val in a_vals
             println("L_val: $L | a_val: $a_val")
