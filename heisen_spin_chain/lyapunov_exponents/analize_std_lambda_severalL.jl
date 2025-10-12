@@ -28,26 +28,26 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [8, 16, 32, 64, 128]
-# num_unit_cells_vals = [8, 16, 32, 64]
-# num_unit_cells_vals = [8]
+# num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [8, 16]
+# num_unit_cells_vals = [32, 64, 128]
 
 # --- Trying to Replecate Results ---
 num_initial_conds = 1000 # We are avraging over x initial conditions
 # post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 # a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
-general_a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+# a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+# a_vals = a_vals = [0.7563, 0.7588, 0.7594, 0.762]
 
 epsilon = 0.1
 
 N_val = 4
 
-high_L_vals = [N_val * num_uc for num_uc in num_unit_cells_vals if 32 <= num_uc <= 128]
-
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.65
+z_fit = 1.6
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -72,9 +72,6 @@ for avraging_window in avraging_windows
 
         num_skip = Int(round(skip_fract * n)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 
-        # Define s_naught to be used during control step
-        S_NAUGHT = make_spiral_state(L, (2) / N_val)
-
         # Initializes results for this N_val
         current_collected_lambdas[L] = Dict(a => 0 for a in a_vals)
         current_collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
@@ -84,14 +81,14 @@ for avraging_window in avraging_windows
             a_val_name = replace("$a_val", "." => "p")
             # We will avrage over this later
             current_lambdas = zeros(Float64, num_initial_conds)
-
+            
             for init_cond in 1:num_initial_conds
-
                 sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
-                df = CSV.read(sample_filepath, DataFrame)
 
-                sample_lambdas = df[!, "lambda"]
-                current_lambdas[init_cond] = calculate_lambda_from_lambda_per_time(sample_lambdas[num_skip:n], tau, length(sample_lambdas[num_skip:n]))
+                lambda_vec = CSV.File(sample_filepath; select=["lambda"], types=Float64).lambda[num_skip+1:n]
+
+                current_lambdas[init_cond] = sum(lambda_vec) / ((length(lambda_vec)) * tau)
+
             end
 
             current_collected_lambdas[L][a_val] = mean(current_lambdas)
@@ -121,7 +118,10 @@ for avraging_window in avraging_windows
     end
 end
 
+
 # --- Load from saved csvs ---
+num_unit_cells_vals = [32, 64, 128]
+
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 for avraging_window in avraging_windows
@@ -130,11 +130,11 @@ for avraging_window in avraging_windows
     avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
     # Our dict for recording results
-    # current_collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
-    # current_collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+    current_collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
+    current_collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
     
-    current_collected_lambdas = collected_lambdas[avraging_window] # Int: L_val, Float64: a_val, Float64: avrg lambda
-    current_collected_lambda_SEMs = collected_lambdas_SEMs[avraging_window] # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+    # current_collected_lambdas = collected_lambdas[avraging_window] # Int: L_val, Float64: a_val, Float64: avrg lambda
+    # current_collected_lambda_SEMs = collected_lambdas_SEMs[avraging_window] # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
     
     # --- Load in and take avrages from all samples ---
     for num_unit_cells in num_unit_cells_vals
@@ -200,14 +200,14 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window_name)$")
 
 xlabel!(L"a")
 ylabel!(L"λ")
 display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
-savefig("figs/lambda_per_a/" * plot_path * ".png")
+# savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
 # --- Std plot ---

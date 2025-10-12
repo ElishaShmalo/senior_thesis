@@ -28,7 +28,7 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [32, 64, 128]
 # num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
@@ -38,7 +38,8 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+# a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762]
 
 epsilon = 0.1
 
@@ -562,17 +563,19 @@ times_to_fit[1.65][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
 # ----------------------
 # Now we do for z = 1.7
 # ----------------------
-num_unit_cell_to_plot = 32
+num_unit_cell_to_plot = 128
 L_val_to_plot = num_unit_cell_to_plot * N_val
-x_lims = (round(Int, 32), round(Int, 32^1.7))
-a_vals_to_plot = [0.755, 0.7575]
+x_lims = (round(Int, 150), round(Int, 512^1.7))
+y_lims = (round(Int, -20), round(Int, 0))
+a_vals_to_plot = [0.755, 0.7563]
 
 # Create plot
 plt = plot(
     title=L"$log(S_{Diff})$ for $N=%$(N_val)$ | $L = %$(L_val_to_plot)$",
     xlabel=L"t",
     ylabel=L"log(S_{Diff})",
-    xlims = x_lims
+    xlims = x_lims,
+    ylims=y_lims
 )
 
 # Plot data for each a_val
@@ -580,7 +583,7 @@ for (i,a_val) in enumerate(a_vals_to_plot)
     c = Plots.palette(:auto)[i]
 
     plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val]),
-    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val],
+    # yerr = collected_log_S_diff_errs[L_val_to_plot][a_val],
         label="a = $(a_val)",
         linestyle=:solid,
         linewidth=1,
@@ -601,11 +604,15 @@ times_to_fit[1.7][512] = Dict{Float64, Vector{Int}}(
                                                0.75 => [80, 3150],
                                                0.7525 => [175, 4350],
                                                0.755 => [80, 1.250 * 10^4],
+                                               0.7563 => [400, 3 * 10^4],
                                                0.7575 => [400, Int(round(512^1.7))],
+                                               0.7588 => [400, Int(round(512^1.7))],
+                                               0.7594 => [400, Int(round(512^1.7))],
                                                0.76 => [400, Int(round(512^1.7))],
                                                0.7605 => [400, Int(round(512^1.7))],
                                                0.761 => [600, Int(round(512^1.7))],
                                                0.7615 => [600, Int(round(512^1.7))],
+                                               0.762 => [600, Int(round(512^1.7))],
                                                0.7625 => [600, Int(round(512^1.7))],
                                                0.763 => [600, Int(round(512^1.7))])
 times_to_fit[1.7][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
@@ -619,11 +626,15 @@ times_to_fit[1.7][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.75 => [200, 3500], 
                                                0.7525 => [400, 5200], 
                                                0.755 => [300, 6500], 
+                                               0.7563 => [300, 10000], 
                                                0.7575 => [200, Int(round(256^1.7))], 
+                                               0.7588 => [200, Int(round(256^1.7))], 
+                                               0.7594 => [200, Int(round(256^1.7))], 
                                                0.76 => [200, Int(round(256^1.7))], 
                                                0.7605 => [200, Int(round(256^1.7))], 
                                                0.761 => [500, Int(round(256^1.7))], 
                                                0.7615 => [500, Int(round(256^1.7))], 
+                                               0.762 => [500, Int(round(256^1.7))], 
                                                0.7625 => [500, Int(round(256^1.7))], 
                                                0.763 => [500, Int(round(256^1.7))])
 times_to_fit[1.7][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
@@ -637,11 +648,15 @@ times_to_fit[1.7][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.75 => [150, 2000], 
                                                0.7525 => [150, Int(round(128^1.67))], 
                                                0.755 => [150, Int(round(128^1.68))], 
+                                               0.7563 => [150, Int(round(128^1.68))], 
                                                0.7575 => [150, Int(round(128^1.69))], 
+                                               0.7588 => [150, Int(round(128^1.69))], 
+                                               0.7594 => [200, Int(round(128^1.69))], 
                                                0.76 => [200, Int(round(128^1.7))], 
                                                0.7605 => [500, Int(round(128^1.7))], 
                                                0.761 => [500, Int(round(128^1.7))], 
                                                0.7615 => [500, Int(round(128^1.7))], 
+                                               0.762 => [500, Int(round(128^1.7))], 
                                                0.7625 => [500, Int(round(128^1.7))], 
                                                0.763 => [500, Int(round(128^1.7))])
 times_to_fit[1.7][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
@@ -659,6 +674,7 @@ times_to_fit[1.7][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.76 => [1, Int(round(64^1.67))], 
                                                0.7605 => [1, Int(round(64^1.67))], 
                                                0.761 => [500, Int(round(64^1.67))], 
+                                               0.7615 => [500, Int(round(64^1.67))], 
                                                0.7615 => [500, Int(round(64^1.67))], 
                                                0.7625 => [500, Int(round(64^1.67))], 
                                                0.763=> [500, Int(round(64^1.67))],)
@@ -722,7 +738,7 @@ for L_val in N_val .* num_unit_cells_vals
 end
 
 # Plot(Verify) the fits
-fitted_a_vals_to_plot = [val for val in a_vals if 0.75 <= val <= 0.7575]
+fitted_a_vals_to_plot = [val for val in a_vals if 0.75 <= val <= 0.7594]
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -895,9 +911,9 @@ display(plt)
 
 decay_a_vals = [val for val in a_vals if 0.68 <= val < 0.7605]
 
-a_crit, d_acrit = 0.76156934, 8.0445e-05
-nu, dnu = 1.61578043, 0.01863365
-beta, dbeta = -2.69677082,  0.03032276
+a_crit, d_acrit = 0.76092527, 8.0445e-05
+nu, dnu = 1.78334195, 0.01863365
+beta, dbeta = -2.92967121,  0.03032276
 
 z = -beta/nu
 
