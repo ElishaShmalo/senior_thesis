@@ -29,7 +29,7 @@ tau = 1 * J
 
 # General Variables
 # num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [8, 16]
+num_unit_cells_vals = [128]
 # num_unit_cells_vals = [32, 64, 128]
 
 # --- Trying to Replecate Results ---
@@ -47,7 +47,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.6
+z_fit = 1.65
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -120,7 +120,7 @@ end
 
 
 # --- Load from saved csvs ---
-num_unit_cells_vals = [32, 64, 128]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -215,7 +215,7 @@ println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 for local_avraging_window in avraging_windows
     # Create plot
     plt = plot(
-        title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$",
+        title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$ | $z_f = %$(z_fit)$",
         xlabel=L"a",
         ylabel=L"Std(λ)",
         xticks = minimum(a_vals):0.02:maximum(a_vals)
@@ -236,7 +236,7 @@ end
 
 # Create plot
 plt = plot(
-    title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$avraging_window$",
+    title=L"$Std(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
     xlabel=L"a",
     ylabel=L"Std(λ)",
     xticks = minimum(a_vals):0.02:maximum(a_vals)

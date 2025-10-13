@@ -28,7 +28,7 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [32, 64, 128]
+num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [8, 16, 32, 64]
 # num_unit_cells_vals = [8]
 
@@ -66,8 +66,8 @@ for num_unit_cells in num_unit_cells_vals
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
 
     # # Initializes results for this N_val
-    # collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
-    # collected_S_diff_SEMs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+    collected_S_diffs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
+    collected_S_diff_SEMs[L] = Dict(a_val => zeros(n) for a_val in a_vals)
 
     for a_val in a_vals
         println("L_val: $L | a_val: $a_val")
@@ -563,11 +563,11 @@ times_to_fit[1.65][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
 # ----------------------
 # Now we do for z = 1.7
 # ----------------------
-num_unit_cell_to_plot = 128
+num_unit_cell_to_plot = 16
 L_val_to_plot = num_unit_cell_to_plot * N_val
-x_lims = (round(Int, 150), round(Int, 512^1.7))
-y_lims = (round(Int, -20), round(Int, 0))
-a_vals_to_plot = [0.755, 0.7563]
+x_lims = (round(Int, 100), round(Int, 64^1.7))
+y_lims = (round(Int, -100), round(Int, 0))
+a_vals_to_plot = [0.761, 0.7563]
 
 # Create plot
 plt = plot(
@@ -667,17 +667,21 @@ times_to_fit[1.7][64] = Dict{Float64, Vector{Int}}(0.67 => [1, 65],
                                                0.72 => [1, 280], 
                                                0.73 => [1, 340], 
                                                0.74 => [1, 600], 
-                                               0.75 => [1, Int(round(64^1.67))], 
-                                               0.7525 => [1, Int(round(64^1.67))], 
-                                               0.755 => [1, Int(round(64^1.67))], 
-                                               0.7575 => [1, Int(round(64^1.67))], 
-                                               0.76 => [1, Int(round(64^1.67))], 
-                                               0.7605 => [1, Int(round(64^1.67))], 
-                                               0.761 => [500, Int(round(64^1.67))], 
-                                               0.7615 => [500, Int(round(64^1.67))], 
-                                               0.7615 => [500, Int(round(64^1.67))], 
-                                               0.7625 => [500, Int(round(64^1.67))], 
-                                               0.763=> [500, Int(round(64^1.67))],)
+                                               0.75 => [10, Int(round(64^1.67))], 
+                                               0.7525 => [10, Int(round(64^1.67))], 
+                                               0.755 => [10, Int(round(64^1.67))], 
+                                               0.7563 => [100, Int(round(64^1.7))], 
+                                               0.7575 => [100, Int(round(64^1.7))], 
+                                               0.7588 => [100, Int(round(64^1.7))], 
+                                               0.7594 => [100, Int(round(64^1.7))], 
+                                               0.76 => [100, Int(round(64^1.7))], 
+                                               0.7605 => [100, Int(round(64^1.7))], 
+                                               0.761 => [500, Int(round(64^1.7))], 
+                                               0.7615 => [500, Int(round(64^1.7))], 
+                                               0.7615 => [500, Int(round(64^1.7))], 
+                                               0.762 => [500, Int(round(64^1.7))], 
+                                               0.7625 => [500, Int(round(64^1.7))], 
+                                               0.763=> [500, Int(round(64^1.7))],)
 
 times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.68 => [1, 70], 
@@ -686,15 +690,19 @@ times_to_fit[1.7][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
                                                0.71 => [1, 168], 
                                                0.72 => [1, 240], 
                                                0.73 => [1, 300], 
-                                               0.74 => [1, Int(round(32^1.7))], 
-                                               0.75 => [1, Int(round(32^1.7))], 
-                                               0.7525 => [1, Int(round(32^1.7))], 
-                                               0.755 => [1, Int(round(32^1.7))], 
-                                               0.7575 => [1, Int(round(32^1.7))], 
-                                               0.76 => [1, Int(round(32^1.7))], 
+                                               0.74 => [10, Int(round(32^1.7))], 
+                                               0.75 => [10, Int(round(32^1.7))], 
+                                               0.7525 => [10, Int(round(32^1.7))], 
+                                               0.755 => [10, Int(round(32^1.7))], 
+                                               0.7563 => [10, Int(round(32^1.7))], 
+                                               0.7575 => [40, Int(round(32^1.7))], 
+                                               0.7588 => [40, Int(round(32^1.7))], 
+                                               0.7594 => [40, Int(round(32^1.7))], 
+                                               0.76 => [40, Int(round(32^1.7))], 
                                                0.7605 => [1, Int(round(32^1.7))], 
                                                0.761 => [100, Int(round(32^1.7))], 
                                                0.7615 => [100, Int(round(32^1.7))], 
+                                               0.762 => [100, Int(round(32^1.7))], 
                                                0.7625 => [100, Int(round(32^1.7))], 
                                                0.763 => [100, Int(round(32^1.7))])
 
@@ -738,7 +746,7 @@ for L_val in N_val .* num_unit_cells_vals
 end
 
 # Plot(Verify) the fits
-fitted_a_vals_to_plot = [val for val in a_vals if 0.75 <= val <= 0.7594]
+fitted_a_vals_to_plot = [val for val in a_vals if 0.76 <= val <= 0.762]
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
