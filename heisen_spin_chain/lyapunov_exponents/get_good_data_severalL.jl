@@ -20,10 +20,7 @@ end
 @everywhere include("../analytics/spin_diffrences.jl")
 
 @time begin
-
-# Set plotting theme
-Plots.theme(:dark)
-
+    
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
