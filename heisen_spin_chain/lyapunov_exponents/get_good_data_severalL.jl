@@ -10,7 +10,7 @@ addprocs(SlurmManager())
 end
 
 # Imports
-@everywhere using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
+@everywhere using Random, LinearAlgebra, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
 
 # Other files   
 @everywhere include("../utils/make_spins.jl")
@@ -48,11 +48,7 @@ a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.75
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-# --- Calculating Lambdas ---
-
-# Our dict for recording results
-collected_lambdas = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: avrg lambda
-collected_lambda_SEMs = Dict{Int, Dict{Float64, Float64}}() # Int: L_val, Float64: a_val, Float64: standard error on the mean for lambda
+# --- geting spin dists ---
 
 for num_unit_cells in num_unit_cells_vals
     L = num_unit_cells * N_val
@@ -63,24 +59,16 @@ for num_unit_cells in num_unit_cells_vals
 
     states_evolve_func = evolve_spins_to_time
 
-    num_skip = Int(round((7 * n) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
-
     # Define s_naught to be used during control step
     S_NAUGHT = make_spiral_state(L, (2) / N_val)
-
-    # Initializes results for this N_val
-    collected_lambdas[L] = Dict(a => 0 for a in a_vals)
-    collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
 
     for a_val in a_vals
         println("L_val: $L | a_val: $a_val")
         a_val_name = replace("$a_val", "." => "p")
-        # We will avrage over this later
-        current_lambdas = zeros(Float64, num_initial_conds)
 
         # define the variables for the workers to use
         let a_val=a_val, L=L, n=n, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func, num_skip=num_skip
-            current_lambdas = @distributed (vcat) for init_cond in 1:num_initial_conds
+            @sync @distributed for init_cond in 1:num_initial_conds
                 println("L_val: $L | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
                 J_vec = J .* [1, 1, 1]
@@ -110,87 +98,14 @@ for num_unit_cells in num_unit_cells_vals
 
                     current_sdiffs[current_n] = weighted_spin_difference(spin_chain_A, S_NAUGHT)
                 end
-                lambda = calculate_lambda(current_spin_dists[num_skip:end], tau, epsilon, n - num_skip)
-                
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond+init_cond_name_offset).csv"
+
+                sample_filepath = "data/non_trand/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
                 df = DataFrame("t" => 1:n, "lambda" => calculate_lambda_per_time(current_spin_dists, epsilon), "delta_s" => current_sdiffs)
                 CSV.write(sample_filepath, df)
-
-                # return the calculated lambda
-                [lambda]
             end
         end
-
-        collected_lambdas[L][a_val] = mean(current_lambdas)
-        collected_lambda_SEMs[L][a_val] = std(current_lambdas)/sqrt(length(current_lambdas))
-
-    end
-
-    # Save the results for each L_val sepratly
-    filepath = "N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name)"
-
-
-    make_data_file("data/spin_chain_lambdas/" * filepath * ".dat", collected_lambdas[L])
-    make_data_file("data/spin_chain_lambdas/" * filepath * "sems.dat", collected_lambda_SEMs[L])
-
-    # Make .csv file
-    # Extract and sort keys and values
-    lambda_dict = collected_lambdas[L]
-    sems_dict = collected_lambda_SEMs[L]
-    dict_keys = sort(collect(keys(lambda_dict)))
-
-    # Prepare rows: each row is [aval, lambda, lambda_sem]
-    rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
-
-    # Make output CSV path
-    csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
-
-    # Write to CSV with header
-    open(csv_path, "w") do io
-        writedlm(io, [["aval", "lambda", "lambda_sem"]], ',')  # Header
-        writedlm(io, rows, ',')                                # Data rows
     end
 end
-
-# --- Save CSV ---
-print("Saving CSVs")
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    filepath = "N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name)"
-    collected_lambdas[L] = open("data/spin_chain_lambdas/" * filepath * ".dat", "r") do io
-        deserialize(io)
-    end
-    collected_lambda_SEMs[L] = open("data/spin_chain_lambdas/" * filepath * "sems.dat", "r") do io
-        deserialize(io)
-    end
-end
-
-# Sort a_vals to ensure correct row order
-sorted_a_vals = sort(a_vals)
-
-# Prepare the header
-col_names = ["a_val"]
-for L in num_unit_cells_vals * N_val
-    push!(col_names, "lambda_L=$L")
-    push!(col_names, "SEM_L=$L")
-end
-
-# Create the data rows
-cols = Vector{Vector{Union{Missing, Float64}}}()
-push!(cols, sorted_a_vals)
-    
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    push!(cols, [collected_lambdas[L][k] for k in sorted_a_vals])
-    push!(cols, [collected_lambda_SEMs[L][k] for k in sorted_a_vals])
-end 
-
-# Convert to DataFrame and save
-df = DataFrame(cols, Symbol.(col_names))
-csv_path = "data/spin_chain_lambdas/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_$(join(num_unit_cells_vals * N_val))_z$(z_val_name).csv"
-mkpath(dirname(csv_path))
-CSV.write(csv_path, df)
-println("Saved CsV: $csv_path")
 
 end
