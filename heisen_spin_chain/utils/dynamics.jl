@@ -198,7 +198,6 @@ function evolve_spins_to_time(L_J_vec, Sa, Sb, a_val, T, t_step, s_0)
 
     t = t_step
     while t < T + t_step
-
         current_us = [evolve_spin(L_J_vec, current_us[1], (t, t_step+t)), evolve_spin(L_J_vec, current_us[2], (t, t_step+t))]
         current_us[1] = flatten_state(global_control_push(unflatten_state(current_us[1]), a_val, s_0))
         current_us[2] = flatten_state(global_control_push(unflatten_state(current_us[2]), a_val, s_0))

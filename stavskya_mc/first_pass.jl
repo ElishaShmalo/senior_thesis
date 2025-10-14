@@ -24,6 +24,8 @@ addprocs(SlurmManager())
     epsilon_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350], [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]))
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
+        
+    epsilon_vals = [ep for ep in epsilon_vals if 0.088 <= ep]
 
     time_prefact = 200
 

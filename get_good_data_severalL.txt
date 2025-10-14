@@ -1,3 +1,0 @@
-My original code 46.275800 seconds (18.89 M allocations: 4.412 GiB, 0.45% gc time, 0.19% compilation time)
-44.758712 seconds (469.63 M allocations: 16.963 GiB, 2.86% gc time, 0.13% compilation time)
-35.566156 seconds (18.28 M allocations: 2.688 GiB, 0.37% gc time, 0.38% compilation time)

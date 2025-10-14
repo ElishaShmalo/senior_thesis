@@ -39,7 +39,7 @@ Plots.theme(:dark)
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
-a_vals = [0.76, 0.7605] # general a_vals
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82] # general a_vals
 
 @everywhere epsilon = 0.1
 
@@ -61,7 +61,7 @@ for num_unit_cells in num_unit_cells_vals
     # number of pushes we are going to do
     n = Int(round(L^z_val))
 
-    states_evolve_func = random_evolve_spins_to_time
+    states_evolve_func = evolve_spins_to_time
 
     num_skip = Int(round((7 * n) / 8)) # we only keep the last L/8 time samples so that the initial condition is properly lost
 

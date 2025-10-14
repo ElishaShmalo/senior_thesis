@@ -28,8 +28,8 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-# num_unit_cells_vals = [8, 16, 32, 64, 128]
-num_unit_cells_vals = [128]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
+# num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [32, 64, 128]
 
 # --- Trying to Replecate Results ---
@@ -47,7 +47,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.65
+z_fit = 1.55
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
@@ -150,8 +150,6 @@ for avraging_window in avraging_windows
             println("L_val: $L | a_val: $a_val")
             a_val_name = replace("$a_val", "." => "p")
             row = df[df.aval .== a_val, :]
-            lambda_val = 
-            lambda_sem_val = row.lambda_sem[1]
             current_collected_lambdas[L][a_val] = row.lambda[1]
             current_collected_lambda_SEMs[L][a_val] = row.lambda_sem[1]
         end
@@ -181,7 +179,7 @@ for avraging_window in avraging_windows
 end
 
 # --- Using Loaded Data ---
-avraging_window = 1/8
+avraging_window = 1/16
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 # --- Save the plot ---
@@ -213,6 +211,7 @@ println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 # --- Std plot ---
 
 for local_avraging_window in avraging_windows
+    local_avraging_window_name = replace("$(local_avraging_window)", "." => "p")
     # Create plot
     plt = plot(
         title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$ | $z_f = %$(z_fit)$",
@@ -231,7 +230,12 @@ for local_avraging_window in avraging_windows
             linewidth=1,
             marker = :circle)
     end
+    local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(local_avraging_window_name)_Stds.png"
+    make_path_exist(local_var_plot_path)
+    savefig(local_var_plot_path)
+    println("Saved Plot: $(local_var_plot_path)")
     display(plt)
+    
 end
 
 # Create plot
@@ -314,10 +318,10 @@ end
 avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [32, 64, 128]
 
-a_crit = 0.76250508 # 1.0415e-04
-nu = 1.72444793 # 0.03422701
+a_crit = 0.7617932711 # 1.0415e-04
+nu = 1.92382316 # 0.03422701
 
 # Create plot
 plt = plot(
