@@ -12,7 +12,7 @@
 
 #SBATCH --cpus-per-task=1           # Cores per task (>1 if multithread tasks)
 
-#SBATCH --mem=250000               # Real memory (RAM) required (MB)
+#SBATCH --mem=10000               # Real memory (RAM) required (MB)
 
 #SBATCH --time=03:00:00             # Total run time limit (HH:MM:SS)
 
