@@ -24,7 +24,7 @@ end
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
-@everywhere num_unit_cells_vals = [8]
+@everywhere num_unit_cells_vals = [8, 16]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -34,10 +34,10 @@ end
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 5 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
-# a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82] # general a_vals
-a_vals = [0.7] # general a_vals
+a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82] # general a_vals
+# a_vals = [0.7] # general a_vals
 
 @everywhere epsilon = 0.1
 
