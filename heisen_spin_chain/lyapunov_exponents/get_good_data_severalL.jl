@@ -20,7 +20,7 @@ end
 @everywhere include("../analytics/spin_diffrences.jl")
 
 @time begin
-    
+
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
@@ -34,7 +34,7 @@ end
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 10 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 5 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
 # a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82] # general a_vals
 a_vals = [0.7] # general a_vals
@@ -65,7 +65,7 @@ for num_unit_cells in num_unit_cells_vals
         a_val_name = replace("$a_val", "." => "p")
 
         # define the variables for the workers to use
-        let a_val=a_val, L=L, n=n, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func, num_skip=num_skip
+        let a_val=a_val, L=L, n=n, S_NAUGHT=S_NAUGHT, num_initial_conds=num_initial_conds, states_evolve_func=states_evolve_func
             @sync @distributed for init_cond in 1:num_initial_conds
                 println("L_val: $L | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
