@@ -45,7 +45,7 @@ for L_val in L_vals
     collected_rhos[L_val] = Dict{Float64, Vector{Float64}}()
 
     for epsilon_2 in epsilon_2_vals
-        println("L_val: $(L_val) | Epsilon $(epsilon_2)")
+        println("L_val: $(L_val) | Epsilon2 $(epsilon_2)")
         all_init_outputs = [0.0 for _ in 1:num_initial_conds]
 
         epsilon_val_name = replace("$epsilon_2", "." => "p")
