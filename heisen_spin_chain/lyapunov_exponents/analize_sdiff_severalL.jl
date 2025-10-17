@@ -17,11 +17,7 @@ default(
     guidefont = 14     # alternative, some backends use 'guidefont'
 )
 
-
-J = 1    # energy factor
-
-# J vector with some randomness
-J_vec = J .* [1, 1, 1]
+J = 1
 
 # Time to evolve until push back to S_A
 tau = 1 * J
@@ -102,7 +98,7 @@ plt = plot(
     xlabel=L"t",
     ylabel=L"$S_{Diff}$"
 )
-
+plot!(plt, [NaN], [NaN], label = "a =", linecolor = RGBA(0,0,0,0))
 # Plot data for each a_val
 for (i, a_val) in enumerate(a_vals_to_plot)
     # pick the color Plots.jl will use for series i
@@ -110,7 +106,7 @@ for (i, a_val) in enumerate(a_vals_to_plot)
 
     plot!(plt, collected_S_diffs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot^z_fit_val)],
         yerr=collected_S_diff_SEMs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot^z_fit_val)],
-        label="a = $(a_val)",
+        label="$(a_val)",
         linestyle=:solid,
         linewidth=1,
         color = c,          # sets line color
@@ -139,7 +135,6 @@ L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
 for (i, L_val) in enumerate(L_vals_to_plot)
     # pick the color Plots.jl will use for series i
     c = blue_palette[i]
-
 
     plot!(plt, [a_val for a_val in sort(a_vals)], [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
         yerr=[collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
@@ -200,9 +195,9 @@ num_unit_cells_vals = [8, 16, 32, 64, 128]
 z_val = 1.65
 z_val_name = replace("$(z_val)", "." => "p")
 
-a_crit = 0.763
-nu = 2.0 # 0.08610375
-beta = 0.1 # 0.02658450
+a_crit, a_crit_err = 0.763, 0.001
+nu, nu_err = 2.0, 0.2
+beta, beta_err = 0.1, 0.05
 
 plt = plot(
     title=L"FSS $S_{Diff}(t=L^{%$(z_val)})$" * "\n" * L"N=%$N_val, β=%$(round(beta, digits=3)), ν=%$(round(nu, digits=3)), a_c=%$(round(a_crit, digits = 4))",
@@ -216,12 +211,15 @@ L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
 for (i, L_val) in enumerate(L_vals_to_plot)
     # pick the color Plots.jl will use for series i
     c = blue_palette[i]
-
     xs = [a_val - a_crit for a_val in sort(a_vals_to_collapse)] .* (L_val ^ (1/nu))
     ys = [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals_to_collapse)] .* (L_val^(beta / nu))
-    # y_errs = sqrt.([collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals_to_collapse)].^2 .+ (log(L_val) * delta_z/(L_val^(beta/nu)))^2)
+    partial_x_partial_nu = ((a_vals .- a_crit) .* L_val^(1/nu) * log(L_val))/(nu^2)
+    partial_x_partial_ac = L_val^(1/nu)
+    x_err = sqrt.(((partial_x_partial_ac .* a_crit_err).^2 .+ (partial_x_partial_nu .* nu_err).^2))
+    y_err = ys .* log(L_val) .* sqrt((beta_err/nu)^2 + (beta*nu_err / (nu^2))^2)
     plot!(plt, xs, ys,
-        # yerr=y_errs,
+        xerr = x_err,
+        yerr=y_err,
         label="$(L_val)",
         linestyle=:solid,
         linewidth=1,
@@ -441,15 +439,17 @@ times_to_fit[1.6][32] = Dict{Float64, Vector{Int}}(0.67 => [1, 60],
 # ---------------------- 
 num_unit_cell_to_plot = 128
 L_val_to_plot = num_unit_cell_to_plot * N_val
-x_lims = (round(Int, 512), round(Int, 512^1.65))
-a_vals_to_plot = [0.7575, 0.76]
+x_lims = (round(Int, 1), round(Int, 512^1))
+a_vals_to_plot = [0.73, 0.74]
+y_lims = [-10, 0]
 
 # Create plot
 plt = plot(
     title=L"log(S_{Diff}) for N=%$(N_val) | L = %$(L_val_to_plot)",
     xlabel=L"t",
     ylabel=L"log(S_{Diff})",
-    xlims = x_lims
+    xlims = x_lims,
+    ylims = y_lims
 )
 
 # Plot data for each a_val
@@ -470,25 +470,25 @@ display(plt)
 # ----------------------
 times_to_fit[1.65] = Dict{Int, Dict{Float64, Vector{Int}}}()
 times_to_fit[1.65][512] = Dict{Float64, Vector{Int}}(0.68 => [5, 100],
-                                               0.70 => [5, 150],
-                                               0.71 => [5, 160],
-                                               0.72 => [20, 256],
-                                               0.73 => [40, 410],
-                                               0.74 => [60, 900],
-                                               0.75 => [80, 3150],
-                                               0.7525 => [175, 4350],
-                                               0.755 => [80, 1.250 * 10^4],
-                                               0.7563 => [400, 3 * 10^4],
-                                               0.7575 => [400, Int(round(512^1.65))],
-                                               0.7588 => [400, Int(round(512^1.65))],
-                                               0.7594 => [400, Int(round(512^1.65))],
-                                               0.76 => [400, Int(round(512^1.65))],
-                                               0.7605 => [400, Int(round(512^1.65))],
-                                               0.761 => [600, Int(round(512^1.65))],
-                                               0.7615 => [600, Int(round(512^1.65))],
-                                               0.762 => [600, Int(round(512^1.65))],
-                                               0.7625 => [600, Int(round(512^1.65))],
-                                               0.763 => [600, Int(round(512^1.65))])
+                                               0.70 => [50, 150],
+                                               0.71 => [50, 160],
+                                               0.72 => [100, 256],
+                                               0.73 => [100, 410],
+                                               0.74 => [200, 900],
+                                               0.75 => [300, 3150],
+                                               0.7525 => [1000, 4350],
+                                               0.755 => [2000, 1.250 * 10^4],
+                                               0.7563 => [2000, 3 * 10^4],
+                                               0.7575 => [2000, Int(round(512^1.65))],
+                                               0.7588 => [2000, Int(round(512^1.65))],
+                                               0.7594 => [2000, Int(round(512^1.65))],
+                                               0.76 => [2000, Int(round(512^1.65))],
+                                               0.7605 => [2000, Int(round(512^1.65))],
+                                               0.761 => [2000, Int(round(512^1.65))],
+                                               0.7615 => [2000, Int(round(512^1.65))],
+                                               0.762 => [2000, Int(round(512^1.65))],
+                                               0.7625 => [2000, Int(round(512^1.65))],
+                                               0.763 => [2000, Int(round(512^1.65))])
 times_to_fit[1.65][256] = Dict{Float64, Vector{Int}}(0.67 => [5, 70],
                                                0.68 => [5, 80], 
                                                0.69 => [5, 100], 
@@ -518,7 +518,7 @@ times_to_fit[1.65][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.71 => [5, 180], 
                                                0.72 => [5, 250], 
                                                0.73 => [5, 500], 
-                                               0.74 => [100, 1350], 
+                                               0.74 => [300, 1000], 
                                                0.75 => [150, 2000], 
                                                0.7525 => [150, Int(round(128^1.65))], 
                                                0.755 => [150, Int(round(128^1.65))], 
@@ -667,7 +667,7 @@ times_to_fit[1.7][128] = Dict{Float64, Vector{Int}}(0.67 => [5, 60],
                                                0.71 => [5, 180], 
                                                0.72 => [5, 250], 
                                                0.73 => [5, 500], 
-                                               0.74 => [100, 1000], 
+                                               0.74 => [300, 1000], 
                                                0.75 => [150, 2000], 
                                                0.7525 => [150, Int(round(128^1.67))], 
                                                0.755 => [150, Int(round(128^1.68))], 
@@ -847,6 +847,12 @@ for L in num_unit_cells_vals * N_val
     save_simple_dict_to_csv(data, filepath)
 end
 
+delta_xi_tau = Dict()
+
+for L in num_unit_cells_vals * N_val
+    delta_xi_tau[L] = [(1/(val^2)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))]
+end 
+
 # Create plot
 plt = plot(
     title=L"$ξ_τ$ As Func of a",
@@ -856,10 +862,11 @@ plt = plot(
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
+
     c = blue_palette[i]
     L = Int(L)
     plot!(plt, sort([a_val for a_val in decay_a_vals]), [-1/val for val in values(sort(all_log_s_diff_slopes[L]))],
-        yerr = [(1/(val^2)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
+        yerr = delta_xi_tau[L],
         label="$L",
         linestyle=:solid,
         linewidth=1,
@@ -900,48 +907,14 @@ end
 
 display(plt)
 
-
-# log of decay Timescale
-
-a_crit = 0.762
-
-# Create plot
-plt = plot(
-    title=L"$log(ξ_τ)$ as Function of a $a_c = %$(a_crit)$",
-    xlabel=L"$log(|a - a_c|)$",
-    ylabel=L"$log(ξ_τ)$"
-)
-
-# Plot data for each L
-for (i, L) in enumerate(num_unit_cells_vals * N_val)
-    c = Plots.palette(:auto)[i]
-    L = Int(L)
-    plot!(plt, log.([abs.(a_val-a_crit) for a_val in sort(decay_a_vals)]), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)]),
-        yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
-        label="L=$L",
-        linestyle=:solid,
-        
-        linewidth=1,
-        marker = :circle,
-        color = c,          # sets line color
-        seriescolor = c,    # ensures error bars match
-        markerstrokecolor = c)
-end
-
-log_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/log_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals)).png"
-make_path_exist(log_scaled_decay_per_a_plot_path)
-savefig(log_scaled_decay_per_a_plot_path)
-println("Saved Plot: $(log_scaled_decay_per_a_plot_path)")
-display(plt)
-
 # --- Scaled Decay Timescale as Func of a for all L --- 
 num_unit_cells_vals = [8, 16, 32, 64, 128]
 decay_a_vals = [val for val in a_vals if 0.72 <= val < 0.7605]
 
-a_crit, d_acrit = 0.762 , 8.0445e-05
-nu, dnu = 1.9, 0.01863365
+a_crit, a_crit_err = 0.762, 0.001
+nu, nu_err = 1.9, 0.3
 
-z = 1.65
+z, z_err = 1.65, 0.1
 
 # Create plot
 plt = plot(
@@ -955,7 +928,14 @@ plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
     L = Int(L)
-    plot!(plt, sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z),
+    xs = sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu)
+    ys = [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z)
+    partial_x_partial_nu = (sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu) * log(L))/(nu^2)
+    partial_x_partial_ac = L^(1/nu)
+    x_err = sqrt.(((partial_x_partial_ac .* a_crit_err).^2 .+ (partial_x_partial_nu .* nu_err).^2))
+    y_err = L^z .* sqrt.([delta_xi_tau[L][i] for i in 1:length(decay_a_vals)].^2 .+ (ys .* log(L) .* z_err).^2)
+    plot!(plt, xs, ys,
+        xerr = x_err,
         yerr = yerr = [(1/(val^2 * L^z)) * val_err for (val, val_err) in zip([all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)], [all_log_s_diff_slope_errs[L][a_val] for a_val in sort(decay_a_vals)])],
         label="$L",
         linestyle=:dash,
@@ -1017,7 +997,7 @@ plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
     L = Int(L)
-    plot!(plt, log.([abs.(a_val) for a_val in sort(decay_a_vals)]), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)]),
+    plot!(plt, log.([a_val for a_val in sort(decay_a_vals)]), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)]),
         # yerr = [(1/(val)) * val_err for (val, val_err) in zip(values(sort(all_log_s_diff_slopes[L])), values(sort(all_log_s_diff_slope_errs[L])))],
         label="$L",
         linestyle=:dash,

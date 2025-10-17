@@ -24,7 +24,7 @@ end
 # General Variables
 # @everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
-@everywhere num_unit_cells_vals = [32, 64]
+@everywhere num_unit_cells_vals = [8, 16, 32, 64]
 @everywhere J = 1    # energy factor
 
 # J vector with some randomness
@@ -69,8 +69,6 @@ for num_unit_cells in num_unit_cells_vals
             @sync @distributed for init_cond in 1:num_initial_conds
                 println("L_val: $L | a_val: $a_val | IC: $init_cond / $num_initial_conds")
 
-                J_vec = J .* [1, 1, 1]
-
                 spin_chain_A = make_random_state(L) # our S_A
 
                 # Making spin_chain_B to be spin_chain_A with the middle spin modified
@@ -84,8 +82,7 @@ for num_unit_cells in num_unit_cells_vals
 
                 # Do n pushes 
                 for current_n in 1:n
-                    # we need to change J_vec outside of the evolve func so that it is the same for S_A and S_B
-
+                    
                     # evolve both to time t' = t + tau with control
                     evolved_results = states_evolve_func(J_vec, spin_chain_A, spin_chain_B, a_val, tau, J, S_NAUGHT)
                     spin_chain_A = evolved_results[1][end]

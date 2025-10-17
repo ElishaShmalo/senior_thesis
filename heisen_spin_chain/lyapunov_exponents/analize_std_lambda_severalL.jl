@@ -16,19 +16,16 @@ default(
     guidefont = 14     # alternative, some backends use 'guidefont'
 )
 
-# Set plotting theme
-Plots.theme(:dark)
-
 J = 1    # energy factor
-
-# J vector with some randomness
-J_vec = J .* [1, 1, 1]
 
 # Time to evolve until push back to S_A
 tau = 1 * J
 
 # General Variables
 num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_uc = length(num_unit_cells_vals)
+blue_palette = blue_palette = cgrad([RGB(0.55, 0.75, 0.85), RGB(0.2, 0.35, 0.9)], num_uc, categorical=true) # from light to dark blue
+
 # num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [32, 64, 128]
 
@@ -179,21 +176,25 @@ for avraging_window in avraging_windows
 end
 
 # --- Using Loaded Data ---
-avraging_window = 1/16
+avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 # --- Save the plot ---
 println("Making Plot")
 plt = plot()
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$avraging_window_name"
-
-for L in num_unit_cells_vals * N_val
+plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
+    c = blue_palette[i]
     plot!(
         sort(a_vals), 
         [val for val in values(sort(collected_lambdas[avraging_window][L]))], 
         yerror=[val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))], 
-        marker = :circle, markersize=2, label="L=$L")
+        marker = :circle, markersize=4, label="$L", color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c # (optional) markers match too
+        )
 end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
@@ -205,7 +206,7 @@ ylabel!(L"λ")
 display(plt)
 
 mkpath(dirname("figs/lambda_per_a/" * plot_path))
-# savefig("figs/lambda_per_a/" * plot_path * ".png")
+savefig("figs/lambda_per_a/" * plot_path * ".png")
 println("Saved Plot: $("figs/lambda_per_a/" * plot_path * ".png")")
 
 # --- Std plot ---
@@ -219,16 +220,20 @@ for local_avraging_window in avraging_windows
         ylabel=L"Std(λ)",
         xticks = minimum(a_vals):0.02:maximum(a_vals)
     )
-
+    plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
     # Plot data for each L
-    for L in num_unit_cells_vals * N_val
+    for (i, L) in enumerate(num_unit_cells_vals * N_val)
         L = Int(L)
+        c = blue_palette[i]
         plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[local_avraging_window][L]))] * sqrt(num_initial_conds-1),
-            label="L=$L",
+            label="$L",
             linestyle=:solid,
-            markersize=2,
+            markersize=4,
             linewidth=1,
-            marker = :circle)
+            marker = :circle,color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c # (optional) markers match too
+        )
     end
     local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(local_avraging_window_name)_Stds.png"
     make_path_exist(local_var_plot_path)
@@ -320,26 +325,37 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 
 num_unit_cells_vals = [8, 16, 32, 64, 128]
 
-a_crit = 0.762 # 1.0415e-04
-nu = 2 # 0.03422701
+a_crit, a_crit_err = 0.762, 0.002
+nu, nu_err = 2, 0.3
 
 # Create plot
 plt = plot(
     title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 4)),ν = %$(round(nu, digits=3))$",
-    xlabel=L"$(a - a_c) * L^{1/ν}$",
-    ylabel=L"Scaled $Std(λ) | AW=%$avraging_window$"
+    xlabel=L"$(a - a_c)L^{1/ν}$",
+    ylabel=L"Scaled $Std(λ)$ | $AW=%$avraging_window$"
     # xlims=[-7.5,5]
 )
-
+plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
-for L in num_unit_cells_vals * N_val
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
+    c = blue_palette[i]
+    partial_x_partial_nu = ((a_vals .- a_crit) .* L^(1/nu) * log(L))/(nu^2)
+    partial_x_partial_ac = L^(1/nu)
+    x_err = sqrt.(((partial_x_partial_ac .* a_crit_err).^2 .+ (partial_x_partial_nu .* nu_err).^2))
+    y_err = [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] ./ sqrt(2)
     plot!(plt, (a_vals .- a_crit) .* L^(1/nu), [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
-        label="L=$L",
+        yerr = y_err,
+        xerr = x_err,
+        label="$L",
         linestyle=:dash,
-        markersize=2,
+        markersize=4,
         linewidth=1,
-        marker = :circle)
+        marker = :circle,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c # (optional) markers match too
+        )
 end
 
 collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/collapsed_stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"

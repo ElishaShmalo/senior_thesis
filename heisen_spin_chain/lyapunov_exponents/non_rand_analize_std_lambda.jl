@@ -48,7 +48,7 @@ z_fit = 1.7
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/32]
+avraging_windows = [1/64]
 
 for avraging_window in avraging_windows
     println("Aw: $(avraging_window)")
@@ -80,7 +80,7 @@ for avraging_window in avraging_windows
             current_lambdas = zeros(Float64, num_initial_conds)
             
             for init_cond in 1:num_initial_conds
-                sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
+                sample_filepath = "data/non_trand/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
 
                 lambda_vec = CSV.File(sample_filepath; select=["lambda"], types=Float64).lambda[num_skip+1:n]
 
@@ -158,25 +158,25 @@ end
 
 # --- Using Loaded Data ---
 
-collapse_a_vals = [a_val for a_val in a_vals if 0.74 <=a_val <= 0.78]
+# collapse_a_vals = [a_val for a_val in a_vals if 0.74 <=a_val <= 0.78]
 
-# save_data_to_collapse
-for avraging_window in avraging_windows
-    avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
+# # save_data_to_collapse
+# for avraging_window in avraging_windows
+#     avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
-    for L in num_unit_cells_vals * N_val
-        L = Int(L)
-        data = Dict{Float64, Float64}()
-        for a_val in collapse_a_vals
-            data[a_val] = collected_lambdas_SEMs[avraging_window][L][a_val] .* sqrt(num_initial_conds-1)
-        end
-        filepath = "data_to_collapse/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(collapse_a_vals))_$(maximum(collapse_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_AW$(avraging_window_name).csv"
-        save_simple_dict_to_csv(data, filepath)
-    end
-end
+#     for L in num_unit_cells_vals * N_val
+#         L = Int(L)
+#         data = Dict{Float64, Float64}()
+#         for a_val in collapse_a_vals
+#             data[a_val] = collected_lambdas_SEMs[avraging_window][L][a_val] .* sqrt(num_initial_conds-1)
+#         end
+#         filepath = "data_to_collapse/non_trand/lambda_var_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_var_per_a_N$(N_val)_ar$(replace("$(minimum(collapse_a_vals))_$(maximum(collapse_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_AW$(avraging_window_name).csv"
+#         save_simple_dict_to_csv(data, filepath)
+#     end
+# end
 
 # --- Using Loaded Data ---
-avraging_window = 1/32
+avraging_window = 1/64
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 # --- Save the plot ---
@@ -195,7 +195,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window_name)$")
+# plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window_name)$")
 
 xlabel!(L"a")
 ylabel!(L"λ")
@@ -234,192 +234,3 @@ for local_avraging_window in avraging_windows
     display(plt)
     
 end
-
-# Create plot
-plt = plot(
-    title=L"$Std(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
-    xlabel=L"a",
-    ylabel=L"Std(λ)",
-    xticks = minimum(a_vals):0.02:maximum(a_vals)
-)
-
-# Plot data for each L
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
-        label="L=$L",
-        linestyle=:solid,
-        markersize=2,
-        linewidth=1,
-        marker = :circle)
-end
-
-var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds.png"
-make_path_exist(var_plot_path)
-savefig(var_plot_path)
-println("Saved Plot: $(var_plot_path)")
-display(plt)
-
-# --- Make seprate plot for each L with window curves ---
-avraging_windows_names = replace("$(join(avraging_windows))", "." => "p")
-for L in num_unit_cells_vals * N_val
-    # Plot Std(lambda)
-    plt = plot(
-    title=L"$Std(λ(a))$ for $N=%$N_val | L = %$L$",
-    xlabel=L"a",
-    ylabel=L"Std(λ)",
-    xticks = minimum(a_vals):0.02:maximum(a_vals)
-    )
-
-    L = Int(L)
-    for avraging_window in avraging_windows
-        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
-            label="Aw = $avraging_window",
-            linestyle=:solid,
-            markersize=2,
-            linewidth=1,
-            marker = :circle)
-    end
-
-    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/std_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
-    make_path_exist(plot_path)
-    savefig(plot_path)
-    println("Saved Plot: $(plot_path)")
-    display(plt)
-    
-    plt = plot(
-    title="λ(a) for N=$N_val | L = $L",
-    xlabel="a",
-    ylabel="λ",
-    xticks = minimum(a_vals):0.02:maximum(a_vals)
-    )
-
-    L = Int(L)
-    for avraging_window in avraging_windows
-        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas[avraging_window][L]))],
-            label="Aw = $avraging_window",
-            linestyle=:solid,
-            markersize=2,
-            linewidth=1,
-            marker = :circle)
-    end
-
-    plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/L$L/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_windows_names).png"
-    make_path_exist(plot_path)
-    savefig(plot_path)
-    println("Saved Plot: $(plot_path)")
-    display(plt)
-end
-
-# --- Colapsing std plot ---
-avraging_window = 1/32
-avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
-
-num_unit_cells_vals = [8, 16, 32, 64, 128]
-
-a_crit = 0.762 # 1.0415e-04
-nu = 2 # 0.03422701
-
-# Create plot
-plt = plot(
-    title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 4)),ν = %$(round(nu, digits=3))$",
-    xlabel=L"$(a - a_c) * L^{1/ν}$",
-    ylabel=L"Scaled $Std(λ) | AW=%$avraging_window$"
-    # xlims=[-7.5,5]
-)
-
-# Plot data for each L
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    plot!(plt, (a_vals .- a_crit) .* L^(1/nu), [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
-        label="L=$L",
-        linestyle=:dash,
-        markersize=2,
-        linewidth=1,
-        marker = :circle)
-end
-
-collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/collapsed_stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name)_Stds_Collapsed.png"
-make_path_exist(collapsed_var_plot_path)
-savefig(collapsed_var_plot_path)
-println("Saved Plot: $(collapsed_var_plot_path)")
-display(plt)
-
-# --- Zoomed Colapsing std plot ---
-
-a_vals_to_plot = [a_val for a_val in a_vals if a_crit - 0.02 < a_val < a_crit + 0.02]
-
-# Create plot
-plt = plot(
-    title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 5)),ν = %$(round(nu, digits=3))$",
-    xlabel=L"(a - a_c) * L^{1/ν}",
-    ylabel=L"Scaled $Std(λ)$ | $AW=%$avraging_window$"
-)
-
-# Plot data for each L
-for L in num_unit_cells_vals * N_val
-    L = Int(L)
-    plot!(plt, (a_vals_to_plot .- a_crit) .* L^(1/nu), [collected_lambdas_SEMs[avraging_window][L][a_val] for a_val in sort(a_vals_to_plot)] * sqrt(num_initial_conds-1),
-        label="L=$L",
-        linestyle=:dash,
-        markersize=2,
-        linewidth=1,
-        marker = :circle)
-end
-
-zoomed_collapsed_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/Zoomed_stds_collapsed_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(avraging_window_name).png"
-make_path_exist(zoomed_collapsed_var_plot_path)
-savefig(zoomed_collapsed_var_plot_path)
-println("Saved Plot: $(zoomed_collapsed_var_plot_path)")
-display(plt)
-
-# --- Plotting Length and Height of Jump as Function of L
-jump_start_a_vals = Dict{Int, Float64}(32 => 0.72, 64 => 0.74, 128 => 0.75, 256 => 0.7525)
-jump_end_a_vals = Dict{Int, Float64}(32 => 0.8, 64 => 0.79, 128 => 0.785, 256 => 0.78)
-jump_start_lambda_vals = Dict{Int, Float64}(32 => -0.296, 64 => -0.264, 128 =>  -0.244, 256 =>  -0.243)
-jump_end_lambda_vals = Dict{Int, Float64}(32 => 0.390, 64 => 0.370, 128 =>  0.380, 256 =>  0.380)
-
-base_plot_path = "figs/lambda_analysis/N$N_val/IC$num_initial_conds/SeveralLs/lambda_gap_analysis_N$(N_val)_IC$(num_initial_conds)_L$(join(sort(num_unit_cells_vals)*N_val))"
-make_path_exist(base_plot_path)
-
-# Ploting width
-plt = plot(
-    title="Jump Width",
-    xlabel="L",
-    ylabel="a diffrence"
-)
-plot!(plt, log.([L for L in keys(sort(jump_start_a_vals))]), log.([jump_end_a_vals[L] - jump_start_a_vals[L] for L in keys(sort(jump_start_a_vals))]))
-savefig("$(base_plot_path)_jump_width.png")
-println("Saved ", "$(base_plot_path)_jump_width.png")
-
-# Plotting width gap
-plt = plot(
-    title="Jump a_val limits",
-    xlabel="L",
-    ylabel="a"
-)
-plot!(plt, [L for L in keys(sort(jump_start_a_vals))], [jump_start_a_vals[L] for L in keys(sort(jump_start_a_vals))], label="a_min")
-plot!(plt, [L for L in keys(sort(jump_start_a_vals))], [jump_end_a_vals[L] for L in keys(sort(jump_start_a_vals))], label="a_max")
-savefig("$(base_plot_path)_jump_width_gap.png")
-println("Saved ", "$(base_plot_path)_jump_width_gap.png")
-
-# Plotting height
-plt = plot(
-    title="Jump Height",
-    xlabel="L",
-    ylabel="lambda diffrence"
-)
-plot!(plt, [L for L in keys(sort(jump_end_lambda_vals))], [jump_end_lambda_vals[L] - jump_start_lambda_vals[L] for L in keys(sort(jump_start_a_vals))])
-savefig("$(base_plot_path)_jump_height.png")
-println("Saved ", "$(base_plot_path)_jump_height.png")
-
-# Plotting height gap
-plt = plot(
-    title="Jump lambda limits",
-    xlabel="L",
-    ylabel="lambda"
-)
-plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_start_lambda_vals[L] for L in keys(sort(jump_start_a_vals))], label="lambda_min")
-plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_end_lambda_vals[L] for L in keys(sort(jump_start_a_vals))], label="lambda_max")
-savefig("$(base_plot_path)_jump_height_gap.png")
-println("Saved ", "$(base_plot_path)_jump_height_gap.png")
