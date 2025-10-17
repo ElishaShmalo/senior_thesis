@@ -16,9 +16,6 @@ default(
     guidefont = 14     # alternative, some backends use 'guidefont'
 )
 
-# Set plotting theme
-Plots.theme(:dark)
-
 J = 1    # energy factor
 
 # J vector with some randomness
@@ -28,7 +25,7 @@ J_vec = J .* [1, 1, 1]
 tau = 1 * J
 
 # General Variables
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [32, 64, 128]
 
@@ -47,11 +44,11 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit = 1.65
+z_fit = 1.7
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/64, 1/128]
+avraging_windows = [1/32]
 
 for avraging_window in avraging_windows
     println("Aw: $(avraging_window)")
@@ -107,7 +104,7 @@ for avraging_window in avraging_windows
         rows = [[aval, lambda_dict[aval], sems_dict[aval]] for aval in dict_keys]
 
         # Make output CSV path
-        csv_path = "data/spin_chain_lambdas/" * filepath * ".csv"
+        csv_path = "data/non_trand/spin_chain_lambdas/" * filepath * ".csv"
 
         # Write to CSV with header
         make_path_exist(csv_path)
@@ -120,7 +117,7 @@ end
 
 
 # --- Load from saved csvs ---
-num_unit_cells_vals = [8, 16, 32, 64, 128]
+num_unit_cells_vals = [8, 16]
 
 collected_lambdas = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
 collected_lambdas_SEMs = Dict{Float64, Dict{Int, Dict{Float64, Float64}}}()
@@ -144,7 +141,7 @@ for avraging_window in avraging_windows
         current_collected_lambdas[L] = Dict(a => 0 for a in a_vals)
         current_collected_lambda_SEMs[L] = Dict(a => 0 for a in a_vals)
 
-        data_filepath = "data/spin_chain_lambdas/N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name)_z$(z_fit_name).csv"
+        data_filepath = "data/non_trand/spin_chain_lambdas/N$N_val/SeveralAs/IC$num_initial_conds/L$L/" * "N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_AW$(avraging_window_name)_z$(z_fit_name).csv"
         df = CSV.read(data_filepath, DataFrame)
         for a_val in a_vals
             println("L_val: $L | a_val: $a_val")
@@ -179,7 +176,7 @@ for avraging_window in avraging_windows
 end
 
 # --- Using Loaded Data ---
-avraging_window = 1/16
+avraging_window = 1/32
 avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p")
 
 # --- Save the plot ---
@@ -232,7 +229,7 @@ for local_avraging_window in avraging_windows
     end
     local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(local_avraging_window_name)_Stds.png"
     make_path_exist(local_var_plot_path)
-    savefig(local_var_plot_path)
+    # savefig(local_var_plot_path)
     println("Saved Plot: $(local_var_plot_path)")
     display(plt)
     
