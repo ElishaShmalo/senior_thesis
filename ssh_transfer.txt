@@ -1,0 +1,1 @@
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/rho_per_epsilon/IC1/L16000/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/rho_per_epsilon/IC1/

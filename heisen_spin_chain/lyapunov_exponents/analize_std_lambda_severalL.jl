@@ -218,7 +218,7 @@ for local_avraging_window in avraging_windows
         title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$ | $z_f = %$(z_fit)$",
         xlabel=L"a",
         ylabel=L"Std(λ)",
-        xticks = minimum(a_vals):0.02:maximum(a_vals)
+        xlims = [0.72-0.001, 0.8 + 0.001]
     )
     plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
     # Plot data for each L
@@ -332,21 +332,17 @@ nu, nu_err = 2, 0.3
 plt = plot(
     title=L"FSS Std: $N=%$N_val,a_c = %$(round(a_crit, digits = 4)),ν = %$(round(nu, digits=3))$",
     xlabel=L"$(a - a_c)L^{1/ν}$",
-    ylabel=L"Scaled $Std(λ)$ | $AW=%$avraging_window$"
-    # xlims=[-7.5,5]
+    ylabel=L"Scaled $Std(λ)$ | $AW=%$avraging_window$",
+    xlims=[-1,1]
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
     c = blue_palette[i]
-    partial_x_partial_nu = ((a_vals .- a_crit) .* L^(1/nu) * log(L))/(nu^2)
-    partial_x_partial_ac = L^(1/nu)
-    x_err = sqrt.(((partial_x_partial_ac .* a_crit_err).^2 .+ (partial_x_partial_nu .* nu_err).^2))
     y_err = [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] ./ sqrt(2)
     plot!(plt, (a_vals .- a_crit) .* L^(1/nu), [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
         yerr = y_err,
-        xerr = x_err,
         label="$L",
         linestyle=:dash,
         markersize=4,
