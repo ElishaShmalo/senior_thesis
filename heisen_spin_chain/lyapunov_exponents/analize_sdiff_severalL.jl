@@ -38,7 +38,7 @@ post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
 # a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-a_vals = [0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76, 0.7605, 0.761, 0.7615, 0.762, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+a_vals = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76]
 
 epsilon = 0.1
 
@@ -47,7 +47,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit_val = 1.7
+z_fit_val = 1.6
 z_fit_name = replace("$z_fit_val", "." => "p")
 
 collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
@@ -74,6 +74,14 @@ for num_unit_cells in num_unit_cells_vals
         # We will avrage over this later
         current_S_diffs = [zeros(Float64, n) for _ in 1:num_initial_conds]
 
+        if a_val < 0.7 && (a_val * 100) % 2 == 1
+            z_val = 1.6
+            z_val_name = replace("$z_val", "." => "p")
+        else
+            z_val = 1.7
+            z_val_name = replace("$z_val", "." => "p")
+        end
+
         for init_cond in 1:num_initial_conds
 
             sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
@@ -88,8 +96,8 @@ for num_unit_cells in num_unit_cells_vals
 end
 
 # --- Making S_diff Plots ---
-a_vals_to_plot = [0.755, 0.7575, 0.76, 0.7625, 0.765]
-num_unit_cell_to_plot = num_unit_cells_vals[end]
+a_vals_to_plot = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
+num_unit_cell_to_plot = 64
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 # Create plot
@@ -115,27 +123,27 @@ for (i, a_val) in enumerate(a_vals_to_plot)
         )
 end
 
-s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot)_z$(z_val_name).png"
+s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/S_diff_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot)_z$(z_val_name).png"
 make_path_exist(s_diff_plot_path)
 savefig(s_diff_plot_path)
 println("Saved Plot: $(s_diff_plot_path)")
-display(plt)
+# display(plt)
 
 # --- Making S_diff(t=L^z) as function of a ---
 z_val = 1.65
 z_val_name = replace("$(z_val)", "." => "p")
-plt = plot(
+s_diff_plt = plot(
     title=L"$S_{Diff}(t=L^{ %$(z_val) })$ for N=%$(N_val) as Function of a",
     xlabel=L"a",
     ylabel=L"S_{Diff}(t=L^{ %$(z_val) })"
 )
-plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+plot!(s_diff_plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
 # Plot data for each a_val
 for (i, L_val) in enumerate(L_vals_to_plot)
     # pick the color Plots.jl will use for series i
     c = blue_palette[i]
-    plot!(plt, [a_val for a_val in sort(a_vals)], [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
+    plot!(s_diff_plt, [a_val for a_val in sort(a_vals)], [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
         yerr=[collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
         label="$(L_val)",
         linestyle=:solid,
@@ -150,9 +158,9 @@ end
 
 s_diff_per_val_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/S_diff_per_aval_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(num_unit_cells_vals .* N_val))_z$(z_val_name).png"
 make_path_exist(s_diff_per_val_plot_path)
-savefig(s_diff_per_val_plot_path)
+savefig(s_diff_plt, s_diff_per_val_plot_path)
 println("Saved Plot: $(s_diff_per_val_plot_path)")
-display(plt)
+display(s_diff_plt)
 
 # --- Collapsing S_Diff as a function of a ---
 a_vals_to_collapse = [a_val for a_val in a_vals]
@@ -198,6 +206,55 @@ savefig(fss_s_diff_per_val_plot_path)
 println("Saved Plot: $(fss_s_diff_per_val_plot_path)")
 display(plt)
 
+# --- Making Inset of Collapse
+
+a_vals_to_collapse = [a_val for a_val in a_vals]
+num_unit_cells_vals = [8, 16, 32, 64, 128]
+
+z_val = 1.65
+z_val_name = replace("$(z_val)", "." => "p")
+
+a_crit, a_crit_err = 0.763, 0.001
+nu, nu_err = 2.0, 0.2
+beta, beta_err = 0.1, 0.05
+
+plt_inset = plot(
+    title = "",
+)
+L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
+plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.12, 0.1, 0.3, 0.3))])
+
+# Plot data for each a_val
+for (i, L_val) in enumerate(L_vals_to_plot)
+    # pick the color Plots.jl will use for series i
+    c = blue_palette[i]
+    xs = [a_val - a_crit for a_val in sort(a_vals_to_collapse)] .* (L_val ^ (1/nu))
+    ys = [collected_S_diffs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals_to_collapse)] .* (L_val^(beta / nu))
+    y_err = [collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals_to_collapse)] .* (L_val^(beta / nu))
+    plot!(plt_combined[2], xs, ys,
+        yerr=y_err,
+        linestyle=:dash,
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c, # (optional) markers match too
+        marker = :circle, 
+        )
+end
+
+plot!(plt_combined[2], xticks = [], yticks = [], 
+    legend = false,
+    framestyle = :box,)
+
+
+plot!(plt_combined[1], legend = :bottomright)
+
+fss_s_diff_per_val_plot_path_inset = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_fss_S_diff_per_aval_N$(N_val)_ar$(replace("$(minimum(a_vals_to_collapse))_$(maximum(a_vals_to_collapse))", "." => "p"))_IC$(num_initial_conds)_L$(join(num_unit_cells_vals .* N_val))_z$(z_val_name).png"
+make_path_exist(fss_s_diff_per_val_plot_path_inset)
+savefig(fss_s_diff_per_val_plot_path_inset)
+println("Saved Plot: $(fss_s_diff_per_val_plot_path_inset)")
+display(plt_combined)
+
 # --- Making log(S_Diff) Plots ---
 
 # First we calculate the error on the log(s_diff)
@@ -210,11 +267,11 @@ for L_val in num_unit_cells_vals * N_val
     end
 end
 
-num_unit_cell_to_plot = 128
+num_unit_cell_to_plot = 64
 
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
-a_vals_to_plot = [0.68, 0.7, 0.7615, 0.77, 0.78]
+a_vals_to_plot = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
 
 # Create plot
 plt = plot(
@@ -227,8 +284,8 @@ plt = plot(
 for (i, a_val) in enumerate(a_vals_to_plot)
     c = Plots.palette(:auto)[i]
 
-    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)]),
-        yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)],
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot^1.65)]),
+        yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot^1.65)],
         label="a = $(a_val)",
         linestyle=:solid,
         linewidth=1,
@@ -244,23 +301,24 @@ println("Saved Plot: $(log_s_diff_plot_path)")
 display(plt)
 
 # Zoomed in plot
-num_unit_cell_to_plot = 128
-L_val_to_plot = num_unit_cell_to_plot * N_val
-y_lims = (-30, 0)
-
+y_lims = (-15, 0)
+x_lims = (0, 300)
 # Create plot
 plt = plot(
     title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
     xlabel=L"t",
     ylabel=L"log(S_{Diff})",
+    ylims=y_lims,
+    xlims=x_lims,
+    legend=:bottomleft
 )
 
 # Plot data for each a_val
 for (i,a_val) in enumerate(a_vals_to_plot)
     c = Plots.palette(:auto)[i]
 
-    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)]),
-    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, L_val_to_plot)],
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, 350)]),
+    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, 350)],
         label="a = $(a_val)",
         linestyle=:solid,
         linewidth=1,
@@ -778,17 +836,17 @@ for L in num_unit_cells_vals * N_val
 end 
 
 # Create plot
-plt = plot(
+plt_xi_main = plot(
     title=L"$ξ_τ$ As Func of a",
     xlabel=L"a",
     ylabel=L"$ξ_τ$"
 )
-plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+plot!(plt_xi_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
     L = Int(L)
-    plot!(plt, sort([a_val for a_val in decay_a_vals]), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)],
+    plot!(plt_xi_main, sort([a_val for a_val in decay_a_vals]), [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)],
         yerr = delta_xi_tau[L],
         label="$L",
         linestyle=:solid,
@@ -801,8 +859,8 @@ end
 
 decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(decay_per_a_plot_path)
-savefig(decay_per_a_plot_path)
-display(plt)
+savefig(plt_xi_main, decay_per_a_plot_path)
+display(plt_xi_main)
 println("Saved Plot: $(decay_per_a_plot_path)")
 
 # --- Scaled Decay Timescale as Func of a for all L --- 
@@ -846,6 +904,45 @@ make_path_exist(scaled_decay_per_a_plot_path)
 savefig(scaled_decay_per_a_plot_path)
 println("Saved Plot: $(scaled_decay_per_a_plot_path)")
 display(plt)
+
+# --- Xi Collapse Inset ---
+
+# Create plot
+plt_xi_inset = plot(
+    title=""
+)
+
+plt_xi_combined = plot(plt_xi_main, inset_subplots = [(plt_xi_inset, bbox(0.32, 0.1, 0.3, 0.3))])
+
+# Plot data for each L
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    c = blue_palette[i]
+    L = Int(L)
+    xs = sort([a_val-a_crit for a_val in decay_a_vals]) .* L^(1/nu)
+    ys = [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z)
+    y_err = [delta_xi_tau[L][i]/L^z for i in 1:length(decay_a_vals)]
+    plot!(plt_xi_combined[2], xs, ys,
+        yerr = y_err,
+        linestyle=:dash,
+        linewidth=1,
+        marker = :circle,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+plot!(plt_xi_combined[2], xticks = [], yticks = [], 
+    legend = false,
+    framestyle = :box,)
+
+plot!(plt_xi_combined[1])
+
+
+scaled_inset_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))z$(z_fit_name).png"
+make_path_exist(scaled_inset_decay_per_a_plot_path)
+savefig(plt_xi_combined, scaled_inset_decay_per_a_plot_path)
+println("Saved Plot: $(scaled_inset_decay_per_a_plot_path)")
+display(plt_xi_combined)
 
 # Plotting log-log
 # Create plot
@@ -910,19 +1007,19 @@ display(plt)
 
 # Plotting log-lin
 # Create plot
-plt = plot(
+plt_log_lin = plot(
     title=L"$log(ξ_τ)$",
     xlabel=L"$a$",
     ylabel=L"$log(ξ_τ)$"
 )
-plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+plot!(plt_log_lin, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
     L = Int(L)
     ys = log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)])
     y_err = [delta_xi_tau[L][i] for i in 1:length(decay_a_vals)] ./ [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)]
-    plot!(plt, [a_val for a_val in sort(decay_a_vals)], ys,
+    plot!(plt_log_lin, [a_val for a_val in sort(decay_a_vals)], ys,
         yerr = y_err,
         label="$L",
         linestyle=:dash,
@@ -935,9 +1032,9 @@ end
 
 loglin_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/loglin_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(loglin_scaled_decay_per_a_plot_path)
-savefig(loglin_scaled_decay_per_a_plot_path)
+savefig(plt_log_lin, loglin_scaled_decay_per_a_plot_path)
 println("Saved Plot: $(loglin_scaled_decay_per_a_plot_path)")
-display(plt)
+display(plt_log_lin)
 
 # Plotting log-lin of the collapse
 
@@ -968,3 +1065,34 @@ make_path_exist(fss_loglin_scaled_decay_per_a_plot_path)
 savefig(fss_loglin_scaled_decay_per_a_plot_path)
 println("Saved Plot: $(fss_loglin_scaled_decay_per_a_plot_path)")
 display(plt)
+
+# --- plotting inset log lin ---
+# Create plot
+inset_log_lin = plot(
+    title=""
+)
+
+plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.3, 0.1, 0.3, 0.3))])
+
+# Plot data for each L
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    c = blue_palette[i]
+    L = Int(L)
+    plot!(plt_combined_log_lin[2], ([a_val-a_crit for a_val in sort(decay_a_vals)] .* L^(1/nu)), log.([-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)] ./ (L^z)),
+        yerr = [delta_xi_tau[L][i] for i in 1:length(decay_a_vals)] ./ [-1/all_log_s_diff_slopes[L][a_val] for a_val in sort(decay_a_vals)],
+        linestyle=:dash,
+        linewidth=1,
+        marker = :circle,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+end
+
+plot!(plt_combined_log_lin[2], xticks=[], yticks=[], legend=nothing, framestyle = :box,)
+
+fss_loglin_inset_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_fss_loglin_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
+make_path_exist(fss_loglin_inset_scaled_decay_per_a_plot_path)
+savefig(plt_combined_log_lin, fss_loglin_inset_scaled_decay_per_a_plot_path)
+println("Saved Plot: $(fss_loglin_inset_scaled_decay_per_a_plot_path)")
+display(plt_combined_log_lin)
+

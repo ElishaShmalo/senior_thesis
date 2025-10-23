@@ -20,12 +20,10 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [16_000]
+    L_vals = [14_000]
     epsilon_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350], [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]))
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
-
-    epsilon_vals = [ep for ep in epsilon_vals if 0.345 <= ep]
 
     time_prefact = 200
 

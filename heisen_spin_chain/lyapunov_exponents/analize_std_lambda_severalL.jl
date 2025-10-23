@@ -24,7 +24,7 @@ tau = 1 * J
 # General Variables
 num_unit_cells_vals = [8, 16, 32, 64, 128]
 num_uc = length(num_unit_cells_vals)
-blue_palette = blue_palette = cgrad([RGB(0.55, 0.75, 0.85), RGB(0.2, 0.35, 0.9)], num_uc, categorical=true) # from light to dark blue
+blue_palette = cgrad([RGB(0.55, 0.75, 0.85), RGB(0.2, 0.35, 0.9)], num_uc, categorical=true) # from light to dark blue
 
 # num_unit_cells_vals = [8, 16]
 # num_unit_cells_vals = [32, 64, 128]
@@ -181,7 +181,7 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 
 # --- Save the plot ---
 println("Making Plot")
-plt = plot()
+plt = plot(xlims=[0.722, 0.8025])
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$avraging_window_name"
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -438,3 +438,78 @@ plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_start_lambda_v
 plot!(plt, [L for L in keys(sort(jump_start_lambda_vals))], [jump_end_lambda_vals[L] for L in keys(sort(jump_start_a_vals))], label="lambda_max")
 savefig("$(base_plot_path)_jump_height_gap.png")
 println("Saved ", "$(base_plot_path)_jump_height_gap.png")
+
+
+# --- Save Final Plot as Insets
+# First plot (main)
+avraging_window = 1/32
+
+local_avraging_window_name = replace("$(avraging_window)", "." => "p")
+plt_main = plot(
+    title = L"$Std(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
+    xlabel = L"a",
+    ylabel = L"Std(λ)",
+    xlims = [0.719, 0.801]
+)
+plot!(plt_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    L = Int(L)
+    c = blue_palette[i]
+    plot!(
+        plt_main,
+        a_vals,
+        [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
+        label = "$L",
+        linestyle = :solid,
+        markersize = 4,
+        linewidth = 1,
+        marker = :circle,
+        color = c,
+        seriescolor = c,
+        markerstrokecolor = c
+    )
+end
+
+# Second plot (to be inset)
+a_crit, a_crit_err = 0.762, 0.002
+nu, nu_err = 2, 0.3
+plt_inset = plot(
+    title = "",
+    xlims = [-1, 1]
+)
+# Combine: inset location can be adjusted with bbox
+# bbox(x0, y0, width, height) sets position in relative coords (0–1)
+plt_combined = plot(plt_main, inset_subplots = [(plt_inset, bbox(0.1, 0.1, 0.25, 0.25))])
+
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
+    L = Int(L)
+    c = blue_palette[i]
+    y_err = [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] ./ sqrt(2)
+    plot!(
+        plt_combined[2],
+        (a_vals .- a_crit) .* L^(1/nu),
+        [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
+        yerr = y_err,
+        linestyle = :dash,
+        markersize = 3,
+        linewidth = 1,
+        marker = :circle,
+        color = c,
+        seriescolor = c,
+        markerstrokecolor = c
+    )
+end
+# completely remove ticks again just in case
+plot!(plt_combined[2], xticks = [], yticks = [], 
+    legend = false,
+    framestyle = :box,)
+
+plot!(plt_combined[1], legend = :bottomright)
+
+# Save and display
+local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_with_inset.png"
+make_path_exist(local_var_plot_path)
+savefig(plt_combined, local_var_plot_path)
+println("Saved combined plot with inset: $(local_var_plot_path)")
+display(plt_combined)
