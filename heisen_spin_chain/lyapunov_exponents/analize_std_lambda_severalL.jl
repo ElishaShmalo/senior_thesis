@@ -48,7 +48,8 @@ z_fit = 1.65
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/64, 1/128]
+avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/40, 1/48, 1/56, 1/64]
+# avraging_windows = [1/40, 1/48, 1/56]
 
 for avraging_window in avraging_windows
     println("Aw: $(avraging_window)")
@@ -215,10 +216,11 @@ for local_avraging_window in avraging_windows
     local_avraging_window_name = replace("$(local_avraging_window)", "." => "p")
     # Create plot
     plt = plot(
-        title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$local_avraging_window$ | $z_f = %$(z_fit)$",
+        title=L"$Std(λ(a))$ for $N=%$N_val | AW=%$(round(local_avraging_window, digits=6))$ | $z_f = %$(z_fit)$",
         xlabel=L"a",
         ylabel=L"Std(λ)",
-        xlims = [0.72-0.001, 0.8 + 0.001]
+        xlims = [0.72-0.001, 0.8 + 0.001],
+        ylims=[0, 0.32]
     )
     plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
     # Plot data for each L
@@ -236,6 +238,40 @@ for local_avraging_window in avraging_windows
         )
     end
     local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$(local_avraging_window_name)_Stds.png"
+    make_path_exist(local_var_plot_path)
+    savefig(local_var_plot_path)
+    println("Saved Plot: $(local_var_plot_path)")
+    display(plt)
+    
+end
+
+for (j, L) in enumerate(num_unit_cells_vals * N_val)
+    L = Int(L)
+    # Create plot
+    plt = plot(
+        title=L"$Std(λ(a))$ for $N=%$N_val | L=%$(L)$ | $z_f = %$(z_fit)$",
+        xlabel=L"a",
+        ylabel=L"Std(λ)",
+        xlims = [0.72-0.001, 0.8 + 0.001],
+        ylims=[0, 0.32]
+    )
+    plot!(plt, [NaN], [NaN], label = "AW =", linecolor = RGBA(0,0,0,0))
+    # Plot data for each L
+    for (i, local_avraging_window) in enumerate(avraging_windows)
+        local_avraging_window_name = replace("$(local_avraging_window)", "." => "p")
+        c = palette(:tab10)[i]
+        plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[local_avraging_window][L]))] * sqrt(num_initial_conds-1),
+            label="$(round(local_avraging_window, digits=6))",
+            linestyle=:solid,
+            markersize=4,
+            linewidth=1,
+            marker = :circle,color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c, # (optional) markers match too
+            alpha=0.6
+        )
+    end
+    local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L)/stds_lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_fit_name)_Stds.png"
     make_path_exist(local_var_plot_path)
     savefig(local_var_plot_path)
     println("Saved Plot: $(local_var_plot_path)")
@@ -449,7 +485,7 @@ plt_main = plot(
     title = L"$Std(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
     xlabel = L"a",
     ylabel = L"Std(λ)",
-    xlims = [0.719, 0.801]
+    xlims = [0.719, 0.801],
 )
 plot!(plt_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 
@@ -480,7 +516,7 @@ plt_inset = plot(
 )
 # Combine: inset location can be adjusted with bbox
 # bbox(x0, y0, width, height) sets position in relative coords (0–1)
-plt_combined = plot(plt_main, inset_subplots = [(plt_inset, bbox(0.1, 0.1, 0.25, 0.25))])
+plt_combined = plot(plt_main, inset_subplots = [(plt_inset, bbox(0.1, 0.1, 0.28, 0.28))])
 
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
@@ -505,7 +541,7 @@ plot!(plt_combined[2], xticks = [], yticks = [],
     legend = false,
     framestyle = :box,)
 
-plot!(plt_combined[1], legend = :bottomright)
+plot!(plt_combined[1], legend = :topright)
 
 # Save and display
 local_var_plot_path = "figs/lambda_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/stds_with_inset.png"

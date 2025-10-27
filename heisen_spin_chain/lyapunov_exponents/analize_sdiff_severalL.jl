@@ -37,8 +37,8 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-# a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
-a_vals = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76]
+a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+# a_vals = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76]
 
 epsilon = 0.1
 
@@ -47,7 +47,7 @@ N_val = 4
 z_val = 1.7
 z_val_name = replace("$z_val", "." => "p")
 
-z_fit_val = 1.6
+z_fit_val = 1.65
 z_fit_name = replace("$z_fit_val", "." => "p")
 
 collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
@@ -222,7 +222,7 @@ plt_inset = plot(
     title = "",
 )
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
-plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.12, 0.1, 0.3, 0.3))])
+plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.13, 0.1, 0.5, 0.5))])
 
 # Plot data for each a_val
 for (i, L_val) in enumerate(L_vals_to_plot)
@@ -724,6 +724,7 @@ z_fit_val = 1.65
 z_fit_name = replace("$(z_fit_name)", "." => "p")
 
 decay_a_vals = [val for val in a_vals if 0.72 <= val <= 0.7605]
+# decay_a_vals = [0.69]
 
 # Calculating the fits
 all_log_s_diff_slopes = Dict{Int, Dict{Float64, Float64}}()
@@ -752,6 +753,7 @@ end
 
 # Plot(Verify) the fits
 fitted_a_vals_to_plot = [val for val in a_vals if 0.76 <= val <= 0.7605]
+fitted_a_vals_to_plot = [0.69]
 # Plot data for each L
 for L in num_unit_cells_vals * N_val
     L = Int(L)
@@ -786,6 +788,77 @@ for L in num_unit_cells_vals * N_val
     end
     display(plt)
 end
+
+# --- Ploting Log S_diff PLot again ---
+num_unit_cell_to_plot = 64
+L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
+a_vals_to_plot = [0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
+fitted_a_vals = [0.69]
+sholder_a_vals = Dict(0.7 => 76)
+
+# Zoomed in plot
+y_lims = (-15, 0)
+x_lims = (0, 300)
+# Create plot
+plt = plot(
+    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    xlabel=L"t",
+    ylabel=L"log(S_{Diff})",
+    ylims=y_lims,
+    xlims=x_lims,
+    legend=:bottomleft
+)
+
+# Plot data for each a_val
+for (i,a_val) in enumerate(a_vals_to_plot)
+    c = Plots.palette(:auto)[i]
+
+    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, 350)]),
+    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, 350)],
+        label="a = $(a_val)",
+        linestyle=:solid,
+        linewidth=1,
+        color = c,          # sets line color
+        seriescolor = c,    # ensures error bars match
+        markerstrokecolor = c)
+
+    if a_val in fitted_a_vals
+
+        xs = 1:x_lims[2]
+
+        plot!(plt, xs, 
+            all_log_s_diff_offsets[L_val_to_plot][a_val] .+ (all_log_s_diff_slopes[L_val_to_plot][a_val] .* (xs .- 5)),
+            linestyle=:dash,
+            label=nothing,
+            linewidth=3,
+            color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c
+            )
+    end
+
+    if a_val in keys(sholder_a_vals)
+
+        xs = 1:x_lims[2]
+        log_a_val = log(a_val)
+        offset = sholder_a_vals[a_val]
+        plot!(plt, xs, 
+            xs .* log_a_val .+ offset,
+            linestyle=:dashdotdot,
+            linewidth=3,
+            label=nothing,
+            color = c,          # sets line color
+            seriescolor = c,    # ensures error bars match
+            markerstrokecolor = c
+            )
+    end
+end
+
+log_s_diff_plot_path = "figs/log_delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L_val_to_plot)/Zoomed_Log_S_diff$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(L_val_to_plot)_z$(z_fit_name).png"
+make_path_exist(log_s_diff_plot_path)
+savefig(log_s_diff_plot_path)
+println("Saved Plot: $(log_s_diff_plot_path)")
+display(plt)
 
 
 # Plot t^*
@@ -912,7 +985,7 @@ plt_xi_inset = plot(
     title=""
 )
 
-plt_xi_combined = plot(plt_xi_main, inset_subplots = [(plt_xi_inset, bbox(0.32, 0.1, 0.3, 0.3))])
+plt_xi_combined = plot(plt_xi_main, inset_subplots = [(plt_xi_inset, bbox(0.32, 0.1, 0.5, 0.5))])
 
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -1072,7 +1145,7 @@ inset_log_lin = plot(
     title=""
 )
 
-plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.3, 0.1, 0.3, 0.3))])
+plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.25, 0.1, 0.4, 0.4))])
 
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
