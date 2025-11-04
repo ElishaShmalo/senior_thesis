@@ -222,7 +222,7 @@ plt_inset = plot(
     title = "",
 )
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
-plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.13, 0.1, 0.5, 0.5))])
+plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.225, 0.1, 0.45, 0.45))])
 
 # Plot data for each a_val
 for (i, L_val) in enumerate(L_vals_to_plot)
@@ -244,7 +244,10 @@ end
 
 plot!(plt_combined[2], xticks = [], yticks = [], 
     legend = false,
-    framestyle = :box,)
+    framestyle = :box,
+    xlabel = L"$(a - a_c)L^{1/\nu}$",
+    ylabel = L"S$_{Diff}L^{\beta/\nu}$",
+    guidefont = font(12))
 
 
 plot!(plt_combined[1], legend = :bottomright)
@@ -985,7 +988,7 @@ plt_xi_inset = plot(
     title=""
 )
 
-plt_xi_combined = plot(plt_xi_main, inset_subplots = [(plt_xi_inset, bbox(0.32, 0.1, 0.5, 0.5))])
+plt_xi_combined = plot(plt_xi_main, inset_subplots = [(plt_xi_inset, bbox(0.376, 0.1, 0.5, 0.5))])
 
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -1006,7 +1009,9 @@ end
 
 plot!(plt_xi_combined[2], xticks = [], yticks = [], 
     legend = false,
-    framestyle = :box,)
+    framestyle = :box,
+    ylabel=L"$ξ_τ / L^{z}$", xlabel=L"$(a - a_c)L^{1/ν}$",
+    guidefont = font(12))
 
 plot!(plt_xi_combined[1])
 
@@ -1145,7 +1150,7 @@ inset_log_lin = plot(
     title=""
 )
 
-plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.25, 0.1, 0.4, 0.4))])
+plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.35, 0.1, 0.36, 0.36))])
 
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -1161,7 +1166,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         markerstrokecolor = c)
 end
 
-plot!(plt_combined_log_lin[2], xticks=[], yticks=[], legend=nothing, framestyle = :box,)
+plot!(plt_combined_log_lin[2], ylabel=L"$log(ξ_τ / L^{z})$", xlabel=L"$(a - a_c)L^{1/ν}$", guidefont = font(12), xticks=[], yticks=[], legend=nothing, framestyle = :box,)
 
 fss_loglin_inset_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_fss_loglin_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(fss_loglin_inset_scaled_decay_per_a_plot_path)

@@ -200,7 +200,7 @@ end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
 
-plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window_name)$")
+plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window)$")
 
 xlabel!(L"a")
 ylabel!(L"λ")
@@ -261,6 +261,7 @@ for (j, L) in enumerate(num_unit_cells_vals * N_val)
         local_avraging_window_name = replace("$(local_avraging_window)", "." => "p")
         c = palette(:tab10)[i]
         plot!(plt, a_vals, [val for val in values(sort(collected_lambdas_SEMs[local_avraging_window][L]))] * sqrt(num_initial_conds-1),
+            yerr = [val for val in values(sort(collected_lambdas_SEMs[local_avraging_window][L]))] ./ sqrt(2),
             label="$(round(local_avraging_window, digits=6))",
             linestyle=:solid,
             markersize=4,
@@ -496,6 +497,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         plt_main,
         a_vals,
         [val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] * sqrt(num_initial_conds-1),
+        yerr=[val for val in values(sort(collected_lambdas_SEMs[avraging_window][L]))] ./ sqrt(2),
         label = "$L",
         linestyle = :solid,
         markersize = 4,
@@ -537,9 +539,9 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     )
 end
 # completely remove ticks again just in case
-plot!(plt_combined[2], xticks = [], yticks = [], 
-    legend = false,
-    framestyle = :box,)
+plot!(plt_combined[2], xlabel=L"$(a-a_c)L^{1/\nu}$",
+    xticks=[], yticks=[], guidefont = font(12), legend=nothing, framestyle = :box,)
+
 
 plot!(plt_combined[1], legend = :topright)
 
