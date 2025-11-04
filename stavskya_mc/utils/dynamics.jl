@@ -4,15 +4,13 @@ include("general.jl")
 function evolve_state(state, time_steps, epsilon)
     current_state = copy(state)
     L = length(current_state)
-    choose_rule = make_rand_state(L, epsilon)     # preallocate rule array
+    choose_rule = Vector{Int}(undef, L) # Preallocate choose rule array
     
     new_state   = [0.0 for _ in 1:L]     # preallocate new state
 
     for t in 1:time_steps
-        
-        @inbounds @simd for i in eachindex(choose_rule)
-            choose_rule[i] = Int(choose_probs[i] < epsilon)
-        end
+        choose_rule .= Int.(rand(L) .< epsilon)
+
         new_state[1] = choose_rule[1] + (1 - choose_rule[1]) * (current_state[L] * current_state[1])
         @inbounds @simd for i in 2:L
             prev = current_state[i-1]
