@@ -1,7 +1,7 @@
 using Distributions
 
 function make_rand_state(L, prob)
-    [val < prob ? 1 : 0 for val in rand(Uniform(0,1),L)]
+    Int.(rand(L) .< prob)
 end
 
 function make_path_exist(path)
@@ -18,3 +18,10 @@ function save_simple_dict_to_csv(dict::Dict{Float64, Float64}, filepath::String)
     CSV.write(filepath, df)
     println("Wrote csv $(filepath)")
 end
+
+prob = 0.1
+probs = rand(Uniform(0,1), 10)
+
+println()
+println([val < prob ? 1 : 0 for val in probs])
+println(Int.(probs .< prob))
