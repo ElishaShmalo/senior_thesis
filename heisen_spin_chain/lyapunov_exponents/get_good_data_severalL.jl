@@ -22,7 +22,7 @@ end
 @time begin
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16, 32, 64]
+@everywhere num_unit_cells_vals = [8, 16, 32]
 # @everywhere num_unit_cells_vals = [128]
 # @everywhere num_unit_cells_vals = [64]
 @everywhere J = 1    # energy factor
@@ -36,7 +36,7 @@ end
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 4000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 1000
-a_vals = [0.62, 0.64, 0.66, 0.67] # general a_vals
+a_vals = [0.68] # general a_vals
 # a_vals = [0.7] # general a_vals
 
 @everywhere epsilon = 0.1
