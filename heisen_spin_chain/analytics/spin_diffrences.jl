@@ -10,6 +10,10 @@ function get_delta_spin(spin_chain1::Vector{Vector{Float64}}, spin_chain2::Vecto
     return map(norm, spin_chain1-spin_chain2)
 end
 
+function get_OTOC(spin_chain1::Vector{Vector{Float64}}, spin_chain2::Vector{Vector{Float64}})
+    return 1 .- map(dot, spin_chain1, spin_chain2)
+end
+
 function get_spin_diffrence_from_delta(delta_chain::Vector{Vector{Float64}})
     return map(mean, delta_chain)
 end

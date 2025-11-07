@@ -22,7 +22,7 @@ end
 @time begin
 
 # General Variables
-@everywhere num_unit_cells_vals = [8, 16]
+@everywhere num_unit_cells_vals = [8, 16, 32, 64]
 # @everywhere num_unit_cells_vals = [128]
 # @everywhere num_unit_cells_vals = [64]
 @everywhere J = 1    # energy factor
@@ -34,16 +34,16 @@ end
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 1000 # We are avraging over x initial conditions
-@everywhere init_cond_name_offset = 0
-a_vals = [0.75] # general a_vals
+@everywhere num_initial_conds = 10000 # We are avraging over x initial conditions
+@everywhere init_cond_name_offset = 10000
+a_vals = [0.72] # general a_vals
 # a_vals = [0.7] # general a_vals
 
 @everywhere epsilon = 0.1
 
 @everywhere N_val = 4
 
-z_val = 2.0
+z_val = 1.6
 z_val_name = replace("$z_val", "." => "p")
 
 # --- geting spin dists ---

@@ -18,7 +18,7 @@ include("analytics/spin_diffrences.jl")
 # Set plotting theme
 Plots.theme(:dark)
 # General Variables
-global_L = 4 * 64  # number of spins
+global_L = 64  # number of spins
 J = 1       # energy factor
 
 # J vector
@@ -53,7 +53,7 @@ num_trials = 1
 for N_val in N_vals
     println("N: $N_val")
 
-    L = 256
+    L = global_L * N_val
     
     # Define s_naught as a constant
     S_NAUGHT = make_spiral_state(L, (2) / N_val)

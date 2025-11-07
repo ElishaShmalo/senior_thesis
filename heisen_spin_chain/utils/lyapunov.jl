@@ -1,4 +1,4 @@
-# function for calculating d_i
+# function for calculating S_diff
 function calculate_spin_distence(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}})
     diff = S_A .- S_B
     dotted = map(dot, diff, diff)

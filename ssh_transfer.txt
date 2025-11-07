@@ -1,2 +1,4 @@
 rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/
 rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/data/spin_dists_per_time/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/spin_dists_per_time/
+
+ssh es1074@amarel.rutgers.edu "tar czf - /home/es1074/senior_thesis/data/spin_dists_per_time/" | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/

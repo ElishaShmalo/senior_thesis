@@ -13,38 +13,50 @@ include("utils/general.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
 
-# Set plotting theme
-Plots.theme(:dark)
 # General Variables
-L = 4*64  # number of spins
+L = 4*128  # number of spins
 N_val = 4
-num_init_cond = 1
+num_init_cond = 20
 
 Js_rand = 0
 
 # Heat map of delta_spins
-a_val = 0.74
-aval_path = "$(replace("$a_val", "." => "p"))"[1:3]
+a_vals = [0.7]
+trial_nums = 1
 
-# results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
-results_file_path = "data/non_trand/spin_dists_per_time/N4/a0p7/IC1/L32/N4_a0p7_IC1_L32_z1p7_sample991.csv" # 
+for a_val in a_vals
+    aval_path = "$(replace("$a_val", "." => "p"))"
+    for trial_num in 1:trial_nums
+        # data_type_to_heat = "deltaS"
+        data_type_to_heat = "OTOC"
+        # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
+        results_file_path = "data/delta_evolved_spins/N4/a$(aval_path)/IC$(num_init_cond)/L$(L)/N4_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_$(data_type_to_heat).data" # 
 
-delta_spins = open("data/delta_evolved_spins/" * results_file_path, "r") do io
-    deserialize(io)
+        delta_spins = open(results_file_path, "r") do io
+            deserialize(io)
+        end
+
+        if typeof(delta_spins) == Vector{Vector{Float64}}
+            delta_spins = hcat(delta_spins...)'
+        end
+        plt = plot()
+        heatmap!(delta_spins,
+            # colorbar_title="δS",
+            c=:jet,
+            yflip=false,
+            # margin=10 # adds space around everything, including the colorbar title
+        )
+
+        xlabel!("x")
+        ylabel!("t")
+        title!("$(data_type_to_heat) | N = $N_val | a = $a_val | IC = $num_init_cond | L = $(get_nearest(N_val, L))")
+        figpath = "figs/delta_spin_heatmaps/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(L)/N$(N_val)/a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_delta$(data_type_to_heat).png"
+        make_path_exist(figpath)
+        savefig(plt, figpath)
+        display(plt)
+        println(figpath)
+    end
 end
-
-if typeof(delta_spins) == Vector{Vector{Float64}}
-    delta_spins = hcat(delta_spins...)'
-end
-plt = plot()
-heatmap!(delta_spins, colorbar_title="δS", c=:thermal, yflip=true)
-
-xlabel!("x")
-ylabel!("t")
-title!("N = $N_val | a = $a_val | IC = $num_init_cond | L = $(get_nearest(N_val, L))")
-display(plt)
-
-
 
 
 # prep_save_plot("figs/delta_spin_heatmaps/$(results_file_path).png")
