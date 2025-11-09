@@ -16,19 +16,24 @@ include("analytics/spin_diffrences.jl")
 # General Variables
 L = 4*128  # number of spins
 N_val = 4
-num_init_cond = 20
+num_init_cond = 1000
 
 Js_rand = 0
 
 # Heat map of delta_spins
-a_vals = [0.7]
+a_vals = [0.75]
 trial_nums = 1
 
 for a_val in a_vals
     aval_path = "$(replace("$a_val", "." => "p"))"
     for trial_num in 1:trial_nums
-        # data_type_to_heat = "deltaS"
+        data_type_to_heat = "deltaS"
         data_type_to_heat = "OTOC"
+        c_map = :hsv
+        if data_type_to_heat == "OTOC"
+            c_map = :jet
+        end
+
         # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
         results_file_path = "data/delta_evolved_spins/N4/a$(aval_path)/IC$(num_init_cond)/L$(L)/N4_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_$(data_type_to_heat).data" # 
 
@@ -42,7 +47,7 @@ for a_val in a_vals
         plt = plot()
         heatmap!(delta_spins,
             # colorbar_title="δS",
-            c=:jet,
+            c=c_map,
             yflip=false,
             # margin=10 # adds space around everything, including the colorbar title
         )

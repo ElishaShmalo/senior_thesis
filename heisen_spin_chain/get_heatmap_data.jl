@@ -38,6 +38,7 @@ z_val = 1
 
 # Testing diffrent (random) initial conditions to see what they yeild
 num_trials = 1
+@time begin
 
 for N_val in N_vals
     println("N: $N_val")
@@ -88,4 +89,6 @@ for N_val in N_vals
             make_data_file(results_file_path * "N$(N_val)_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_OTOC.data", sum(OTOC_A_B)/num_init_cond)
         end
     end
+end
+
 end
