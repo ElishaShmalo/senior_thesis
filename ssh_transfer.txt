@@ -3,7 +3,4 @@ rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/dat
 
 ssh es1074@amarel.rutgers.edu "tar czf - /home/es1074/senior_thesis/data/spin_dists_per_time/" | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/
 
-ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/data/ && tar czf - ." | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/ 
-
-
-rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/data/delta_evolved_spins/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/delta_evolved_spins/
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/ && tar czf - data/spin_dists_per_time/ ." | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/spin_dists_per_time/ 

@@ -21,7 +21,7 @@ num_init_cond = 1000
 Js_rand = 0
 
 # Heat map of delta_spins
-a_vals = [0.75]
+a_vals = [0.7]
 trial_nums = 1
 
 for a_val in a_vals

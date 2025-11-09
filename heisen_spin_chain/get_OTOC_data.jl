@@ -38,7 +38,7 @@ Tau_F = 1 / J
 # --- Trying to Replecate Results ---
 num_init_cond = 2000 # We are avraging over x initial conditions
 # a_vals = [round(0.5 + i*0.1, digits = 2) for i in 0:5] 
-a_vals = [0.7, 0.76, 0.8] 
+a_vals = [0.8] 
 
 N_vals = [4]
 z_val = 1
