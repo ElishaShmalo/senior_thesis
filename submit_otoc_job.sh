@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
- ~/.juliaup/bin/julia heisen_spin_chain/get_OTOC_dataxw.jl
+ ~/.juliaup/bin/julia heisen_spin_chain/get_OTOC_data.jl
 

@@ -86,16 +86,16 @@ for N_val in N_vals
                     otoc_series = [get_OTOC(evolved_spin_chain_B[t], evolved_spin_chain_A[t]) for t in 1:num_timesteps]
                     [otoc_series]
                 end
+
+                OTOC_A_B = results
+                
+                # saving avrage of δs for future ref
+                aval_path = "$(replace("$a_val", "." => "p"))"
+                
+                results_file_path = "data/delta_evolved_spins/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/"
+
+                make_data_file(results_file_path * "N$(N_val)_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_OTOC.data", reduce(+, OTOC_A_B) ./ num_init_cond)
             end
-
-            OTOC_A_B = results
-            
-            # saving avrage of δs for future ref
-            aval_path = "$(replace("$a_val", "." => "p"))"
-            
-            results_file_path = "data/delta_evolved_spins/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/"
-
-            make_data_file(results_file_path * "N$(N_val)_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_OTOC.data", reduce(+, OTOC_A_B) ./ num_init_cond)
         end
     end
 end

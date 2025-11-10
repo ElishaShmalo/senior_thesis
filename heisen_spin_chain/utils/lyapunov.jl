@@ -7,11 +7,9 @@ end
 
 # Bring S_B closer to S_A with fixed vector norm ε across the entire chain
 function push_back(S_A::Vector{Vector{Float64}}, S_B::Vector{Vector{Float64}}, epsilon_val::Float64)
-    # Flatten both spin chains into one long vector
     flat_A = reduce(vcat, S_A)
     flat_B = reduce(vcat, S_B)
 
-    # Compute difference and normalize it
     diff_vec = flat_B - flat_A
     diff_norm = norm(diff_vec)
 

@@ -48,7 +48,7 @@ z_fit = 1.65
 z_fit_name = replace("$z_fit", "." => "p")
 
 # --- Lyop Analysis ---
-avraging_windows = [1/4, 1/8, 1/16, 1/32, 1/40, 1/48, 1/56, 1/64]
+avraging_windows = [1/32]
 # avraging_windows = [1/40, 1/48, 1/56]
 
 for avraging_window in avraging_windows
@@ -182,7 +182,7 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 
 # --- Save the plot ---
 println("Making Plot")
-plt = plot(xlims=[0.722, 0.8025])
+plt = plot(xlims=[0.695, 0.8025])
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$avraging_window_name"
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -199,6 +199,10 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
 end
 
 x_vals = range(minimum(a_vals) - 0.005, stop = maximum(a_vals) + 0.00005, length = 1000)
+a_crit, a_crit_err = 0.762, 0.002
+vspan!(plt, [a_crit - a_crit_err, a_crit + a_crit_err],
+       color = :orange, alpha = 0.2, label = "")
+vline!(plt, [a_crit], color = :orange, lw = 2, label = L"a_{crit}")
 
 plot!(plt, x_vals, log.(x_vals), linestyle = :dash, label = L"ln(a)", title=L"$λ(t=L^{%$(z_fit)}, a)$ for $N=%$N_val$, $AW = %$(avraging_window)$")
 
@@ -480,6 +484,8 @@ println("Saved ", "$(base_plot_path)_jump_height_gap.png")
 # --- Save Final Plot as Insets
 # First plot (main)
 avraging_window = 1/32
+a_crit, a_crit_err = 0.762, 0.002
+nu, nu_err = 2, 0.3
 
 local_avraging_window_name = replace("$(avraging_window)", "." => "p")
 plt_main = plot(
@@ -488,7 +494,9 @@ plt_main = plot(
     ylabel = L"Std(λ)",
     xlims = [0.719, 0.801],
 )
+
 plot!(plt_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
+
 
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
@@ -509,9 +517,11 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     )
 end
 
+vspan!(plt_main, [a_crit - a_crit_err, a_crit + a_crit_err],
+       color = :orange, alpha = 0.2, label = "")
+vline!(plt_main, [a_crit], color = :orange, lw = 2, label = L"a_{crit}")
+
 # Second plot (to be inset)
-a_crit, a_crit_err = 0.762, 0.002
-nu, nu_err = 2, 0.3
 plt_inset = plot(
     title = "",
     xlims = [-1, 1]
