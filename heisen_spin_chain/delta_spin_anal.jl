@@ -16,12 +16,12 @@ include("analytics/spin_diffrences.jl")
 # General Variables
 L = 4*128  # number of spins
 N_val = 4
-num_init_cond = 1000
+num_init_cond = 2000
 
 Js_rand = 0
 
 # Heat map of delta_spins
-a_vals = [0.7]
+a_vals = [0.7616, 0.762] 
 trial_nums = 1
 
 for a_val in a_vals
@@ -45,16 +45,27 @@ for a_val in a_vals
             delta_spins = hcat(delta_spins...)'
         end
         plt = plot()
+        y_lims = nothing
+        if data_type_to_heat == "OTOC"
+            y_lims = [0, 100]
+        end
         heatmap!(delta_spins,
             # colorbar_title="δS",
             c=c_map,
             yflip=false,
             # margin=10 # adds space around everything, including the colorbar title
+            ylims = y_lims,
+            size = (600, 500) # square figure
         )
+
+        title = "$(data_type_to_heat)"
+        if data_type_to_heat == "deltaS"
+            title = "δS"
+        end
 
         xlabel!("x")
         ylabel!("t")
-        title!("$(data_type_to_heat) | N = $N_val | a = $a_val | IC = $num_init_cond | L = $(get_nearest(N_val, L))")
+        title!("$(title) | N = $N_val | a = $a_val | IC = $num_init_cond | L = $(get_nearest(N_val, L))")
         figpath = "figs/delta_spin_heatmaps/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(L)/N$(N_val)/a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_delta$(data_type_to_heat).png"
         make_path_exist(figpath)
         savefig(plt, figpath)
