@@ -36,9 +36,9 @@ J_vec = J .* [1, 1, 1]
 Tau_F = 1 / J
 
 # --- Trying to Replecate Results ---
-num_init_cond = 2000 # We are avraging over x initial conditions
+num_init_cond = 3000 # We are avraging over x initial conditions
 # a_vals = [round(0.5 + i*0.1, digits = 2) for i in 0:5] 
-a_vals = [0.8] 
+a_vals = [0.72, 0.7616, 0.8] 
 
 N_vals = [4]
 z_val = 1
@@ -62,7 +62,8 @@ for N_val in N_vals
 
     states_evolve_func = random_evolve_spins_to_time
 
-    epsilon = 0.1
+    epsilon = 0.01
+    epsilon_val_name = "$(replace("$epsilon", "." => "p"))"
 
     for a_val in a_vals
         println("N: $N_val | a_val $a_val")
@@ -94,7 +95,7 @@ for N_val in N_vals
                 
                 results_file_path = "data/delta_evolved_spins/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/"
 
-                make_data_file(results_file_path * "N$(N_val)_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_OTOC.data", reduce(+, OTOC_A_B) ./ num_init_cond)
+                make_data_file(results_file_path * "N$(N_val)_a$(aval_path)_IC$(num_init_cond)_L$(L)_ep$(epsilon_val_name)_trial$(trial_num)_time_rand_OTOC.data", reduce(+, OTOC_A_B) ./ num_init_cond)
             end
         end
     end

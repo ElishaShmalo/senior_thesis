@@ -11,9 +11,10 @@ include("../analytics/spin_diffrences.jl")
 
 
 default(
-    xlabelfont = 15,   # font size for x-axis label
-    ylabelfont = 15,   # font size for y-axis label
-    guidefont = 14     # alternative, some backends use 'guidefont'
+    guidefont = 24,     # alternative, some backends use 'guidefont'
+    tickfont = 14,      # font size for axis tick marks
+    legendfont = 10, 
+    margin = 3mm
 )
 
 J = 1    # energy factor

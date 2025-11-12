@@ -3,6 +3,7 @@
 # Imports
 using Random, LinearAlgebra, Plots, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames, GLM, LaTeXStrings
 using Colors
+using Measures
 
 # Other files   
 include("../utils/make_spins.jl")
@@ -12,9 +13,10 @@ include("../utils/lyapunov.jl")
 include("../analytics/spin_diffrences.jl")
 
 default(
-    xlabelfont = 14,   # font size for x-axis label
-    ylabelfont = 14,   # font size for y-axis label
-    guidefont = 14     # alternative, some backends use 'guidefont'
+    guidefont = 24,     # alternative, some backends use 'guidefont'
+    tickfont = 14,      # font size for axis tick marks
+    legendfont = 14, 
+    margin = 3mm
 )
 
 J = 1
@@ -37,7 +39,7 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+a_vals = [0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 # a_vals = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76]
 
 epsilon = 0.1
@@ -102,9 +104,9 @@ L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
 # Create plot
 plt = plot(
-    title=L"$S_{Diff} for N=%$(N_val)$ | L = %$(L_val_to_plot)",
+    title=L"$S_{\mathrm{diff}} for N=%$(N_val)$ | L = %$(L_val_to_plot)",
     xlabel=L"t",
-    ylabel=L"$S_{Diff}$"
+    ylabel=L"$S_{\mathrm{diff}}$"
 )
 plot!(plt, [NaN], [NaN], label = "a =", linecolor = RGBA(0,0,0,0))
 # Plot data for each a_val
@@ -133,9 +135,9 @@ println("Saved Plot: $(s_diff_plot_path)")
 z_val = 1.65
 z_val_name = replace("$(z_val)", "." => "p")
 s_diff_plt = plot(
-    title=L"$S_{Diff}(t=L^{ %$(z_val) })$ for N=%$(N_val) as Function of a",
+    title=L"$S_{\mathrm{diff}}(t=L^{ %$(z_val) })$ for N=%$(N_val) as Function of a",
     xlabel=L"a",
-    ylabel=L"S_{Diff}(t=L^{ %$(z_val) })"
+    ylabel=L"S_{\mathrm{diff}}(t=L^{ %$(z_val) })"
 )
 plot!(s_diff_plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -147,11 +149,11 @@ for (i, L_val) in enumerate(L_vals_to_plot)
         yerr=[collected_S_diff_SEMs[L_val][a_val][round(Int, L_val^z_val)] for a_val in sort(a_vals)],
         label="$(L_val)",
         linestyle=:solid,
-        linewidth=1,
+        linewidth=2,
         color = c,          # sets line color
         seriescolor = c,    # ensures error bars match
         markerstrokecolor = c, # (optional) markers match too
-        markersize = 4,
+        markersize = 5,
         marker = :circle, 
         )
 end
@@ -174,9 +176,9 @@ nu, nu_err = 2.0, 0.2
 beta, beta_err = 0.1, 0.05
 
 plt = plot(
-    title=L"FSS $S_{Diff}(t=L^{%$(z_val)})$" * "\n" * L"N=%$N_val, β=%$(round(beta, digits=3)), ν=%$(round(nu, digits=3)), a_c=%$(round(a_crit, digits = 4))",
+    title=L"FSS $S_{\mathrm{diff}}(t=L^{%$(z_val)})$" * "\n" * L"N=%$N_val, β=%$(round(beta, digits=3)), ν=%$(round(nu, digits=3)), a_c=%$(round(a_crit, digits = 4))",
     xlabel=L"$(a-a_c)L^{1/ν}$",
-    ylabel=L"$S_{Diff}(t=L^{%$(z_val)}) L^{β/ν}$"
+    ylabel=L"$S_{\mathrm{diff}}(t=L^{%$(z_val)}) L^{β/ν}$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
@@ -192,7 +194,7 @@ for (i, L_val) in enumerate(L_vals_to_plot)
         yerr=y_err,
         label="$(L_val)",
         linestyle=:solid,
-        linewidth=1,
+        linewidth=2,
         color = c,          # sets line color
         seriescolor = c,    # ensures error bars match
         markerstrokecolor = c, # (optional) markers match too
@@ -222,7 +224,7 @@ plt_inset = plot(
     title = "",
 )
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
-plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.225, 0.1, 0.45, 0.45))])
+plt_combined = plot(s_diff_plt, inset_subplots = [(plt_inset, bbox(0.275, 0.1, 0.4, 0.4))])
 
 # Plot data for each a_val
 for (i, L_val) in enumerate(L_vals_to_plot)
@@ -239,6 +241,7 @@ for (i, L_val) in enumerate(L_vals_to_plot)
         seriescolor = c,    # ensures error bars match
         markerstrokecolor = c, # (optional) markers match too
         marker = :circle, 
+        markersize=5
         )
 end
 
@@ -278,9 +281,9 @@ a_vals_to_plot = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
 
 # Create plot
 plt = plot(
-    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    title=L"$\log(S_{\mathrm{diff}})$ for N=%$N_val | L = %$(L_val_to_plot)",
     xlabel=L"t",
-    ylabel=L"log(S_{Diff})",
+    ylabel=L"\log(S_{\mathrm{diff}})",
 )
 
 # Plot data for each a_val
@@ -308,9 +311,9 @@ y_lims = (-15, 0)
 x_lims = (0, 300)
 # Create plot
 plt = plot(
-    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    title=L"$\log(S_{\mathrm{diff}})$ for N=%$N_val | L = %$(L_val_to_plot)",
     xlabel=L"t",
-    ylabel=L"log(S_{Diff})",
+    ylabel=L"\log(S_{\mathrm{diff}})",
     ylims=y_lims,
     xlims=x_lims,
     legend=:bottomleft
@@ -431,9 +434,9 @@ y_lims = [-10, 0]
 
 # Create plot
 plt = plot(
-    title=L"log(S_{Diff}) for N=%$(N_val) | L = %$(L_val_to_plot)",
+    title=L"\log(S_{\mathrm{diff}}) for N=%$(N_val) | L = %$(L_val_to_plot)",
     xlabel=L"t",
-    ylabel=L"log(S_{Diff})",
+    ylabel=L"\log(S_{\mathrm{diff}})",
     xlims = x_lims,
     ylims = y_lims
 )
@@ -455,7 +458,8 @@ display(plt)
 
 # ----------------------
 times_to_fit[1.65] = Dict{Int, Dict{Float64, Vector{Int}}}()
-times_to_fit[1.65][512] = Dict{Float64, Vector{Int}}(0.68 => [5, 100],
+times_to_fit[1.65][512] = Dict{Float64, Vector{Int}}(0.68 => [5, 90],
+                                               0.69 => [5, 100],
                                                0.70 => [50, 150],
                                                0.71 => [50, 160],
                                                0.72 => [100, 256],
@@ -580,9 +584,9 @@ a_vals_to_plot = [0.761, 0.7563]
 
 # Create plot
 plt = plot(
-    title=L"$log(S_{Diff})$ for $N=%$(N_val)$ | $L = %$(L_val_to_plot)$",
+    title=L"$\log(S_{\mathrm{diff}})$ for $N=%$(N_val)$ | $L = %$(L_val_to_plot)$",
     xlabel=L"t",
-    ylabel=L"log(S_{Diff})",
+    ylabel=L"\log(S_{\mathrm{diff}})",
     xlims = x_lims,
     ylims=y_lims
 )
@@ -795,7 +799,7 @@ end
 # --- Ploting Log S_diff PLot again ---
 num_unit_cell_to_plot = 64
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
-a_vals_to_plot = [0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
+a_vals_to_plot = [0.68, 0.69, 0.7, 0.71, 0.72, 0.74, 0.76]
 fitted_a_vals = [0.69]
 sholder_a_vals = Dict(0.7 => 76)
 
@@ -804,9 +808,9 @@ y_lims = (-15, 0)
 x_lims = (0, 300)
 # Create plot
 plt = plot(
-    title=L"$log(S_{Diff})$ for N=%$N_val | L = %$(L_val_to_plot)",
+    title=L"$\log(S_{\mathrm{diff}})$ for N=%$N_val | L = %$(L_val_to_plot)",
     xlabel=L"t",
-    ylabel=L"log(S_{Diff})",
+    ylabel=L"\log(S_{\mathrm{diff}})",
     ylims=y_lims,
     xlims=x_lims,
     legend=:bottomleft
@@ -1025,9 +1029,9 @@ display(plt_xi_combined)
 # Plotting log-log
 # Create plot
 plt = plot(
-    title=L"$log(ξ_τ)$",
-    xlabel=L"$log(a)$",
-    ylabel=L"$log(ξ_τ)$"
+    title=L"$\log(ξ_τ)$",
+    xlabel=L"$\log(a)$",
+    ylabel=L"$\log(ξ_τ)$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1056,9 +1060,9 @@ display(plt)
 # Plotting log-log of the collapse
 # Create plot
 plt = plot(
-    title=L"FSS $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
-    xlabel=L"$log(|a - a_c|L^{1/ν})$",
-    ylabel=L"$log(ξ_τ / L^{z})$"
+    title=L"FSS $\log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    xlabel=L"$\log(|a - a_c|L^{1/ν})$",
+    ylabel=L"$\log(ξ_τ / L^{z})$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1086,9 +1090,9 @@ display(plt)
 # Plotting log-lin
 # Create plot
 plt_log_lin = plot(
-    title=L"$log(ξ_τ)$",
+    title=L"$\log(ξ_τ)$",
     xlabel=L"$a$",
-    ylabel=L"$log(ξ_τ)$"
+    ylabel=L"$\log(ξ_τ)$"
 )
 plot!(plt_log_lin, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1118,9 +1122,9 @@ display(plt_log_lin)
 
 # Create plot
 plt = plot(
-    title=L"FSS $log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    title=L"FSS $\log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
     xlabel=L"$(a - a_c)L^{1/ν}$",
-    ylabel=L"$log(ξ_τ / L^{z})$"
+    ylabel=L"$\log(ξ_τ / L^{z})$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1150,7 +1154,7 @@ inset_log_lin = plot(
     title=""
 )
 
-plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.35, 0.1, 0.36, 0.36))])
+plt_combined_log_lin = plot(plt_log_lin, inset_subplots = [(inset_log_lin, bbox(0.38, 0.1, 0.3575, 0.3575))])
 
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -1166,7 +1170,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         markerstrokecolor = c)
 end
 
-plot!(plt_combined_log_lin[2], ylabel=L"$log(ξ_τ / L^{z})$", xlabel=L"$(a - a_c)L^{1/ν}$", guidefont = font(12), xticks=[], yticks=[], legend=nothing, framestyle = :box,)
+plot!(plt_combined_log_lin[2], ylabel=L"$\log(ξ_τ / L^{z})$", xlabel=L"$(a - a_c)L^{1/ν}$", guidefont = font(12), xticks=[], yticks=[], legend=nothing, framestyle = :box,)
 
 fss_loglin_inset_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_fss_loglin_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(fss_loglin_inset_scaled_decay_per_a_plot_path)

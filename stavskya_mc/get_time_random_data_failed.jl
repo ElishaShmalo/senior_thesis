@@ -1,0 +1,76 @@
+using Distributed
+using SlurmClusterManager
+
+# The way this works is we fix epsilon_1 = 0 and let epsilon_2 range from 0 to 0.35
+# Each timestep, epsilon = random(epsilon_1, epsilon_2)
+
+println("We are adding $(SlurmManager()) workers")
+addprocs(SlurmManager())
+
+@everywhere begin
+    println("Hello from worker $(myid()) on host $(gethostname())")
+
+    # Imports
+    using Random
+    using LinearAlgebra
+    using Plots
+    using Serialization
+    using Statistics
+    using DelimitedFiles, SharedArrays, CSV, DataFrames
+
+    include("utils/general.jl")
+    include("utils/calculations.jl")
+    include("utils/dynamics.jl")
+
+    # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
+    L_vals = [800, 4000, 8000]
+    epsilon_2_vals = sort(union([round(0.01 * i, digits=4) for i in 0:100]))
+
+    time_prefact = 200
+
+    num_initial_conds = 1000
+    initial_state_prob = 0.5
+
+    epsilon_1 = 0
+end
+
+collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
+
+@time begin
+    
+# get all the data
+for L_val in L_vals
+    println("L_val: $(L_val)")
+
+    collected_rhos[L_val] = Dict{Float64, Vector{Float64}}()
+
+    for epsilon_2 in epsilon_2_vals
+        println("L_val: $(L_val) | Epsilon2 $(epsilon_2)")
+        all_init_outputs = [0.0 for _ in 1:num_initial_conds]
+
+        epsilon_val_name = replace("$epsilon_2", "." => "p")
+
+        let epsilon_2=epsilon_2, L_val=L_val, num_initial_conds=num_initial_conds
+            all_init_outputs = @distributed (vcat) for init_cond in 1:num_initial_conds
+                
+                state = make_rand_state(L_val, initial_state_prob)
+
+                epsilon_val = rand() * (epsilon_2 - epsilon_1) + epsilon_1
+                evolved_state = evolve_state(state, L_val*time_prefact, epsilon_val)
+                current_rho = calculate_avg_alive(evolved_state)
+
+                [current_rho]
+            end
+        end
+
+        collected_rhos[L_val][epsilon_2] = all_init_outputs
+        # Save init cond data as csv
+        sample_filepath = "stavskya_mc/data/time_rand/rho_per_epsilon/IC1/L$(L_val)/IC1_L$(L_val)_epsilon$(epsilon_val_name).csv"
+        make_path_exist(sample_filepath)
+        df = DataFrame("sample" => 1:num_initial_conds, "rho" => collected_rhos[L_val][epsilon_2])
+        CSV.write(sample_filepath, df)
+    end
+
+end
+
+end

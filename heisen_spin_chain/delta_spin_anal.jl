@@ -6,12 +6,18 @@ using DifferentialEquations
 using StaticArrays
 using Serialization
 using Statistics
+using  LaTeXStrings
 
 # Other files   
 include("utils/make_spins.jl")
 include("utils/general.jl")
 include("utils/dynamics.jl")
 include("analytics/spin_diffrences.jl")
+
+default(
+    guidefont = 22,     # alternative, some backends use 'guidefont'
+    tickfont = 15      # font size for axis tick marks
+)
 
 # General Variables
 L = 4*128  # number of spins
@@ -21,7 +27,7 @@ num_init_cond = 2000
 Js_rand = 0
 
 # Heat map of delta_spins
-a_vals = [0.7616, 0.762] 
+a_vals = [0.72, 0.7616, 0.8] 
 trial_nums = 1
 
 for a_val in a_vals
@@ -29,9 +35,9 @@ for a_val in a_vals
     for trial_num in 1:trial_nums
         data_type_to_heat = "deltaS"
         data_type_to_heat = "OTOC"
-        c_map = :hsv
-        if data_type_to_heat == "OTOC"
-            c_map = :jet
+        c_map = :jet
+        if data_type_to_heat == "deltaS"
+            c_map = :gist_rainbow
         end
 
         # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
@@ -63,10 +69,11 @@ for a_val in a_vals
             title = "δS"
         end
 
-        xlabel!("x")
-        ylabel!("t")
+        xlabel!(L"\mathbf{x}")
+        ylabel!(L"\mathbf{t}")
         title!("$(title) | N = $N_val | a = $a_val | IC = $num_init_cond | L = $(get_nearest(N_val, L))")
-        figpath = "figs/delta_spin_heatmaps/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(L)/N$(N_val)/a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_delta$(data_type_to_heat).png"
+        # figpath = "figs/delta_spin_heatmaps/N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$(L)/N$(N_val)/a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_delta$(data_type_to_heat).png"
+        figpath = "figs/delta_spin_heatmaps/a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_delta$(data_type_to_heat).png"
         make_path_exist(figpath)
         savefig(plt, figpath)
         display(plt)
