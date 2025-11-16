@@ -16,13 +16,19 @@ include("analytics/spin_diffrences.jl")
 
 default(
     guidefont = 22,     # alternative, some backends use 'guidefont'
-    tickfont = 15      # font size for axis tick marks
+    tickfont = 15,      # font size for axis tick marks
+    margin = 5mm
 )
 
 # General Variables
 L = 4*128  # number of spins
 N_val = 4
-num_init_cond = 2000
+num_init_cond = 3000
+epsilon = 0.01
+epsilon_name = ""
+if epsilon != 0
+    epsilon_name = replace("ep$(epsilon)_", "." => "p")
+end
 
 Js_rand = 0
 
@@ -33,7 +39,7 @@ trial_nums = 1
 for a_val in a_vals
     aval_path = "$(replace("$a_val", "." => "p"))"
     for trial_num in 1:trial_nums
-        data_type_to_heat = "deltaS"
+        # data_type_to_heat = "deltaS"
         data_type_to_heat = "OTOC"
         c_map = :jet
         if data_type_to_heat == "deltaS"
@@ -41,7 +47,7 @@ for a_val in a_vals
         end
 
         # results_file_name = "N$(N_val)/a$(aval_path)/IC$(num_init_cond)/L$L/N$(N_val)_a" * replace("$a_val", "." => "p") * "_IC$(num_init_cond)_L$(L)_rand$Js_rand"
-        results_file_path = "data/delta_evolved_spins/N4/a$(aval_path)/IC$(num_init_cond)/L$(L)/N4_a$(aval_path)_IC$(num_init_cond)_L$(L)_trial$(trial_num)_time_rand_$(data_type_to_heat).data" # 
+        results_file_path = "data/delta_evolved_spins/N4/a$(aval_path)/IC$(num_init_cond)/L$(L)/N4_a$(aval_path)_IC$(num_init_cond)_L$(L)_$(epsilon_name)trial$(trial_num)_time_rand_$(data_type_to_heat).data" # 
 
         delta_spins = open(results_file_path, "r") do io
             deserialize(io)
@@ -52,9 +58,9 @@ for a_val in a_vals
         end
         plt = plot()
         y_lims = nothing
-        if data_type_to_heat == "OTOC"
-            y_lims = [0, 100]
-        end
+        # if data_type_to_heat == "OTOC"
+        #     y_lims = [0, 100]
+        # end
         heatmap!(delta_spins,
             # colorbar_title="δS",
             c=c_map,

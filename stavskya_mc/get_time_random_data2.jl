@@ -24,7 +24,7 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [6000, 8000, 10_000]
+    L_vals = [8000, 10_000, 12_000]
     epsilon_prime_vals = sort(union([round(0.005 * i, digits=4) for i in 0:175], [round(0.291 + 0.001 * i, digits=4) for i in 0:6]))
 
     time_prefact = 200
@@ -43,24 +43,22 @@ collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
 for L_val in L_vals
     println("L_val: $(L_val)")
 
-    collected_rhos[L_val] = Dict{Float64, Vector{Float64}}()
-
     for delta_val in delta_vals
         println("L_val: $(L_val) | delta: $(delta_val)")
         delta_val_name = replace("$delta_val", "." => "p")
         for epsilon_prime in epsilon_prime_vals
-            delta_val = min(epsilon_prime, delta_val)
+            delta_val_to_use = min(epsilon_prime, delta_val)
             println("L_val: $(L_val) | delta: $(delta_val) | EpsilonPrime $(epsilon_prime)")
             all_init_outputs = [0.0 for _ in 1:num_initial_conds]
 
             epsilon_val_name = replace("$epsilon_prime", "." => "p")
 
-            let delta_val=delta_val, epsilon_prime=epsilon_prime, L_val=L_val, num_initial_conds=num_initial_conds
+            let delta_val_to_use=delta_val_to_use, epsilon_prime=epsilon_prime, L_val=L_val, num_initial_conds=num_initial_conds
                 all_init_outputs = @distributed (vcat) for init_cond in 1:num_initial_conds
                     
                     state = make_rand_state(L_val, initial_state_prob)
 
-                    epsilon_val = (epsilon_prime - delta_val) + 2*delta_val*rand()
+                    epsilon_val = (epsilon_prime - delta_val_to_use) + 2*delta_val_to_use*rand()
                     evolved_state = evolve_state(state, L_val*time_prefact, epsilon_val)
                     current_rho = calculate_avg_alive(evolved_state)
 
@@ -68,11 +66,10 @@ for L_val in L_vals
                 end
             end
 
-            collected_rhos[L_val][epsilon_prime] = all_init_outputs
             # Save init cond data as csv
             sample_filepath = "stavskya_mc/data/time_rand_delta/rho_per_epsilon/IC1/L$(L_val)/delta$(delta_val_name)/IC1_L$(L_val)_epsilon$(epsilon_val_name).csv"
             make_path_exist(sample_filepath)
-            df = DataFrame("sample" => 1:num_initial_conds, "rho" => collected_rhos[L_val][epsilon_prime])
+            df = DataFrame("sample" => 1:num_initial_conds, "rho" => all_init_outputs)
             CSV.write(sample_filepath, df)
         end
     end

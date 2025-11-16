@@ -529,7 +529,7 @@ plt_inset = plot(
 )
 # Combine: inset location can be adjusted with bbox
 # bbox(x0, y0, width, height) sets position in relative coords (0–1)
-plt_combined = plot(plt_main, inset_subplots = [(plt_inset, bbox(0.1, 0.1, 0.28, 0.28))])
+plt_combined = plot(plt_main, inset_subplots = [(plt_inset, bbox(0.16, 0.1, 0.28, 0.28))])
 
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
