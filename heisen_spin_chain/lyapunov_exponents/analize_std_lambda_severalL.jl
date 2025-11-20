@@ -490,9 +490,9 @@ nu, nu_err = 2, 0.3
 
 local_avraging_window_name = replace("$(avraging_window)", "." => "p")
 plt_main = plot(
-    title = L"$Std(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
-    xlabel = L"a",
-    ylabel = L"Std(λ)",
+    title = L"$\mathrm{Std}(λ(a))$ for $N=%$N_val$ | $AW=%$avraging_window$ | $z_f = %$(z_fit)$",
+    xlabel = L"$a$",
+    ylabel = L"$\mathrm{Std}(λ)$",
     xlims = [0.719, 0.801],
 )
 
@@ -520,7 +520,7 @@ end
 
 vspan!(plt_main, [a_crit - a_crit_err, a_crit + a_crit_err],
        color = :orange, alpha = 0.2, label = "")
-vline!(plt_main, [a_crit], color = :orange, lw = 2, label = L"a_{crit}")
+vline!(plt_main, [a_crit], color = :orange, lw = 2, label = L"a_{c}")
 
 # Second plot (to be inset)
 plt_inset = plot(

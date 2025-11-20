@@ -24,15 +24,15 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [10_000, 12_000]
+    L_vals = [6_000, 8_000, 10_000, 12_000]
     epsilon_prime_vals = [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]
 
     time_prefact = 200
 
-    num_initial_conds = 1000
+    num_initial_conds = 500
     initial_state_prob = 0.5
 
-    delta_vals = [0.001, 0.01, 0.1, 0.25]
+    delta_vals = [0.0001, 0.001, 0.01, 0.1]
 end
 
 @time begin
@@ -56,8 +56,7 @@ for L_val in L_vals
                     
                     state = make_rand_state(L_val, initial_state_prob)
 
-                    epsilon_val = (epsilon_prime - delta_val_to_use) + 2*delta_val_to_use*rand()
-                    evolved_state = evolve_state(state, L_val*time_prefact, epsilon_val)
+                    evolved_state = time_random_delta_evolve_state(state, L_val*time_prefact, epsilon_prime, delta_val_to_use)
                     current_rho = calculate_avg_alive(evolved_state)
 
                     [current_rho]

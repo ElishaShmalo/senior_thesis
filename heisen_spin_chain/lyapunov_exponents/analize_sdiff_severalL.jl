@@ -39,7 +39,7 @@ trans_a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625, 0.765, 0.7675, 0.77]
 post_a_vals = [round(0.8 + i * 0.02, digits=2) for i in 0:5]
 a_vals = sort(union([round(0.6 + i*0.01, digits=2) for i in 0:20], [0.7525, 0.755, 0.7575, 0.7625, 0.765, 0.7675], [0.763], post_a_vals)) # general a_vals
 # a_vals = sort(union([round(0.7 + i*0.01, digits=2) for i in 0:12], trans_a_vals)) # 0.6, 0.62, 0.64, 0.66, 0.68, 0.7,
-a_vals = [0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
+a_vals = [0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7575, 0.76, 0.7605, 0.761, 0.7615, 0.7625, 0.763, 0.765, 0.7675, 0.77, 0.78, 0.79, 0.8]
 # a_vals = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.7525, 0.755, 0.7563, 0.7575, 0.7588,  0.7594, 0.76]
 
 epsilon = 0.1
@@ -76,14 +76,6 @@ for num_unit_cells in num_unit_cells_vals
         # We will avrage over this later
         current_S_diffs = [zeros(Float64, n) for _ in 1:num_initial_conds]
 
-        if a_val < 0.7 && (a_val * 100) % 2 == 1
-            z_val = 1.6
-            z_val_name = replace("$z_val", "." => "p")
-        else
-            z_val = 1.7
-            z_val_name = replace("$z_val", "." => "p")
-        end
-
         for init_cond in 1:num_initial_conds
 
             sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
@@ -98,7 +90,7 @@ for num_unit_cells in num_unit_cells_vals
 end
 
 # --- Making S_diff Plots ---
-a_vals_to_plot = [0.62, 0.64, 0.66, 0.69, 0.68, 0.7, 0.71, 0.72, 0.74, 0.76]
+a_vals_to_plot = [0.72, 0.73, 0.74, 0.75, 0.755, 0.76, 0.8]
 num_unit_cell_to_plot = 64
 L_val_to_plot = Int(round(num_unit_cell_to_plot * N_val))
 
@@ -129,7 +121,7 @@ s_diff_plot_path = "figs/delta_evolved_spins/N$(N_val)/SeveralAs/IC$num_initial_
 make_path_exist(s_diff_plot_path)
 savefig(s_diff_plot_path)
 println("Saved Plot: $(s_diff_plot_path)")
-# display(plt)
+display(plt)
 
 # --- Making S_diff(t=L^z) as function of a ---
 z_val = 1.65
@@ -219,6 +211,10 @@ z_val_name = replace("$(z_val)", "." => "p")
 a_crit, a_crit_err = 0.763, 0.001
 nu, nu_err = 2.0, 0.2
 beta, beta_err = 0.1, 0.05
+
+vspan!(s_diff_plt, [a_crit - a_crit_err, a_crit + a_crit_err],
+       color = :orange, alpha = 0.2, label = "")
+vline!(s_diff_plt, [a_crit], color = :orange, lw = 2, label = L"a_{c}")
 
 plt_inset = plot(
     title = "",
