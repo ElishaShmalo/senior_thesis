@@ -24,15 +24,15 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [6000, 8000]
-    epsilon_prime_vals = [0.29542282]
+    L_vals = [6000, 8000, 10_000, 12_000]
+    epsilon_prime_vals = [0.28775791]
 
     time_prefact = 500
 
     num_initial_conds = 500
     initial_state_prob = 0.5
 
-    delta_vals = [0.001]
+    delta_vals = [0.1]
 
     time_step = 10
 end
@@ -73,7 +73,6 @@ for L_val in L_vals
                     make_path_exist(sample_filepath)
                     df = DataFrame("time" => (1:length(current_rho))*time_step, "rho" => current_rho)
                     CSV.write(sample_filepath, df)
-                    [current_rho]
                 end
             end
         end

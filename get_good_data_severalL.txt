@@ -1,3 +1,26 @@
-a_c &\approx 0.762 \pm 0.001 \\
-\nu &\approx 1.9 \pm 0.3 \\
-z &\approx 1.65 \pm 0.1
+for delta_val in delta_vals:
+    fig,ax=plt.subplots()
+    for L in L_vals:
+        df_=df_to_collapse[delta_val].xs(L,level='L')['observations'] 
+        y=df_.apply(np.mean)
+        y = y.sort_index()
+        yerr=(df_.apply(np.std).sort_index())/np.sqrt(df_.apply(len))
+        xs = y.index.to_list()
+        ax.errorbar(xs, y.values.tolist(),yerr, label=f'L={L}',capsize=3)
+    ax.legend()
+    ax.set_xlabel('p')
+    ax.set_ylabel('y')
+
+for delta_val in delta_vals:
+    fig,ax=plt.subplots()
+    for L in L_vals:
+        df_=df_to_collapse[delta_val].xs(L,level='L')['observations'] 
+        data=df_.apply(np.mean).sort_index()
+        y = np.array(data.values.tolist())
+        xs = np.array(data.index.to_list())
+        yerr=np.array((df_.apply(np.std).sort_index())/np.sqrt(df_.apply(len))) * 0
+        ax.errorbar(((xs - dc_res[delta_val][0].p_c) * L ** (1/dc_res[delta_val][0].nu)), y * L ** (dc_res[delta_val][0].beta / dc_res[delta_val][0].nu),yerr, label=f'L={L}',capsize=3)
+    plt.axvline(0.29450750, c = 'k', label=f"x = 0.29450750 (old trans)")
+    ax.legend()
+    ax.set_xlabel('p')
+    ax.set_ylabel('y')
