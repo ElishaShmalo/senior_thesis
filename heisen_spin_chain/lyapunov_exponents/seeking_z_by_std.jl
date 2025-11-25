@@ -115,22 +115,22 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     display(plt)
 end
 
-# Varience as func of time
+# Std as func of time
 println("Making Plot")
 a_vals_to_plot = [0.7616]
 
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
     plt = plot(
-        title=L"$Var(λ(t))$ for $N=%$N_val$ | $z=%$(z_val_name)$ |  $L = %$(L)$",
+        title=L"$\mathrm{Std}(λ(t))$ for $N=%$N_val$ | $z=%$(z_val_name)$ |  $L = %$(L)$",
         xlabel=L"t",
-        ylabel=L"Var(λ)"
+        ylabel=L"\mathrm{Std}(λ)"
     )
 
     L = Int(L)
     for a_val in a_vals_to_plot
         plot!(
-            collected_lambda_STD_series[L][a_val].^2, 
+            collected_lambda_STD_series[L][a_val], 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="a = $a_val",
             color=c)
@@ -148,9 +148,9 @@ end
 a_vals_to_plot = [0.7616]
 
 log_plt = plot(
-    title=L"$Var(λ(t))$ for $N=%$N_val$ | $t_f=L^{%$(z_val)}$",
-    xlabel=L"log(t)",
-    ylabel=L"Var(λ)"
+    title=L"$\mathrm{Std}(λ(t))$ for $N=%$N_val$ | $t_f=L^{%$(z_val)}$",
+    xlabel=L"\mathrm{log}(t)",
+    ylabel=L"\mathrm{Std}(λ)"
 )
 plot!(log_plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -158,7 +158,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
     for a_val in a_vals_to_plot
         plot!(log_plt, log.(1:length(collected_lambda_STD_series[L][a_val])),
-            collected_lambda_STD_series[L][a_val].^2, 
+            collected_lambda_STD_series[L][a_val], 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="$L",
             color=c)
@@ -177,16 +177,16 @@ peak_frac_lims = [1/30, 9/10]
 
 for a_val in a_vals_to_plot
     plt = plot(
-        title=L"$Var(λ(t))$ for $N=%$N_val$ | $t_f=L^{%$(z_val)}$",
-        xlabel=L"log(t)",
-        ylabel=L"Var(λ)"
+        title=L"$\mathrm{Std}(λ(t))$ for $N=%$N_val$ | $t_f=L^{%$(z_val)}$",
+        xlabel=L"\mathrm{log}(t)",
+        ylabel=L"\mathrm{Std}(λ)"
     )
     for (i, L) in enumerate(num_unit_cells_vals * N_val)
         L = Int(L)
         c = blue_palette[i]
             num_time_steps = length(collected_lambda_STD_series[L][a_val])
             plot!(log.(trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])),
-                (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+                (collected_lambda_STD_series[L][a_val])[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
                 # yerror=collected_lambda_STD_series[L][a_val],
                 label="L = $L",
                 color=c)
@@ -203,9 +203,9 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         data = Dict{Float64, Float64}()
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         for t_step in trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])
-            data[t_step] = (collected_lambda_STD_series[L][a_val].^2)[t_step]
+            data[t_step] = (collected_lambda_STD_series[L][a_val])[t_step]
         end
-        save_simple_dict_to_csv(data, "data_to_collapse/lambda_var_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L)/lambda_var_per_t_N$(N_val)_a$(replace("$(a_val)", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name).csv")
+        save_simple_dict_to_csv(data, "data_to_collapse/lambda_std_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/L$(L)/lambda_std_per_t_N$(N_val)_a$(replace("$(a_val)", "." => "p"))_IC$(num_initial_conds)_L$(L)_z$(z_val_name).csv")
     end
 end
 
@@ -215,9 +215,9 @@ a_vals_to_plot = [0.7616]
 z_collapse_val = round(1.6, digits=4) # 6.459684070797505e-08
 
 plt = plot(
-    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$ " * " \n " * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    title=L"Collapsed $\mathrm{Std}(λ(t))$ for $N=%$N_val$ " * " \n " * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
     xlabel=L"\frac{t}{L^z}",
-    ylabel=L"Var(λ)"
+    ylabel=L"\mathrm{Std}(λ)"
 )
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
@@ -225,7 +225,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     for a_val in a_vals_to_plot
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         plot!((trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) ./ (L^z_collapse_val),
-            (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+            (collected_lambda_STD_series[L][a_val])[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="L = $L",
             color=c)
@@ -239,9 +239,9 @@ println("Saved Plot: $(zoomed_col_t_plot_path).png")
 display(plt)
 
 plt = plot(
-    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    title=L"Collapsed $\mathrm{Std}(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
     xlabel=L"\frac{t}{L^z}",
-    ylabel=L"Var(λ)"
+    ylabel=L"\mathrm{Std}(λ)"
 )
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     c = blue_palette[i]
@@ -249,7 +249,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     for a_val in a_vals_to_plot
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         plot!((1:num_time_steps) ./ (L^z_collapse_val),
-            (collected_lambda_STD_series[L][a_val].^2), 
+            (collected_lambda_STD_series[L][a_val]), 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="L = $L",
             color=c)
@@ -268,9 +268,9 @@ display(plt)
 a_vals_to_plot = [0.7616]
 
 plt = plot(
-    title=L"Collapsed $Var(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
-    xlabel=L"log(\frac{t}{L^z})",
-    ylabel=L"Var(λ)"
+    title=L"Collapsed $\mathrm{Std}(λ(t))$ for $N=%$N_val$" * "\n" * L"$t_f=L^{%$(z_val)}$ | $z=%$(z_collapse_val)$",
+    xlabel=L"\mathrm{log}(\frac{t}{L^z})",
+    ylabel=L"\mathrm{Std}(λ)"
 )
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
@@ -278,7 +278,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
     for a_val in a_vals_to_plot
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         plot!(log.(trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) .- log(L^z_collapse_val),
-            (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+            (collected_lambda_STD_series[L][a_val])[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
             # yerror=collected_lambda_STD_series[L][a_val],
             label="L = $L",
             color=c)
@@ -295,31 +295,31 @@ println("Saved Plot: $(log_col_t_plot_path).png")
 
 inset_log_lin = plot(
     title="",
-    xlabel=L"log(t)",
-    ylabel=L"Var(λ)"
+    xlabel=L"\mathrm{log}(t)",
+    ylabel=L"\mathrm{Std}(λ)"
 )
 
-plt_combined_log_lin = plot(log_plt, inset_subplots = [(inset_log_lin, bbox(0.25, 0.1, 0.55, 0.5))])
+plt_combined_log_lin = plot(log_plt, inset_subplots = [(inset_log_lin, bbox(0.26, 0.1, 0.5, 0.45))])
 
 # Plot data for each L
-for (i, L) in enumerate(reverse(num_unit_cells_vals * N_val))
+for (i, L) in enumerate(num_unit_cells_vals * N_val)
     L = Int(L)
-    c = blue_palette[end-i+1]
+    c = blue_palette[i]
     for a_val in a_vals_to_plot
         num_time_steps = length(collected_lambda_STD_series[L][a_val])
         plot!(plt_combined_log_lin[2], log.(trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])) .- log(L^z_collapse_val),
-            (collected_lambda_STD_series[L][a_val].^2)[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
+            (collected_lambda_STD_series[L][a_val])[trunc(Int, num_time_steps*peak_frac_lims[1]):trunc(Int, num_time_steps*peak_frac_lims[2])], 
             # yerror=collected_lambda_STD_series[L][a_val],
             # label="L = $L",
             color=c)
     end
 end
 
-plot!(plt_combined_log_lin[2], xlabel=L"log($t/L^z$)",
-    ylabel=L"Var(λ)", xticks=[], yticks=[], guidefont = font(12), legend=nothing, framestyle = :box,)
+plot!(plt_combined_log_lin[2], xlabel=L"$\mathrm{log}(t/L^z)$",
+    ylabel=L"\mathrm{Std}(λ)", xticks=[], yticks=[], guidefont = font(12), legend=nothing, framestyle = :box,)
 
-fss_loglin_inset_scaled_var_lambda_per_a_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/inset_log_collapsed_std_lambda_per_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)"
-make_path_exist(fss_loglin_inset_scaled_var_lambda_per_a_plot_path)
-savefig(plt_combined_log_lin, fss_loglin_inset_scaled_var_lambda_per_a_plot_path)
-println("Saved Plot: $(fss_loglin_inset_scaled_var_lambda_per_a_plot_path)")
+fss_loglin_inset_scaled_std_lambda_per_a_plot_path = "figs/lambda_per_t/N$(N_val)/SeveralAs/IC$num_initial_conds/LSeveral/inset_log_collapsed_std_lambda_per_t_N$(N_val)_ar$(replace("$(minimum(a_vals_to_plot))_$(maximum(a_vals_to_plot))", "." => "p"))_IC$(num_initial_conds)_z$(z_val_name)"
+make_path_exist(fss_loglin_inset_scaled_std_lambda_per_a_plot_path)
+savefig(plt_combined_log_lin, fss_loglin_inset_scaled_std_lambda_per_a_plot_path)
+println("Saved Plot: $(fss_loglin_inset_scaled_std_lambda_per_a_plot_path)")
 display(plt_combined_log_lin)

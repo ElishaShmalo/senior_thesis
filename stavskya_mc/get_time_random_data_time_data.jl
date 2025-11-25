@@ -37,8 +37,6 @@ addprocs(SlurmManager())
     time_step = 10
 end
 
-collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
-
 @time begin
     
 # get all the data

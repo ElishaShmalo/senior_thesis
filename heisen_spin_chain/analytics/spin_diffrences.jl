@@ -6,6 +6,10 @@ function weighted_spin_difference(spin_chain::Vector{Vector{Float64}}, s_0::Vect
     return mean(map(norm, spin_chain .- s_0))
 end
 
+function weighted_spin_difference_vs_time(spin_chain_vs_time::Vector{Vector{Vector{Float64}}}, s_0::Vector{Vector{Float64}})
+    return map(sc -> weighted_spin_difference(sc, s_0), spin_chain_vs_time)
+end
+
 function get_delta_spin(spin_chain1::Vector{Vector{Float64}}, spin_chain2::Vector{Vector{Float64}})
     return map(norm, spin_chain1-spin_chain2)
 end
