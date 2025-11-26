@@ -24,15 +24,15 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [6_000, 8_000, 10_000, 12_000]
-    epsilon_prime_vals = [round(0.291 + 0.0001 * i, digits=4) for i in 0:60]
+    L_vals = [500, 1000, 2000, 4000, 8000, 16000, 32_000]
+    epsilon_prime_vals = [round(0.253 + 0.0001 * i, digits=4) for i in -60:60]
 
     time_prefact = 200
 
-    num_initial_conds = 500
+    num_initial_conds = 1000
     initial_state_prob = 0.5
 
-    delta_vals = [0.0001, 0.001, 0.01, 0.1]
+    delta_vals = [0.2]
 end
 
 @time begin

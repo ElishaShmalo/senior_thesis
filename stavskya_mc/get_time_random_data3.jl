@@ -24,19 +24,21 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [500, 1000, 2000, 4000, 8000, 16000, 32_000]
-    epsilon_prime_vals = [round(0.286 + 0.0001 * i, digits=4) for i in -60:60]
+    L_vals = [8_000]
+    epsilon_prime_vals = [round(0.1 + 0.001 * i, digits=4) for i in 1:200]
 
     time_prefact = 200
 
-    num_initial_conds = 1000
+    num_initial_conds = 500
     initial_state_prob = 0.5
 
-    delta_vals = [0.1]
+    delta_vals = [0.3, 0.4]
 end
 
-@time begin
-    
+collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
+
+@time begin 
+
 # get all the data
 for L_val in L_vals
     println("L_val: $(L_val)")
