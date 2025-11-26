@@ -73,7 +73,7 @@ for num_unit_cells in num_unit_cells_vals
 
                 evolved_results = states_evolve_func(J_vec, spin_chain_A, a_val, n, J, S_NAUGHT)
 
-                current_sdiffs = weighted_spin_difference_vs_time(spin_chain_A, S_NAUGHT)
+                current_sdiffs = weighted_spin_difference_vs_time(evolved_results, S_NAUGHT)
 
                 sample_filepath = "data/s_diff_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
