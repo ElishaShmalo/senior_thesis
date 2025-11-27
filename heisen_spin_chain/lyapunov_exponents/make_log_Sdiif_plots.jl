@@ -244,49 +244,58 @@ plt = plot(
     xlims=x_lims,
     legend=:bottomleft
 )
-
 # Plot data for each a_val
-for (i,a_val) in enumerate(a_vals_to_plot)
+for (i, a_val) in enumerate(a_vals_to_plot)
     c = Plots.palette(:auto)[i]
 
-    plot!(plt, log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, 350)]),
-    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, 350)],
-        label="a = $(a_val)",
-        linestyle=:solid,
-        linewidth=1,
-        color = c,          # sets line color
-        seriescolor = c,    # ensures error bars match
-        markerstrokecolor = c)
+    # Extract main curve and error
+    ys   = log.(collected_S_diffs[L_val_to_plot][a_val][1:round(Int, 350)])
+    yerr = collected_log_S_diff_errs[L_val_to_plot][a_val][1:round(Int, 350)]
+    xs   = 1:length(ys)
 
+    # Plot with shaded error band
+    plot!(
+        plt,
+        xs, ys,
+        ribbon = yerr,           # <-- shaded uncertainty band
+        fillalpha = 0.25,        # transparency level (adjust as needed)
+        label = "a = $(a_val)",
+        linestyle = :solid,
+        linewidth = 2,
+        color = c,
+        seriescolor = c,
+        markerstrokecolor = c,
+    )
+
+    # Fitted line
     if a_val in fitted_a_vals
-
-        xs = 1:x_lims[2]
-
-        plot!(plt, xs, 
-            all_log_s_diff_offsets[L_val_to_plot][a_val] .+ (all_log_s_diff_slopes[L_val_to_plot][a_val] .* (xs .- 5)),
-            linestyle=:dash,
-            label=nothing,
-            linewidth=3,
-            color = c,          # sets line color
-            seriescolor = c,    # ensures error bars match
-            markerstrokecolor = c
-            )
+        xs_fit = 1:x_lims[2]
+        plot!(
+            plt,
+            xs_fit,
+            all_log_s_diff_offsets[L_val_to_plot][a_val] .+
+            all_log_s_diff_slopes[L_val_to_plot][a_val] .* (xs_fit .- 5),
+            linestyle = :dash,
+            label = nothing,
+            linewidth = 3,
+            color = c,
+        )
     end
 
+    # Shoulder line
     if a_val in keys(sholder_a_vals)
-
-        xs = 1:x_lims[2]
+        xs_sh = 1:x_lims[2]
         log_a_val = log(a_val)
         offset = sholder_a_vals[a_val]
-        plot!(plt, xs, 
-            xs .* log_a_val .+ offset,
-            linestyle=:dashdotdot,
-            linewidth=3,
-            label=nothing,
-            color = c,          # sets line color
-            seriescolor = c,    # ensures error bars match
-            markerstrokecolor = c
-            )
+        plot!(
+            plt,
+            xs_sh,
+            xs_sh .* log_a_val .+ offset,
+            linestyle = :dashdotdot,
+            linewidth = 3,
+            label = nothing,
+            color = c,
+        )
     end
 end
 

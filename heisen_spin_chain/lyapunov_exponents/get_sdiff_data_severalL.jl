@@ -77,7 +77,7 @@ for num_unit_cells in num_unit_cells_vals
 
                 sample_filepath = "data/s_diff_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
-                df = DataFrame("t" => 1:n, "s_diff" => current_sdiffs)
+                df = DataFrame("t" => 1:n, "s_diff" => current_sdiffs[1:n])
                 CSV.write(sample_filepath, df)
             end
         end
