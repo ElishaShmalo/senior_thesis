@@ -244,6 +244,11 @@ plt = plot(
     xlims=x_lims,
     legend=:bottomleft
 )
+annotate!(
+    plt,
+    (-0.155,1.01),
+    text("(a)", :left, :top, 22)
+)
 # Plot data for each a_val
 for (i, a_val) in enumerate(a_vals_to_plot)
     c = Plots.palette(:auto)[i]

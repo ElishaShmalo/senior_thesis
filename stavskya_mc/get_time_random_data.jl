@@ -25,7 +25,7 @@ addprocs(SlurmManager())
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [500, 1000, 2000, 4000, 8000, 16000, 32_000]
-    epsilon_prime_vals = [round(0.253 + 0.0001 * i, digits=4) for i in -60:60]
+    epsilon_prime_vals = [round(0.286 + 0.0001 * i, digits=4) for i in -60:60]
 
     time_prefact = 200
 
@@ -64,7 +64,7 @@ for L_val in L_vals
             end
 
             # Save init cond data as csv
-            sample_filepath = "stavskya_mc/data/time_rand_delta/rho_per_epsilon/IC1/L$(L_val)/delta$(delta_val_name)/IC1_L$(L_val)_epsilon$(epsilon_val_name).csv"
+            sample_filepath = "stavskya_mc/data/time_rand_delta/rho_per_epsilon/IC1/L$(L_val)/delta$(delta_val_name)/IC$(num_initial_conds)_L$(L_val)_epsilon$(epsilon_val_name).csv"
             make_path_exist(sample_filepath)
             df = DataFrame("sample" => 1:num_initial_conds, "rho" => all_init_outputs)
             CSV.write(sample_filepath, df)

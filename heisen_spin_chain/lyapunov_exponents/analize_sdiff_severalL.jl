@@ -131,6 +131,11 @@ s_diff_plt = plot(
     xlabel=L"a",
     ylabel=L"S_{\mathrm{diff}}(t=L^{ %$(z_val) })"
 )
+annotate!(
+    s_diff_plt,
+    (-0.21,1.02),
+    text("(c)", :left, :top, 22)
+)
 plot!(s_diff_plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 L_vals_to_plot = Int.(round.(num_unit_cells_vals * N_val))
 # Plot data for each a_val
@@ -754,7 +759,7 @@ for L_val in N_val .* num_unit_cells_vals
     end
 end
 
-# Plot(Verify) the fits
+# Plot (Verify) the fits
 fitted_a_vals_to_plot = [val for val in a_vals if 0.76 <= val <= 0.7605]
 fitted_a_vals_to_plot = [0.69]
 # Plot data for each L
@@ -917,6 +922,7 @@ plt_xi_main = plot(
     xlabel=L"a",
     ylabel=L"$ξ_τ$"
 )
+
 plot!(plt_xi_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -1089,6 +1095,11 @@ plt_log_lin = plot(
     title=L"$\log(ξ_τ)$",
     xlabel=L"$a$",
     ylabel=L"$\log(ξ_τ)$"
+)
+annotate!(
+    plt_log_lin,
+    (-0.155,1.01),
+    text("(b)", :left, :top, 22)
 )
 plot!(plt_log_lin, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L

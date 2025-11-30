@@ -24,8 +24,8 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [500, 1000, 2000, 4000, 8000, 16000, 32_000]
-    epsilon_prime_vals = [round(0.286 + 0.0001 * i, digits=4) for i in -60:60]
+    L_vals = [32_000]
+    epsilon_prime_vals = [0.2855, 0.2856, 0.2857, 0.2858, 0.2859, 0.286, 0.2861, 0.2862, 0.2863, 0.2864, 0.2865, 0.2866, 0.2867, 0.2868, 0.2869, 0.287, 0.2871, 0.2872, 0.2873, 0.2874, 0.2875, 0.2876, 0.2877, 0.2878, 0.2879, 0.288, 0.2881, 0.2882, 0.2883, 0.2884, 0.2885, 0.2886, 0.2887, 0.2888, 0.2889, 0.289, 0.2891, 0.2892, 0.2893, 0.2894, 0.2895, 0.2896, 0.2897, 0.2898, 0.2899, 0.29, 0.2901, 0.2902, 0.2903, 0.2904, 0.2905, 0.2906, 0.2907, 0.2908, 0.2909, 0.291, 0.2911, 0.2912, 0.2913, 0.2914, 0.2915, 0.2916, 0.2917, 0.2918, 0.2919, 0.292]
 
     time_prefact = 200
 
@@ -64,7 +64,7 @@ for L_val in L_vals
             end
 
             # Save init cond data as csv
-            sample_filepath = "stavskya_mc/data/time_rand_delta/rho_per_epsilon/IC1/L$(L_val)/delta$(delta_val_name)/IC1_L$(L_val)_epsilon$(epsilon_val_name).csv"
+            sample_filepath = "stavskya_mc/data/time_rand_delta/rho_per_epsilon/IC1/L$(L_val)/delta$(delta_val_name)/IC$(num_initial_conds)_L$(L_val)_epsilon$(epsilon_val_name).csv"
             make_path_exist(sample_filepath)
             df = DataFrame("sample" => 1:num_initial_conds, "rho" => all_init_outputs)
             CSV.write(sample_filepath, df)

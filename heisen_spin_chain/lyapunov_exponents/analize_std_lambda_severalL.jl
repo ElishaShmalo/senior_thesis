@@ -184,6 +184,11 @@ avraging_window_name = replace("$(round(avraging_window, digits=3))", "." => "p"
 # --- Save the plot ---
 println("Making Plot")
 plt = plot(xlims=[0.695, 0.8025])
+annotate!(
+    plt,
+    (-0.19,1.01),
+    text("(a)", :left, :top, 20)
+)
 plot_path = "N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/lambda_per_a_N$(N_val)_ar$(replace("$(minimum(a_vals))_$(maximum(a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name)_AW$avraging_window_name"
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 for (i, L) in enumerate(num_unit_cells_vals * N_val)
@@ -495,7 +500,11 @@ plt_main = plot(
     ylabel = L"$\mathrm{Std}(λ)$",
     xlims = [0.719, 0.801],
 )
-
+annotate!(
+    plt_main,
+    (-0.18,1.01),
+    text("(b)", :left, :top, 20)
+)
 plot!(plt_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 
 
