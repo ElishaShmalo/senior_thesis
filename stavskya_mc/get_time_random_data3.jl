@@ -26,14 +26,14 @@ addprocs(SlurmManager())
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [8_000]
     # epsilon_prime_vals = [round(0.252 + 0.0001 * i, digits=4) for i in -40:40]
-    epsilon_prime_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350]))
+    epsilon_prime_vals = sort(union([round(0.1 + 0.001 * i, digits=4) for i in 0:200]))
 
     time_prefact = 200
 
     num_initial_conds = 1000
     initial_state_prob = 0.5
 
-    delta_vals = [0.1, 0.15, 0.2, 0.21, 0.25, 0.3, 0.35, 0.4]
+    delta_vals = [0.25, 0.35]
 end
 
 collected_rhos = Dict{Int, Dict{Float64, Vector{Float64}}}()
