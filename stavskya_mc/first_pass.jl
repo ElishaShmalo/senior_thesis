@@ -20,8 +20,10 @@ addprocs(SlurmManager())
     include("utils/dynamics.jl")
 
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
-    L_vals = [500, 1000, 2000, 4000, 8000, 16_000]
+    L_vals = [32000]
+    trans_window = [0.2935, 0.2955]
     epsilon_vals = sort(union([round(0.001 * i, digits=4) for i in 0:350], [round(0.291 + 0.0001 * i, digits=4) for i in 0:61]))
+    epsilon_vals = [e_v for e_v in epsilon_vals if trans_window[1] - 0.0001 <=e_v <= trans_window[2] + 0.0001]
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:350]
     # epsilon_vals = [round(0.001 * i, digits=4) for i in 0:10]
 

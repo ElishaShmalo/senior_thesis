@@ -6,7 +6,7 @@ using DifferentialEquations
 using StaticArrays
 using Serialization
 using Statistics
-using  LaTeXStrings
+using LaTeXStrings
 
 # Other files   
 include("utils/make_spins.jl")

@@ -55,6 +55,9 @@ z_fit_name = replace("$z_fit_val", "." => "p")
 collected_S_diffs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
 collected_S_diff_SEMs = Dict{Int, Dict{Float64, Vector{Float64}}}() # Int: L_val, Float64: a_val, Vec{Float64}: avrg S_diff(t)
 
+parent_data_path = "data"
+parent_data_path = "/Volumes/ExternalData"
+
 # --- Load in and take avrages from all samples ---
 for num_unit_cells in num_unit_cells_vals
     L = num_unit_cells * N_val
@@ -78,7 +81,7 @@ for num_unit_cells in num_unit_cells_vals
 
         for init_cond in 1:num_initial_conds
 
-            sample_filepath = "data/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
+            sample_filepath = "$(parent_data_path)/spin_dists_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_z$(z_val_name)_sample$(init_cond).csv"
             df = CSV.read(sample_filepath, DataFrame)
 
             current_S_diffs[init_cond] = df[!, "delta_s"][1:n]
@@ -918,9 +921,9 @@ end
 
 # Create plot
 plt_xi_main = plot(
-    title=L"$ξ_τ$ As Func of a",
+    title=L"$\xi_t$ As Func of a",
     xlabel=L"a",
-    ylabel=L"$ξ_τ$"
+    ylabel=L"$\xi_t$"
 )
 
 plot!(plt_xi_main, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
@@ -956,9 +959,9 @@ z, z_err = 1.65, 0.1
 
 # Create plot
 plt = plot(
-    title=L"Scaled $ξ_τ$ $(z=%$(round(z, digits=3)),ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    title=L"Scaled $\xi_t$ $(z=%$(round(z, digits=3)),ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
     xlabel=L"$(a - a_c)L^{1/ν}$",
-    ylabel=L"$ξ_τ / L^{z}$"
+    ylabel=L"$\xi_t / L^{z}$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 
@@ -1016,7 +1019,7 @@ end
 plot!(plt_xi_combined[2], xticks = [], yticks = [], 
     legend = false,
     framestyle = :box,
-    ylabel=L"$ξ_τ / L^{z}$", xlabel=L"$(a - a_c)L^{1/ν}$",
+    ylabel=L"$\xi_t / L^{z}$", xlabel=L"$(a - a_c)L^{1/ν}$",
     guidefont = font(12))
 
 plot!(plt_xi_combined[1])
@@ -1031,9 +1034,9 @@ display(plt_xi_combined)
 # Plotting log-log
 # Create plot
 plt = plot(
-    title=L"$\log(ξ_τ)$",
+    title=L"$\log(\xi_t)$",
     xlabel=L"$\log(a)$",
-    ylabel=L"$\log(ξ_τ)$"
+    ylabel=L"$\log(\xi_t)$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1062,9 +1065,9 @@ display(plt)
 # Plotting log-log of the collapse
 # Create plot
 plt = plot(
-    title=L"FSS $\log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    title=L"FSS $\log(\xi_t)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
     xlabel=L"$\log(|a - a_c|L^{1/ν})$",
-    ylabel=L"$\log(ξ_τ / L^{z})$"
+    ylabel=L"$\log(\xi_t / L^{z})$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1092,9 +1095,9 @@ display(plt)
 # Plotting log-lin
 # Create plot
 plt_log_lin = plot(
-    title=L"$\log(ξ_τ)$",
+    title=L"$\log(\xi_t)$",
     xlabel=L"$a$",
-    ylabel=L"$\log(ξ_τ)$"
+    ylabel=L"$\log(\xi_t)$"
 )
 annotate!(
     plt_log_lin,
@@ -1129,9 +1132,9 @@ display(plt_log_lin)
 
 # Create plot
 plt = plot(
-    title=L"FSS $\log(ξ_τ)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
+    title=L"FSS $\log(\xi_t)$ $(z=%$(round(z, digits=3)), ν = %$(round(nu, digits = 3)),a_c = %$(round(a_crit, digits = 4)))$",
     xlabel=L"$(a - a_c)L^{1/ν}$",
-    ylabel=L"$\log(ξ_τ / L^{z})$"
+    ylabel=L"$\log(\xi_t / L^{z})$"
 )
 plot!(plt, [NaN], [NaN], label = "L =", linecolor = RGBA(0,0,0,0))
 # Plot data for each L
@@ -1177,7 +1180,7 @@ for (i, L) in enumerate(num_unit_cells_vals * N_val)
         markerstrokecolor = c)
 end
 
-plot!(plt_combined_log_lin[2], ylabel=L"$\log(ξ_τ / L^{z})$", xlabel=L"$(a - a_c)L^{1/ν}$", guidefont = font(12), xticks=[], yticks=[], legend=nothing, framestyle = :box,)
+plot!(plt_combined_log_lin[2], ylabel=L"$\log(\xi_t / L^{z})$", xlabel=L"$(a - a_c)L^{1/ν}$", guidefont = font(12), xticks=[], yticks=[], legend=nothing, framestyle = :box,)
 
 fss_loglin_inset_scaled_decay_per_a_plot_path = "figs/decay_per_a/N$(N_val)/SeveralAs/IC$num_initial_conds/SeveralLs/inset_fss_loglin_scaled_decay_per_a_N$(N_val)_ar$(replace("$(minimum(decay_a_vals))_$(maximum(decay_a_vals))", "." => "p"))_IC$(num_initial_conds)_L$(join(N_val .* num_unit_cells_vals))_z$(z_fit_name).png"
 make_path_exist(fss_loglin_inset_scaled_decay_per_a_plot_path)
