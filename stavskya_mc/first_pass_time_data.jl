@@ -31,7 +31,7 @@ addprocs(SlurmManager())
     num_initial_conds = 2000
     initial_state_prob = 0.5
 
-    time_step = 50
+    time_step = 10
 end
 
 @time begin

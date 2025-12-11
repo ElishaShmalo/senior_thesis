@@ -34,7 +34,7 @@ addprocs(SlurmManager())
 
     delta_vals = [0.1]
 
-    time_step = 50
+    time_step = 10
 end
 
 @time begin
