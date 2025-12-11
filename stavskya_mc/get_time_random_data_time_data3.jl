@@ -29,7 +29,7 @@ addprocs(SlurmManager())
     epsilon_prime_vals = [epsilon_prime_c - 0.0002, epsilon_prime_c - 0.0001, epsilon_prime_c + 0.0001, epsilon_prime_c + 0.0002]
     
     
-    time_prefact = 5000
+    time_prefact = 100
     
     num_initial_conds = 1000
     initial_state_prob = 0.5

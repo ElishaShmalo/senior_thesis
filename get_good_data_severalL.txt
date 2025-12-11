@@ -1,26 +1,32 @@
-for delta_val in delta_vals:
-    fig,ax=plt.subplots()
-    for L in L_vals:
-        df_=df_to_collapse[delta_val].xs(L,level='L')['observations'] 
-        y=df_.apply(np.mean)
-        y = y.sort_index()
-        yerr=(df_.apply(np.std).sort_index())/np.sqrt(df_.apply(len))
-        xs = y.index.to_list()
-        ax.errorbar(xs, y.values.tolist(),yerr, label=f'L={L}',capsize=3)
-    ax.legend()
-    ax.set_xlabel('p')
-    ax.set_ylabel('y')
+plt.plot([], [], c = (0, 0, 0, 0), label=r"$a = $")
+    t_limit = int(L_val_to_plot ** 1.6)
+    for i, a_val in enumerate(a_vals):
+        c = cmap[i]
+        s_diff_data = np.array(s_diffs_per_time[(L_val_to_plot, a_val)])
+        log_sdiff_err = (1/s_diff_data) * np.array(s_errs_per_time[(L_val_to_plot, a_val)])
 
-for delta_val in delta_vals:
-    fig,ax=plt.subplots()
-    for L in L_vals:
-        df_=df_to_collapse[delta_val].xs(L,level='L')['observations'] 
-        data=df_.apply(np.mean).sort_index()
-        y = np.array(data.values.tolist())
-        xs = np.array(data.index.to_list())
-        yerr=np.array((df_.apply(np.std).sort_index())/np.sqrt(df_.apply(len))) * 0
-        ax.errorbar(((xs - dc_res[delta_val][0].p_c) * L ** (1/dc_res[delta_val][0].nu)), y * L ** (dc_res[delta_val][0].beta / dc_res[delta_val][0].nu),yerr, label=f'L={L}',capsize=3)
-    plt.axvline(0.29450750, c = 'k', label=f"x = 0.29450750 (old trans)")
-    ax.legend()
-    ax.set_xlabel('p')
-    ax.set_ylabel('y')
+        times = [i for i in range(len(s_diff_data))][1:t_limit]
+        
+        # Plot actuall data
+        plt.plot(times, np.log(s_diff_data[1:t_limit]), label=f"{a_val}", color=c, linewidth=4, alpha=0.5)
+        plt.fill_between(times,
+                         (np.log(s_diff_data) + log_sdiff_err)[1:t_limit],
+                         (np.log(s_diff_data) - log_sdiff_err)[1:t_limit], color=c, alpha=0.25)
+        offset = slope_fits[(L_val_to_plot, a_val)][1]
+        slope = slope_fits[(L_val_to_plot, a_val)][0]
+        slope_err = slope_fits[(L_val_to_plot, a_val)][2]
+        print(a_val, slope)
+        plt.plot(times, slope * np.array(times) + offset, color=c, linestyle = "--", linewidth=2, dashes=(5, 5))
+        plt.fill_between(times,
+                         ((slope+slope_err) * np.array(times) + offset),
+                         ((slope-slope_err) * np.array(times) + offset), color=c, alpha=0.25)
+    plt.ylim(-500,0)
+    plt.title(rf"$L = {L_val_to_plot}$, $\epsilon = 10^{{-5}}$")
+    plt.legend()
+    plt.xlabel(r"$t$")
+    plt.ylabel(r"$\log(S_{\mathrm{diff}})$")
+    parent_path = "../figs/other/"
+    os.makedirs(parent_path, exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(f"{parent_path}s_diff_at_const_dists_inset_L{L_val_to_plot}.png")
+    plt.show()
