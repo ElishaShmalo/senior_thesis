@@ -28,7 +28,7 @@ addprocs(SlurmManager())
     epsilon_vals = [0.2943, 0.2944, 0.2945, 0.2946, 0.2947]
     time_prefact = 100
     
-    num_initial_conds = 4000
+    num_initial_conds = 2000
     initial_state_prob = 0.5
 
     time_step = 50
