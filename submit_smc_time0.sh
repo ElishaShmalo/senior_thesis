@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
- ~/.juliaup/bin/julia stavskya_mc/get_time_random_data_time_data2.jl
+ ~/.juliaup/bin/julia stavskya_mc/first_pass_time_data.jl
 
