@@ -26,7 +26,7 @@ addprocs(SlurmManager())
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [20000]
     epsilon_prime_c = 0.287808
-    epsilon_prime_vals = [round(epsilon_prime_c + 0.000025 * i, digits = 6) for i in -2:2]
+    epsilon_prime_vals = [round(epsilon_prime_c + 0.000025 * i, digits = 6) for i in -3:2]
 
     time_prefact = 100
     
