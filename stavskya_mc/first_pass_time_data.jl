@@ -1,10 +1,6 @@
 using Distributed
 using SlurmClusterManager
 
-# The way this works is we fix epsilon_prime range from 0 to 1
-# Each timestep, epsilon = epsilon_prime +/- [-delta, delta]
-# And we varry delta
-
 println("We are adding $(SlurmManager()) workers")
 addprocs(SlurmManager())
 
