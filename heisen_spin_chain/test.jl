@@ -1,0 +1,2 @@
+data/delta_evolved_spins/N5/a0p1/IC1/L500/N5_a0p1_IC1_L500_rand0_seksolNumOff50_EppOff0p01_true_rand_avg.dat
+data/delta_evolved_spins/N6/a0p1/IC1/L600/N6_a0p1_IC1_L600_rand0_seksolNumOff60_EppOff0p01_true_rand_avg.dat

@@ -1,0 +1,56 @@
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/data/delta_evolved_spins/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/delta_evolved_spins/
+
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/data/delta_evolved_spins/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/delta_evolved_spins/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/data/spin_dists_per_time/ && tar czf - N4/a0p62/ ." | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/data_temp 
+
+ssh es1074@amarel.rutgers.edu \
+"cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar czf - ." \
+| pv -brt \
+| tar xzf - -C /Volumes/ExternalData/stavskya_mc/data_temp/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/spin_dists_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/spin_dists_per_time/
+
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/data/spin_dists_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/spin_dists_per_time/
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/data/spin_dists_per_time/N4/a0p7/IC1 && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/spin_dists_per_time/N4/a0p7/IC1/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/data/det_spin_dists_per_time/ && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/det_spin_dists_per_time
+
+
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/data/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/
+
+
+rsync --bwlimit=20M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/rho_per_time/ /Volumes/ExternalData/stavskya_mc/data/rho_per_time/
+rsync --bwlimit=20M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_time/ /Volumes/ExternalData/stavskya_mc/data/time_rand_delta/rho_per_time/
+
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_time/ && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_delta/rho_per_time/
+
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_epsilon/
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/stavskya_mc/data/time_rand_binary/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_binary/rho_per_epsilon/
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_n/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_n/rho_per_epsilon/
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/stavskya_mc/data/time_rand_gauss/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_gauss/rho_per_epsilon/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/data/time_rand_gauss/rho_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_gauss/rho_per_time
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/stavskya_mc/data/time_rand_gauss/rho_per_epsilon/ /Users/elishashmalo/PycharmProjects/senior_thesis/stavskya_mc/data/time_rand_gauss/rho_per_epsilon/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_delta/rho_per_time
+rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_delta/rho_per_time/ /Volumes/ExternalData/stavskya_mc/data/time_rand_delta/rho_per_time/
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data/time_rand_n/rho_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_n/rho_per_time
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/data/s_diff_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/s_diff_per_time
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/data/time_rand_binary/rho_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_binary/rho_per_time
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/data/time_rand_n/rho_per_time && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_n/rho_per_time
+
+
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/data/delta_evolved_spins && tar czf - ." | pv -brt | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/delta_evolved_spins

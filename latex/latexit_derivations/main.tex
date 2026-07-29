@@ -1,0 +1,261 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\[
+H = \sum_{i=1}^L [J_xS_i^xS_{i+1}^x + J_yS_i^yS_{i+1}^y + J_zS_i^zS_{i+1}^z]
+\]
+
+\[
+1-\rho = 1 - \frac{1}{L}\sum_{i=1}^L \eta_i(t)
+\]
+
+\[
+\mathbf{S}_j^0 := (0, \cos(\pi j /2), \sin(\pi j/2))
+\]
+
+\[
+\dot{S}_n^{\alpha} = \{S_n^{\alpha}, H\} = \{S_n^{\alpha}, \sum_{i=1}^L [J_xS_i^xS_{i+1}^x + J_yS_i^yS_{i+1}^y + J_zS_i^zS_{i+1}^z]\}
+\]
+
+\[
+\{S_n^{\alpha}, \sum_{i=1}^L [J_xS_i^xS_{i+1}^x + J_yS_i^yS_{i+1}^y + J_zS_i^zS_{i+1}^z]\} = \sum_{i=1}^L[J_x\{S_n^{\alpha}, S_i^xS_{i+1}^x\} + J_y\{S_n^{\alpha}, S_i^yS_{i+1}^y\} + J_z\{S_n^{\alpha}, S_i^zS_{i+1}^z\}]
+\]
+
+\[
+\{S_n^\alpha, S_m^\beta S_l^\beta\} = \{S_n^\alpha, S_m^\beta \}S_l^\beta + S_m^\beta\{S_n^\alpha, S_l^\beta\}
+\]
+
+\[
+\{S_n^\alpha, S_m^\beta\}, \ \alpha,\beta \in \{x, y, z\} (\{1, 2, 3\})
+\]
+
+\[
+\mathbf{S}_i = \mathbf{r}_i \times \mathbf{p}_i = (r_i^yp_i^z - r_i^zp_i^y, r_i^zp_i^x - r_i^xp_i^z, r_i^xp_i^y - r_i^yp_i^x)
+\]
+
+\[
+\{S_n^\alpha, S_m^\beta\} = 0, \text{ if } n \neq m
+\]
+
+\[
+\{S_n^\alpha, S_m^\beta\} = \sum_{i=1}^L\sum_{q \in \{x, y, z\}} \partial_{r_i^q}S_n^\alpha\partial_{p_i^q}S_m^\beta - \partial_{p_i^q}S_n^\alpha\partial_{r_i^q}S_m^\beta
+\]
+
+\[
+\{S_n^\alpha, S_n^\beta\} = 0, \text{ if } \alpha = \beta
+\]
+
+\[
+\dot{S}_n^\alpha = J_x[\{S_n^\alpha, S_n^x\}(S_{n+1}^x + S_{n-1}^x)] + J_y[\{S_n^\alpha, S_n^y\}(S_{n+1}^y + S_{n-1}^y)] + J_z[\{S_n^\alpha, S_n^z\}(S_{n+1}^z + S_{n-1}^z)] 
+\]
+
+\[
+\dot{S}_n^x = J_y[\{S_n^x, S_n^y\}(S_{n+1}^y + S_{n-1}^y)] + J_z[\{S_n^x, S_n^z\}(S_{n+1}^z + S_{n-1}^z)] 
+\]
+
+\[
+\dot{S}_n^y = J_x[\{S_n^y, S_n^x\}(S_{n+1}^x + S_{n-1}^x)] + J_z[\{S_n^y, S_n^z\}(S_{n+1}^z + S_{n-1}^z)] 
+\]
+
+\[
+\{S_n^x, S_n^y\} = p_n^yr_n^x - p_n^xr_n^y = S_n^z
+\]
+
+\[
+\{S_n^x, S_n^z\} = p_n^zr_n^x - p_n^xr_n^z = - S_n^y
+\]
+
+\[
+\{S_n^y, S_n^z\} = S_n^x
+\]
+
+\[
+\{S_n^\alpha, S_n^\beta\} = \epsilon_{\alpha \beta \gamma}S_n^\gamma
+\]
+
+\[
+\dot{S}_n^x = S_n^z[J_y(S_{n+1}^y + S_{n-1}^y)] - S_n^y[J_z(S_{n+1}^z + S_{n-1}^z)] 
+\]
+
+\[
+\dot{S}_n^y = -S_n^z[J_x(S_{n+1}^x + S_{n-1}^x)] + S_n^x[J_z(S_{n+1}^z + S_{n-1}^z)] 
+\]
+
+\[
+\dot{S}_n^z = S_n^y[J_x(S_{n+1}^x + S_{n-1}^x)] - S_n^x[J_y(S_{n+1}^y + S_{n-1}^y)]
+\]
+
+\[
+\frac{d\mathbf{S}_i}{dt} = [\mathbf{J} \circ (\mathbf{S}_{i-1} + \mathbf{S}_{i+1})] \times \mathbf{S}_i
+\]
+
+\[
+s_i := S_i^x, \ S_i^y = f(s_i)\cos(\phi_i), \ S_i^z = f(s_i)\sin(\phi_i)
+\]
+
+\[
+f(x) := \sqrt{1-x^2}
+\]
+
+\[
+J_y = J_z = J
+\]
+
+\[
+\begin{aligned}
+    \dot{s}_i = f(s_i)J[&f(s_{i-1})\sin(\phi_i - \phi_{i-1}) \\
+                        + &f(s_{i+1})\sin(\phi_i - \phi_{i+1})] 
+\end{aligned}
+\]
+
+\[
+\dot{\phi}_i = -Jf'(s_i)&[f(s_{i+1})\cos(\phi_i - \phi_{i+1}) \\
+                                  & +f(s_{i-1})\cos(\phi_i - \phi_{i-1})] \\
+                                  & +J_x(s_{i+1} + s_{i-1})
+\]
+
+\[
+\mathbf{S}_j^0 = (0, \cos(2\pi j/N), \sin(2\pi j/ N))
+\]
+
+\[
+s_j^0 = 0, \ \phi_j^0 = 2\pi j/ N, \ f(s_i^0) = 1
+\]
+
+\[
+s_j = \delta s_j, \ \phi_j = 2\pi j + \delta \phi_j
+\]
+
+\[
+\dot{\delta s_j} = \dot{s_j} \approx J\cos(2\pi / N)[2\delta \phi_j - \delta \phi_{j+1} - \delta \phi_{j-1}]
+\]
+
+\[
+\dot{\delta\phi}_j = \dot{\phi}_j \approx -2J \delta s_j2\cos(2\pi / N) + J_x[\delta s_{j+1} + \delta s_{j-1}] 
+\]
+
+\[
+\delta s_j = \frac{1}{L} \sum_{k}\delta s_k e^{-ikj}
+\]
+
+\[
+\delta \phi_j = \frac{1}{L} \sum_{k}\delta \phi_k e^{-ikj}
+\]
+
+\[
+, \ k = \frac{2\pi n}{L}, \ n = 0, 1, ..., L-1
+\]
+
+\[
+\dot{\delta s}_k = 2J\cos(2\pi/N)[1- \cos(k)]\delta\phi_k
+\]
+
+ֿ\[
+\dot{\delta\phi}_k = (-2J\cos(2\pi/N) + 2J_x\cos k)\delta s_k
+\]
+
+\[
+\left(\begin{matrix}
+    \dot{\delta s}_k \\ \dot{\delta\phi}_k
+\end{matrix}\right) = \left(\begin{matrix}
+    0 & B(k, N) \\ A(k, N) & 0
+\end{matrix}\right) \left(\begin{matrix}
+    \delta s_k \\ \delta\phi_k
+\end{matrix}\right)
+\]
+
+\[
+B(k, N) = 2J\cos(2\pi/N)[1- \cos(k)]
+\]
+
+\[
+A(k, N) = (-2J\cos(2\pi/N) + 2J_x\cos k)
+\]
+
+\[
+\left(\begin{matrix}
+    \ddot{\delta s}_k \\ \ddot{\delta\phi}_k
+\end{matrix}\right) = A(k,N)B(k,N) \left(\begin{matrix}
+    \delta s_k \\ \delta\phi_k
+\end{matrix}\right)
+\]
+
+\[
+\left(\begin{matrix}
+    \ddot{\delta s}_k \\ \ddot{\delta\phi}_k
+\end{matrix}\right) = \lambda(k,N)^2 \left(\begin{matrix}
+    \delta s_k \\ \delta\phi_k
+\end{matrix}\right)
+\]
+
+\[
+\lambda(k,N)^2 = -4J\cos(2\pi/N)(J\cos(2\pi / N) - J_x\cos(k))(1-\cos k)
+\]
+
+\[
+\text{If } \lambda \text{ is positive, we have an exponential solutions } \delta s_k(t) = e^{\lambda(k, N)t}\delta s_k(0), \  \delta \phi_k(t) = e^{\lambda(k, N)t}\delta \phi_k(0).
+\]
+
+\[
+\text{Inspection of } \lambda \text{ shows that there exist stable modes for all } N.
+\]
+
+\[
+\text{If we preform the control map every unit tick of time, then it makes sense to write}
+\]
+
+\[
+\delta s_k(t) = (e^{\lambda(k, N)})^t\delta s_k(0), \  \delta \phi_k(t) = (e^{\lambda(k, N)})^t\delta \phi_k(0)
+\]
+
+\[
+\hat{C}\mathbf{S}_j(t) = \frac{(1-a)\mathbf{S}_j^0 + a\mathbf{S}_j(t)}{|(1-a)\mathbf{S}_j^0 + a\mathbf{S}_j(t)|}
+\]
+
+\[
+\text{To linear order } \hat{C}\delta s_k = a\delta s_k, \ \hat{C}\delta \phi_k = a\delta \phi_k
+\]
+
+\[
+\text{Thus the full evolution can be expressed as}
+\]
+
+\[
+\delta s_k(t) = (a e^{\lambda(k, N)})^t\delta s_k(0), \  \delta \phi_k(t) = (a e^{\lambda(k, N)})^t\delta \phi_k(0)
+\]
+
+\[
+\text{We can now naturally define the critical point to be } a_c, a e^{\max_k \lambda(k, N)} = 1
+\]
+
+\[
+1 - \rho(t;\Delta) \sim t^{-\beta/\nu_{\|}}f(\Delta t^{1/\nu_{\|}} , t/L^z)
+
+\]
+
+\[
+(1 - \rho(t;\Delta))t^{\delta} \sim f(\Delta t^{1/\nu_{\|}} , t/L^z)
+\]
+
+
+\[
+\begin{aligned}a_c &\approx 0.763 \pm 0.001 \\ \nu &\approx 2.0 \pm 0.2 \\ \beta &\approx 0.25 \pm 0.05\end{aligned}
+\]
+
+\[
+\begin{aligned}a_c &\approx 0.763 \pm 0.001 \\ \nu_{\perp} &\approx 2.0 \pm 0.2 \\ \beta &\approx 0.25 \pm 0.05 \\ z &\approx 1.65 \pm 0.1 \end{aligned}
+\]
+
+\[
+\begin{aligned}a_c &\approx 0.25375 \\ \nu_{\|} &\approx 2.15 \\ \beta &\approx 0.247 \\ z &\approx 1.4 \end{aligned}
+\]
+
+\[
+C(t) = \langle S_{\mathrm{diff}}(0)S_{\mathrm{diff}}(t)\rangle - \langle S_{\mathrm{diff}}(0)\rangle
+\langle S_{\mathrm{diff}}(t)\rangle
+\]
+
+\[
+\log_b(\frac{n(t/b)}{n(t)}) = \log_b(n(t/b)))-\log_b(n(t)) \sim \log_b(t^{-\delta}/b^{-\delta})-\log_b(t^{-\delta}) = \delta
+\]

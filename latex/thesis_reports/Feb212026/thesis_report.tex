@@ -1,0 +1,49 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{mathrsfs}
+
+\numberwithin{equation}{section}
+
+% Other packages...
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{\textbf{Honors in Physics Research Report}}
+\author{\textbf{Student}: Elisha Shmalo, \textbf{Mentor}: Dr. Jedediah H. Pixley}
+\date{Date: \today}
+\date{\textbf{Expected Graduation}: May 2026}
+\date{\textbf{Reaserch Project Title}: Universality class of control transition in Heizenberg Spin Chain}
+
+\geometry{left=1in, right=1in, top=1in, bottom=1in}
+\renewcommand{\baselinestretch}{1.25}
+
+\begin{document}
+
+\maketitle
+
+\textbf{I have emailed the final version of this report to my mentor:} We are studying a phase transition between overall 
+chaotic and controlled dynamics in a controlled Heizenberg spin chain. We have coompleted the process of 
+finding the critical exponents of the phase transition. Though we expected the transition to be of the Directed Percolation (DP)
+universality class, the critical exponents we found differ from those of (DP). This was suprising as we had 
+good reason to expect our transition to be DP. We recall now with seriousness our hamiltonian
+
+\begin{equation}
+    H = \sum_j (-\vec{J}(t) \circ \vec{S}_{j+1}) \cdot \vec{S}_j,
+\end{equation}
+
+in particular emphisizing that we made the $J_x, J_y$ coupling constants random in time (this was done to eliminate the 
+presense of solitons that appeared in the spin chain). This time randomness is a none trivial pertubation in the 
+sense of the Renormalization Group. It follows that it may be the reason our phase transition does not excibit the 
+know critical values of DP. We are now seeking to dertermine 
+if our phase transition belongs to a so called ``Time Random Directed Percolation" universality class. To do this we are 
+preturbing (randomly in time) the control parameter of Stavskaya's probabilistic cellular automaton (STPCA). STPCA is known to 
+be of the DP universality class. If the critical exponents of our random in time version of STPCA agree with the ones of 
+our controlled spin chain, it will give us good reason to expect that the phase transition we are studing belongs to a 
+``Time Random DP'' universality class. Finding a way to preturb STPCA to create time randomness similar to the kind in 
+our spin chain (and such that the phase transition is preserved) has proven to be a challange, and one that is the subject of present reaserch.
+In the end we plan to submit a manuscript of this work before the summer and we expect a publication.
+
+\end{document}

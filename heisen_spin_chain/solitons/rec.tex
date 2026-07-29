@@ -1,0 +1,754 @@
+%\documentclass{article}
+\documentclass[twocolumn,amsmath,amssymb,floatfix,superscriptaddress,aps,prl]{revtex4-2}
+
+% \documentclass[preprint,amsmath,amssymb,floatfix,superscriptaddress,prb]{revtex4-2}
+% \usepackage{subcaption}
+\usepackage{physics,comment}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{bm,graphicx,epsfig}
+\usepackage[usenames]{color}
+\usepackage[english]{babel}
+\usepackage{amsfonts,stmaryrd,amssymb,comment}
+\usepackage{enumerate} % Custom item numbers for enumerations
+\usepackage[ruled]{algorithm2e} % Algorithms
+\usepackage[framemethod=tikz]{mdframed} % Allows defining custom boxed/framed environments
+\usepackage{amsthm,amsmath,amssymb,amsfonts,graphicx,verbatim,xcolor,bm} % The basics
+% \usepackage{subcaption}
+% \usepackage[justification=RaggedRight]{caption}
+\usepackage[normalem]{ulem}
+
+\newcommand{\mk}[1]{\textcolor{red}{#1}}
+\newcommand{\elisha}[1]{\textcolor{orange}{#1}}
+\newcommand{\david}[1]{\textcolor{cyan}{#1}}
+
+\DeclareMathOperator{\sgn}{sgn}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{-4pt}
+
+
+\newcommand{\jp}[1]{\textcolor{blue}{#1}}
+
+\usepackage{graphicx,amsmath,comment} % Required for inserting images
+\usepackage[margin=1.0in]{geometry}
+\usepackage{comment,ulem,amsmath,bbm}
+
+
+\newcommand{\papertitle}{Control transition in a temporally random classical spin chain}
+
+\begin{document}
+
+\title{\papertitle}
+
+\author{Elisha Shmalo}
+\affiliation{Department of Physics and Astronomy, Center for Materials Theory, Rutgers University, Piscataway, New Jersey 08854, USA}
+
+\author{J. H. Pixley}
+\affiliation{Department of Physics and Astronomy, Center for Materials Theory, Rutgers University, Piscataway, New Jersey 08854, USA}
+\affiliation{Center for Computational Quantum Physics, Flatiron Institute, New York, New York 10010, USA}
+
+\author{Manas Kulkarni}
+\affiliation{International Centre for Theoretical Sciences (ICTS-TIFR),
+Tata Institute of Fundamental Research, Bangalore 560089, India}
+
+
+\author{Sarang Gopalakrishnan}
+\affiliation{Department of Electrical and Computer Engineering,
+Princeton University, Princeton, NJ 08544, USA}
+
+\author{David A. Huse}
+\affiliation{Department of Physics, Princeton University, Princeton, New Jersey 08544, USA}
+
+
+\begin{abstract}
+We theoretically explore a phase transition between controlled and chaotic dynamics in a classical spin chain model subject to chaotic Hamiltonian dynamics and a contractive ``control map'', which alternate %randomly 
+in time. The control map drives the system toward a target configuration that is an unstable fixed point under the chaotic dynamics.  When the control is strong enough, the target configuration is the globally attracting stable fixed point of the dynamics; for weaker control, the many-body dynamics remains chaotic for almost all initial states.  The phase transition between controlled and chaotic phases has a mixed character:  As the transition is approached from the chaotic phase, the fraction of the spins that are far from the target configuration goes continuously to zero, and there are  diverging spatial and temporal correlation lengths; however, the leading Lyapunov exponent is discontinuous across the transition, jumping from a positive value in the chaotic phase to a negative value in the controlled phase.  We present evidence that this transition is in the same universality class as directed percolation in the presence of temporal randomness, a universality class for which we %\elisha{achieve significant improvements in the precision of the numerically estimated critical exponents compared to prior research.}
+obtain results that are consistent with the dynamical Harris criterion but do not saturate the bound.
+
+%and find that they are consistent with but do not saturate the temporal Harris bound. Moreover, we show these  critical exponents  match well with those that we obtain from a model of directed percolation  subject to temporal randomness.
+%We discuss the implications of our results in classical and quantum dynamics in the presence of control.
+
+
+%We theoretically construct a chaotic classical spin chain in the presence of deterministic control that pushes the dynamics of the many-body system onto an unstable fixed point. As a result, we find and examine the nature of this absorbing state ``like'' transition in terms of activity dynamics that goes to zero continuously at the transition and its leading Lyapunov exponent that undergoes a first order like jump at the transition. We use finite size scaling to quantitatively identify the universal critical exponents that are consistent with a temporal Harris bound. We discuss the implications of our results in classical and quantum dynamics in the presence of control.
+%Controlling the chaotic dynamics of a classical Heisenberg spin chain transition are theoretically investigated. We construct a model that involves the repeated action of Newtonian time evolution that is followed by a global control operation that pushes each spin towards a unstable fixed point of the dynamics and solve it numerically. Here, we choose the $\pi/4$-spiral spin configuration as suitable unstable fixed point. The critical dynamics is shown to be consistent with a directed percolation universality class. However, the nature of the leading Lyapunov exponent displays...
+\end{abstract}
+%\tableofcontents 
+
+\maketitle
+%\date{\today}
+ 
+%\section{Introduction}
+Controlling chaotic dynamical~\cite{ott2002chaos, strogatz2001nonlinear,B2000,GD93,EB2003} systems through feedback is a central question in non-equilibrium dynamics due to its  far reaching applications in robotics~\cite{de2018mimicking}, computing~\cite{sinha1998dynamics}, and statistical mechanics~\cite{robledo2013generalized}. %Several approaches to control chaos have been realized, in each of these, they utilize.  
+%Despite two initial states being infinitesimally close to each other chaotic dynamics drives them   %exponentially far 
+%apart, with the difference growing exponentially in time, 
+Despite the exponential sensitivity of chaotic dynamics to perturbations, 
+%and is therefore hard to control. However, 
+adding strong enough dissipation 
+%to a chaotic system 
+can suppress chaos~\cite{PhysRevLett.64.1196,pyragas1992continuous,antoniou1997probabilistic}.  In some chaotic systems, it is possible to controllably maintain the system in a desired state by \emph{engineering} the dissipation to target that state~\cite{krechetnikov2007dissipation}. 
+%
+The case in which the target state is an unstable fixed point of the chaotic dynamics is especially simple: in this case, the fixed point can change from unstable to stable at the transition from chaos to stable control~\cite{PhysRevLett.64.1196}. Here, the transition out of chaos is a type of ``absorbing-state'' transition~\cite{tauber2014critical}: the fixed point itself is invariant under the dynamics for any parameters, but typical initial conditions only reach the fixed point in the controlled phase. There has also been recent progress in mitigating chaos via imposition of dynamical constraints~\cite{SR1,SR2} and stochastic resetting~\cite{AK1,AK2}.
+%
+
+
+Recently, absorbing-state and other control transitions have been revisited from the perspective of monitored and open-system quantum dynamics, leading to the discovery of control-induced phase transitions (CIPTs)~\cite{iadecola2023measurement,lemaire2024separate,pan2024local,piroli2023triviality, sierant2023controlling,odea2024entanglement,ravindranath2023entanglement,thompson2024population,chertkov2023characterizing,pokharel2025order,MP2026}, which arise from embedding  a classical dynamical phase transition into a quantum system.
+%which are related to measurement-induced phase transitions~\cite{skinner2019measurementinduced,li2018quantum,li2019measurementdriven, chan2019unitaryprojective,Zabalo-2020,  fisher2023random} in the entanglement dynamics.
+%
+The classical transitions themselves remain imperfectly understood for strongly-interacting systems. However, compared with the standard models of absorbing-state transitions (which are automata defined on discrete state spaces)~\cite{tauber2014critical}, Hamiltonian dynamics offers new diagnostic %classes of measurable
+quantities, including the leading Lyapunov exponent~\cite{pikovsky2016lyapunov}, whose scaling behavior at absorbing-state transitions has not yet been considered.
+
+%In the present work we 
+
+
+%However, 
+%
+%The exponential sensitivity of chaotic dynamics to the initial conditions
+%makes their dynamics fundamentally hard to predict and  control. Nonetheless, chaotic dynamics does maintain a level of structure that can be utilized to control it. 
+%
+%If the chaotic dynamics possess unstable fixed points that do not evolve under the dynamics, 
+%and do only when they are perturbed infinitesimally far away from the unstable fixed point, 
+%then it opens the door to control the chaos. 
+%
+%Existing work has utilized the presence of unstable orbits in the chaotic dynamics to design control protocols to push or steer the dynamics onto, which will then became stable fixed points of the dynamical map.
+%to be able to control
+%
+%The stochastic control of classical chaos utilizes this structure to  control the dynamics by randomly applying control operations that ``push'' the system towards the unstable fixed point. 
+%As a result of this competition, dynamical phase transitions between chaotic and controlled phases, depicted in Fig.~\ref{fig:model}, have been discovered, with critical phenomena that can be described by a random walk or by an absorbing state phase transition.
+
+%These classical models have recently been embedded (or ``quantized'') into quantum dynamics, through interspersing unitary dynamics with measurement and feedback, which has led to the discovery of control-induced phase transitions (CIPTs), generalizing the notion of measurement-induced phase transitions in the entanglement dynamics. In most cases investigated to date, the classical control dynamics is that of a single particle, its quantization becomes a strongly interacting open quantum many-body system. 
+%Understanding the nature of the CIPT and whether it coincides or splits away from the measurement induced entanglement transition depends on whether or not the action of the feedback (or measurement) are local or global (i.e. acting on all or an extensive number of the degrees of freedom). Understanding the nature of these CIPTs in general, has therefore become a central question garnering significant attention.
+%At the same time, this has also inspired an understanding of classical CIPTs at a deeper and more fundamental level in their own right as we move from the single particle to the classical many-body limit, such that a direct quantization is challenging. 
+%Several questions remain in the classical limit, regarding the nature of global versus local control, the differences and similarities between  stochastic versus deterministic dynamics, and going from single particle to the many-body limit. 
+%In particular, how the leading Lyapunov exponents are distributed throughout the many-body system and its interplay with chaos and control, as depicted in Fig.~\ref{fig:model} then becomes a rather novel and fundamentally interesting question.
+
+
+% \begin{figure*}[t!]
+%    \centering
+% \includegraphics[width=0.8\textwidth]{Draft2/FinalFigs/main_figs/Fig1/Fig1.png}
+% %\includegraphics[scale=0.35]{stds_with_inset.png}
+% %\includegraphics[scale=0.55]{tausdiff-shorttime_vs_a.pdf}
+% %\includegraphics[scale=0.55]{tausdiff-loglog-shorttime_vs_a.pdf}
+% %\includegraphics[scale=0.8]{logS_vs_t_a_L=256.pdf}
+% \caption{Top row: Schematic of the phase diagram and the model. Middle Row:
+% activity dynamics revealed through space-time plots of $\delta \mathcal{S}_x(t)$ using the spin chain model defined in Eq.~\eqref{eq:ham}.  In the controlled regime ($a$) the system goes to the controlled state %at all features of $\delta \mathcal{S}_x(t)$ are killed in 
+% long times all at once due to the temporal randomness; in the critical regime ($b$) we have ``active'' and ``dead'' regions and the spatially uniform part of the chaos is apparent; The chaotic regime ($c$) looks quite random.
+% Bottom Row: Classical ``out-of-time-order'' correlation (OTOC) function $O(x,t)$ across the phase transition. All plots are for 
+% $L=512$. The middle row shows data for one sample, while the OTOC data is an average over $2000$ samples. ($a$) and ($d$) show data for $a=0.72$, ($b$) and ($e$) show data for $a=0.7580\cong a_c$, and ($c$) and ($f$) show data for $a=0.8$. }
+% \label{fig:model}
+% \end{figure*}
+
+
+\begin{figure}[t!]
+\includegraphics[clip, trim=5 10 0 10, width=0.45\textwidth]{Draft2/FinalFigs/main_figs/Fig1/Fig1top.png}
+%\includegraphics[scale=0.35]{stds_with_inset.png}
+%\includegraphics[scale=0.55]{tausdiff-shorttime_vs_a.pdf}
+%\includegraphics[scale=0.55]{tausdiff-loglog-shorttime_vs_a.pdf}
+%\includegraphics[scale=0.8]{logS_vs_t_a_L=256.pdf}
+\caption{Top Row: (a) Schematic of the phase diagram between controlled and chaotic phases tuned by the control parameter $a$, separated by the critical point $a_c$. The wavelength-4 spin spiral in Eq.~\eqref{eqn:spinspiral} is depicted, as well as a chaotic configuration. Bottom Row:
+activity dynamics after starting in a random initial state, revealed through space-time ($j$-$t$) plots of $\delta \mathcal{S}_j(t)$ defined in Eq.~\eqref{eq:Sdiff}
+%\david{[in the main text the position is never called $x$; the position is called $i$ or $j$, and $x$ is a direction in spin space.  This Fig should be consistent with the main text.]} % in Eq.~\eqref{eq:ham} 
+(values given in color bar).  In the controlled phase (b), $a=0.72$, the system goes to the controlled state (red) at 
+%at all features of $\delta \mathcal{S}_x(t)$ are killed in 
+long times, note how the temporal randomness causes many active regions to ``die'' simultaneously; in the critical regime (c), $a=0.758\approx a_c$, we have ``active'' and ``dead'' regions and the %spatially uniform part of the chaos is 
+long range spatial correlations remain apparent; %The chaotic regime
+deeper in the chaotic phase (d), $a=0.8$, it looks quite random.
+}
+%($b$), ($c$), and ($d$) show data for $a=0.72$, $a=0.758\cong a_c$, and $a=0.8$, respectively.}
+\label{fig:model}
+\end{figure}
+
+%
+%This last topic is the focus of the current work and is aptly posed in the classical limit as simulations on sufficiently large lattice sizes  can be achieved. Its also physically interesting as the nature of chaos can be richer in the many-body limit. 
+
+
+In the present work, we explore the critical properties of the absorbing-state transition for a model in which classical Hamiltonian dynamics and a contractive control map alternate in time. The Hamiltonian dynamics is generated by a Heisenberg spin-chain Hamiltonian, while the control map drives the dynamics toward %a period-4 
+a spin spiral configuration (see Fig.~\ref{fig:model})
+%with spatial wavelength four sites 
+that is an unstable fixed point of the Hamiltonian dynamics. Compared with the ``standard'' absorbing-state transition (for example, in Stavskaya's automaton~\cite{stavskaya1968homogeneous,shnirman1968ergodicity,toom1968family}), this differs in two ways: first, the state space is continuous; and second, the dynamics is temporally random, with the signs of some couplings chosen randomly in each time step. %since the chaotic dynamics takes a different form each time it acts.
+%and control act for random temporal intervals. 
+This second modification is made in order to avoid persistent non-chaotic features, e.g. solitons~\cite{Tjon-1977,McRoberts-2022} from arising (see Supplemental Material). 
+
+We study the phase transition between the  contractive (or ``controlled'') phase (where the spiral state is the global attractor) and the chaotic one (where almost all initial states remain chaotic~\cite{WijnLargestLyapExpClassicalSpin, DasDrivenHeisenberg}). We find that this transition has a mixed character: Correlation lengths in the chaotic phase diverge continuously with nontrivial exponents as one approaches the transition, and %the deviation of 
+in the steady-state distribution the fraction of ``active'' spins that deviate strongly from the control state %from the fixed point smoothly 
+goes continuously to zero, suggesting a nonequilibrium critical point.  However, there are no critical fluctuations in the controlled phase, and the leading Lyapunov exponent jumps discontinuously at the transition: it limits to a value strictly greater (less) than zero as the transition is approached from the chaotic (controlled) side. We gain further insight into the nature of this transition by comparing the critical behavior with that of a standard model of directed percolation (Stavskaya's automaton~\cite{stavskaya1968homogeneous,shnirman1968ergodicity,toom1968family}) subject to temporally random variations of its parameters. The critical exponents we find are consistent in the two models, suggesting that both belong to a universality class that has until now only been loosely explored: temporally-random directed percolation~\cite{IwanDPtemprand}.
+%Directed percolation is unstable to temporal randomness via a generalized Harris criterion, and the new critical point we find has exponents that satisfy the corresponding generalized CCFS bound**. 
+%We conjecture, based on our results, that related control transitions without temporal randomness (in sufficiently chaotic models) would exhibit a directed-percolation transition, and that the Lyapunov exponent would also jump discontinuously across this transition. 
+
+%we address these questions by  considering the chaotic dynamics of the classical Heisenberg spin chain as our starting point. We control onto the period-4 spiral state that sits  in the middle of the energy spectrum of the model and is a marginally
+%unstable fixed point, that we globally control the dynamics onto.  We consider  fixed dynamics where the chaotic evolution and control operation are applied successively (i.e., one after the other) starting from a random state. Temporal randomness is applied (through the signs of the spin exchange in the $x-y$ plane) to remove solitons from the Heisenberg spin chain dynamics (CITE paper with solitons) so that they do not contaminate the critical properties. By tuning the strength with which we control the system, we identify a phase transition in the dynamics between a chaotic phase and a  controlled phase, depicted in Fig.~\ref{fig:model}. The leading Lyapunov exponent is studied in detail across the transition revealing a jump from a negative value (control) to a positive value (chaos) despite the presence of a continuously diverging correlation length at the transition.
+%So far, the majority of classical models considered have involved the hybrid  dynamics chaos+control acting on  single particle. 
+%An interesting and fundamental link between these questions and their quantized, quantum limits, the dynamics of measurement and feedback on quantum dynamics, which has recently garnered significant attention. Get into local vs global control and going to many body classical models is a natural step forward along these lines.
+
+
+%\section{Model}
+
+ \begin{figure*}[t!]
+   \centering
+\includegraphics[clip, trim=39 0 9 10, width=0.32\textwidth]{Draft2/FinalFigs/main_figs/Fig2/Log_Sdiff_vs_time.png}
+\includegraphics[clip, trim=5 0 50 20, width=0.32\textwidth]{Draft2/FinalFigs/main_figs/Fig2/spinchain_determining_ac_delta_nu_par.png}
+\includegraphics[clip, trim=10 0 40 10, width=0.32\textwidth]{Draft2/FinalFigs/main_figs/Fig2/det_z_twice.png}
+\caption{ {\bf Activity across the transition}: (a) The activity $S_{\mathrm{diff}}(t)$ in Eq.~\eqref{eq:Sdiff} on a log-scale versus time ($t$) for chain length $L=256$  and $a=0.68$ to $a=0.76$ across the controlled and chaotic phases. In   the controlled phase two  temporal regimes are separated by $t^*$ [see Eq.~\eqref{eq:t*2}], displaying the critical decay regime set by $\xi_t$ (example in blue dashed line) and the later-time decay that occurs once all realizations are close enough to the control state %that is set by the control map being set by $\tau_C=\ln(a)$ 
+(purple dotted-dashed line). (b) ~$\log_b\!\left[S_{\mathrm{diff}}(t/b)/S_{\mathrm{diff}}(t)\right]$ with $b = 10$, plotted as a function of time. The $a$ values range from $a=0.7535$ (highest curve) to $a=0.7615$ (lowest curve). Finding the value of $a$ for which this ratio is constant in time at late times determines $a_c = 0.7580(3)$ and $\delta = 0.11(2)$. Inset shows scaling collapse near $a_c = 0.7578$, with $a \in \{0.7535 (\text{dark blue}), 0.7555(\text{blue}), 0.757(\text{light blue}), 0.7595(\text{orange}), 0.7615(\text{green})\}$,  to determine $\nu_t = 2.2(2)$. 
+%(where $2.24(15) \equiv 2.24 \pm 0.15$).
+(c) Finite-size scaling of the activity for $L \in \{64, 128, 256, 512\}$ using Eq.~\eqref{eq:general_scaling} at $a_c = 0.7582$ to determine $z \approx 1.3(2)$. The inset shows finite-size scaling of $\xi_t(a)$, focusing on times $t\ll t^*$, using the same $L$ values. Using Eq.~(\ref{eq:xi-scaling}) with $a_c = 0.7580$ and $\nu_t = 2.24$ (from Fig.~\ref{fig:Sdiff_vs_t}), yields $z\approx 1.3(2)$.}
+\label{fig:Sdiff_vs_t}
+\end{figure*}
+{\it Model construction and observables}:  The dynamics of our model alternates between Hamiltonian time evolution and a dissipative control step:
+The Hamiltonian part of the dynamics is produced by the spin chain Hamiltonian
+\begin{equation}
+    H = -\sum_{i=1}^L \left( J_x(t)S^x_iS^x_{i+1}+J_y(t)S^y_iS^y_{i+1}+S^z_iS^z_{i+1}\right)
+    \label{eq:ham}
+\end{equation}
+with periodic boundary conditions (${\bf S}_{L+1}\equiv {\bf S}_1)$. %, $|J_x|=|J_y|=J_z=J>0$, and the 
+Each spin is a classical O(3) vector that is normalized to unity $|{\bf S}_i|=1$.  We take $J_x$ and $J_y$ to independently and randomly take values $\pm 1$ during each time step's Hamiltonian evolution, in order to eliminate solitons that appear in the dynamics near the transition if they are instead taken nonrandom (see Supplemental Material).  Note that this time-dependent $H$ remains translationally-invariant at all times.
+%For now, we will take $J_x$ and $J_y$ to be time independent but later on in Sec.***, we will allow their sign to become random remove solitons  and to increase the strength of chaos in the dynamics. 
+Denoting $\tilde {\bf S}_j=(J_x S_j^x,J_y S_j^y,S_j^z)$ with $ {\bf S}_j=(S_j^x, S_j^y,S_j^z)$,
+the time evolution of the spin at site $j$ is
+\begin{eqnarray}
+    \frac{d{\bf S}_j}{dt}&=\{{\bf S}_j,H\}=&-(\tilde {\bf S}_{j-1}+\tilde {\bf S}_{j+1})\times {\bf S}_{j}~,  
+    \label{eq:EOM}
+\end{eqnarray}
+where $\{\cdot,\cdot\}$ denotes a Poisson bracket, and this dynamics acts for a time duration of one unit of time during the Hamiltonian portion of each time step.
+%To obtain ${\bf S}_j(\tau_F)$, which for arbitrary initial conditions has chaotic dynamics~\cite{das2018light,Bilitewski-2021}, we integrate the equations of motion up to $\tau_F=1/J$.
+
+%
+%\david{to be moved:}  
+
+%{\bf JP: What to cite for dynamical CCFS. MK: - I also searched. Unable to find a precise citation. On a slightly related note, shall we cite, Thomas Vojta 2006 J. Phys. A: Math. Gen. 39 R143, Kinzel, W. Phase transitions of cellular automata. Z. Physik B - Condensed Matter 58, 229–244 (1985).}
+
+%\subsection{Control operation}
+To control the chaotic dynamics, we choose an %have to identify the 
+unstable fixed point of the Hamiltonian dynamics to stabilize.  We use the spin spiral:  %These are  the spin configurations that satisfy $\dot{{\bf S}}_j=0$. In the following, we focus on the case of the marginally unstable spiral with period-4 
+%${\bf S}_j^{0}=\{0,\cos(\pi j/2 ),\sin(\pi j/2 )\}$ 
+\begin{equation}
+    {\bf S}_j^{0}=\left(0,\cos(\pi j/2 ),\sin(\pi j/2 )\right)~,
+    \label{eqn:spinspiral}
+\end{equation}
+with spatial period four sites, see Fig.~\ref{fig:model}.  This fixed point is marginally unstable (see Supplemental). %, which lacks straightforward analytic control based on a linear instability analysis (Supplemental Material).
+ %One  that is natural to take is the spiral state with period $4$ with zero energy that represents a spin configuration directly in the middle of the spectrum (effectively an infinite temperature state):
+%\begin{equation}
+%$
+%    {\bf S}_j^{0}=(0,\cos(\pi j/2 ),\sin(\pi j/2 ))
+%$
+    %\label{eq:fixedpoint}
+%\end{equation}
+%as depicted in Fig.~\ref{fig:model}.
+The control operation then 
+%proceeds as follows, we ``measure'' the local spin configuration and then 
+``pushes''   the spin configuration towards  ${\bf S}_j^{0}$ %by  an amount $a$ with $0\leq a\leq 1$ 
+while maintaining the norm of $|{\bf S}_j(t)|=1$ at all times through
+\begin{equation}
+    {\bf S}_j(t') \rightarrow \frac{(1-a){\bf S}^{0}_j + a{\bf S}_j(t)}{| (1-a){\bf S}^{0}_j + a{\bf S}_j(t)|}~,
+    \label{eq:control}
+\end{equation}
+% that could be achieved through a rotation of the spins.
+with $0\leq a\leq 1$.  Thus, at small $a$ the control action is strong, while for $a$ near 1 it is weak.  
+
+This control step is applied after each Hamiltonian time evolution step.  These two operations together make up one full time step.
+ %The full dynamics then proceeds as follows: Starting from a fully random initial state, 
+ %where we sample each ${\bf S}_j^{\mathrm{init}}$ randomly on the unit sphere, 
+ %we apply the chaotic classical time evolution following Eq.~\eqref{eq:EOM}. We then push the system towards the period-4 spiral state with strength $a$ and this defines a single time step. We then run this time evolution out to a time $t$ that increases with the size ($L$) of the system.
+In the following, we average over $N_{\mathrm{sample}}=1000$ 
+different initial conditions, using chain lengths ranging from $L=32$ to $2000$, time-evolving for up to $L^2$ time steps.  The random initial states have each spin independently and uniformly distributed on the unit sphere. %up until final times that are specified and considered the longest time scale to be $t_f=L^2$.
+
+
+%  \begin{figure*}[t!]
+%    \centering
+% %\includegraphics[scale=0.245]{figures-for-notes/sdiff-xt_L=64_a=0.6.jpg}
+% \includegraphics[scale=0.33]{figures-for-notes/sdiff-xt_L=64_a=0.7.jpg}
+% \includegraphics[scale=0.33]{figures-for-notes/sdiff-xt_L=64_a=0.75.jpg}
+% \includegraphics[scale=0.33]{figures-for-notes/sdiff-xt_L=64_a=0.8.jpg}
+% \includegraphics[scale=0.33]{figures-for-notes/otoc_xt_L=256_a=0.7.png}
+% \includegraphics[scale=0.33]{figures-for-notes/otoc_xt_L=256_a=0.76.png}
+% \includegraphics[scale=0.33]{figures-for-notes/otoc_xt_L=256_a=0.8.png}
+% \caption{Top Row:
+% activity dynamics revealed through space-time plots of $\delta \mathcal{S}_x(t)$ using the spin chain model defined in Eq.~\eqref{eq:ham}. We now see no soliton like features in the dynamics, the chaotic regime (bottom right) looks completely random and in the critical regime (bottom left) we have ``active'' and ``dead'' regions.
+% Bottom Row: Out of time ordered correlation function $O(x,t)$ across the phase transition.}
+% \label{fig:colormaps}
+% \end{figure*}
+ 
+% \subsection{Full dynamics}
+
+%We are now in a position to define the dynamical model of interest. Our focus is on observer driven phase transitions in an extended  deterministic model. Each time  step $t=1$ is defined as follows:
+%\begin{itemize}
+%    \item For a given initial spin configuration at time $\tau_0$ we evolve the classical equations of motion in Eq.~\eqref{eq:EOM} up until a final time of $\tau_F=1/J$ using Mathematica.
+%    \item We then apply the control map in Eq.~\eqref{eq:control} to each spin.
+%\end{itemize}
+%Unless otherwise specified, we start from a random, arbitrary initial state ${\bf S}_j^{\mathrm{init}}$ with  $|{\bf S}_j^{\mathrm{init}}|=1$ for $L$ classical spins. We then run the dynamics (involving the Hamiltonian time evolution and control operation that make up one time step), up to a time $t=L$. 
+
+We study the {\it activity}, i.e. the local deviation from the unstable fixed point ${\bf S}_i^0$ in Eq.~\eqref{eqn:spinspiral} defined as
+%averaged over initial states
+\begin{equation}
+    S_{\mathrm{diff}}(t,L;a)= \frac{1}{L}\sum_{i=1}^L\left [|{\bf S}_i(t)-{\bf S}_i^0| \right ]\equiv \frac{1}{L}\sum_{i=1}^L\left [ \delta \mathcal{S}_i(t) \right ],
+    \label{eq:Sdiff}
+\end{equation}
+where we are denoting the average over initial states as $[\dots ]$. 
+%
+When $\delta \mathcal{S}_i$ is non-zero, the spin $i$ is locally away %we have deviation 
+from the unstable fixed point that we are controlling onto. When $\delta \mathcal{S}_i =0$ for all $i$ the system is controlled, as shown in Fig.~\ref{fig:model}.
+
+To ascertain the chaotic properties of the dynamics we evaluate the leading Lyapunov exponent $\lambda$.
+To do so, we evaluate $\lambda$ following the approach of Ref.~\cite{benettin1976kolmogorov}; for this we create a copy of the system  with a very slightly different spin configuration.  We then evolve both systems, keeping track of the exponential growth or decay of the difference between the copy and the original system.  The spin configuration of the copy is regularly moved closer to or farther from that of the original system in order to keep the very small difference of a numerically convenient magnitude 
+(see Supplemental).  
+
+{\it Phases of the model}:
+%
+We now turn to the numerical solution of this model through analyzing the nature of its dynamics. In Fig.~\ref{fig:model} we show each phase of the model through space-time plots of the activity $\delta \mathcal{S}_i(t)$. For small values of $a$, the model is in the control phase, dominated by the control map. As a result, the activity vanishes at late times, with chaotic-like evolution only at short times. On the other hand, at large values of $a$ chaotic evolution takes over, with dynamics in the activity persisting at all points in space and time. 
+%This is also reflected in the OTOC developing a fully chaotic light-cone in space-time (see end matter).
+%Due to finite size effects, the edge of the light cones at late times bends and rounds out. 
+%While the growth of the OTOC is exponential in the chaotic regime, and we can in principle track $D(0,t)\sim e^{\lambda(a) t}$ to compute $\lambda(a)$. As we mentioned previously, while this can allow an estimate of the leading Lyapuonov exponent we find the direct computation of $\lambda$ following Ref.~\cite{benettin1976kolmogorov} in Eq.~\eqref{eq:lambda} to be more accurate and not round out any putative jump in $\lambda$ as a function of $a$. 
+For $a$ very near to but above the critical point $a_c$, the activity dynamics shows sustained directed percolation dynamics with spreading, splitting %is effectively an equal admixture of ``birth''
+and local ``death'' of spatially sparse chaotic regions.  %\david{the fig does not really show this.  can we get even closer to the transition (in that fig) and have the activity be much sparser, but still sustained? or maybe this description does not apply, due to the temporally-random critical behavior looking qualitativey different from space-time uniform?}
+%In contrast, in the chaotic phase $a\gg a_c$, the activity remains finite $S_{\mathrm{diff}}(t)>0$ as $t\rightarrow \infty$. Each of these phases is also reflected in the presence and absence of a light cone in the out of time ordered correlation function~\cite{das2018light} (Supplemental Material).
+%To determine the critical properties separating the control and chaotic dynamical phases of the model, we turn to the spatially averaged activity $S_{\mathrm{diff}}(t)$ in Eq.~\eqref{eq:Sdiff}.
+%For the spiral we consider with a pitch of four, linearizing about the unstable fixed point in Eq.~\eqref{eq:fixedpoint} yields oscillatory dynamics (see  Appendix ***) and is then in this sense marginal. 
+
+We begin with considering $S_{\mathrm{diff}}(t)$ defined in Eq.~\eqref{eq:Sdiff} in the control phase, $a< a_c$. As shown in Fig.~\ref{fig:Sdiff_vs_t}(a), we find a time scale $t^*(L,N_{\mathrm{sample}})$ that separates two temporal regimes,
+% \begin{eqnarray}
+%     S_{\mathrm{diff}}(t,L;a) 
+%     &\sim& e^{-t/\xi_t}, \,\,\, \xi_t<t \ll t^*
+%     \label{eq:t*1}
+%     \\
+%     & \sim &  e^{-t/\tau_C}, \,\,\, t \gg t^*~.
+%     \label{eq:t*2}
+% \end{eqnarray}
+\begin{equation}
+S_{\mathrm{diff}}(t,L;a) \sim
+\begin{cases}
+e^{-t/\xi_t}, & \xi_t < t \ll t^*, \\
+e^{-t/\tau_C}, & t \gg t^*.
+\end{cases}
+\label{eq:t*2}
+\end{equation}
+At intermediate times we find that the decay follows the correlation time $\xi_{t}$, which diverges at $a_c$, and we  extract $\xi_t(a,L)$ through exponential fits, see dashed lines in Fig.~\ref{fig:Sdiff_vs_t}(a).  In this regime, $S_{\mathrm{diff}}$ is proportional to the fraction of samples that remain transiently chaotic, not having been yet ``captured'' by the control on to the fixed point.  The crossover time $t^*$ is when the final sample gets captured.  Thus  %In contrast, we find that 
+at times past $t^*$ the decay of the activity is a simple exponential that is set by the Lyapunov exponent of the control map (being equal to $1/\tau_C=-\log(a)$, see dashed-dotted line in Fig.~\ref{fig:Sdiff_vs_t} (a), and the Supplemental Material.) 
+%If we restrict the initial conditions to lie within $\epsilon \rightarrow 0$, the only action of the dynamics will be $S_{\mathrm{diff}}(t)\sim e^{-t/\tau_C}$ (supplemental).
+The crossover time depends on system size $L$ and the number of samples $N_{\mathrm{sample}}$ as the long time decay of $S_{\mathrm{diff}}(t)$ is dominated by the sample(s) with the largest capture time(s). In the thermodynamic limit (i.e. $L\rightarrow \infty$ and $N_{\mathrm{samples}}\rightarrow \infty$) we  find that that %$t^* \rightarrow \infty $ like 
+$t^* \sim \log(LN_{\mathrm{samples}})$, consistent with the expectation that the probability distribution of capture times should follow a Poisson process. We have verified this in finite size simulations with a finite number of samples (see the Supplemental Material).
+
+
+{\it Critical Properties}:
+Near the transition, %defined by  
+we study the activity  using the scaling hypothesis for dynamical critical phenomena~\cite{goldenfeld2018lectures}  
+\begin{equation}
+    S_{\mathrm{diff}}(t,L; a) \sim t^{-\delta}\, \Phi\left(\Delta\, t^{1/\nu_t},\, t/L^z\right),
+    \label{eq:general_scaling}
+\end{equation}
+where $\Delta = (a_c - a)/a_c$ is the distance from the transition, $z$ is the dynamic exponent, $\nu_t$ is the  temporal correlation length critical exponent defined by $\xi_t\sim |\Delta|^{-\nu_t}$, $\Phi(x,y)$ is a universal scaling function, and 
+%$\Delta = (a_c - a)$ and 
+$\delta \equiv \beta/\nu_t$. In the regime $t/L^z \ll 1$ the scaling is %doesn't depend on $z$ as
+%\begin{equation}
+$
+    S_{\mathrm{diff}}(t, L; a) \sim t^{-\delta}\, \Phi\left(\Delta\, t^{1/\nu_t},0\right)
+    $
+   % \label{eq:Sdiff_early}
+%\end{equation}
+and at $\Delta=0$, following~\cite{mendonca2011monte} this implies  that
+%\begin{equation}
+$    \log_b\left[
+%\frac{S_{\mathrm{diff}}(t/b)}{S_{\mathrm{diff}}(t)}
+S_{\mathrm{diff}}(t/b)/S_{\mathrm{diff}}(t)
+\right] \approx \delta,
+$
+%    \label{eq:ratio_test}
+%\end{equation}
+%
+We use this to independently determine $a_c = 0.7580(3)$ as well the critical exponents $\beta = 0.23(2)$ and $\nu_t = 2.2(2)$: Fig.~\ref{fig:Sdiff_vs_t}(b). %, where $2.24(15) \equiv 2.24 \pm 0.15$ (see Fig.~\ref{fig:Sdiff_vs_t}). 
+For completeness we define $\nu \equiv \nu_t/z$ as the spatial correlation length critical exponent.
+
+
+Sitting at the critical point, $\Delta=0$ we  perform scaling collapse using Eq.~(\ref{eq:general_scaling}) at $a_c=0.7580$ and get $z = 1.30(15)$. 
+%This agrees well with 
+We now turn to how $\xi_t$ diverges as we approach $a_c$. Using the scaling hypothesis this leads to 
+\begin{equation}
+    \xi_t(a,L)\sim L^z f((a-a_c)L^{z/\nu_t})~,
+    \label{eq:xi-scaling}
+\end{equation}
+where $f(x)$ is a universal scaling function.
+As shown in Fig.~\ref{fig:Sdiff_vs_t}(c), we find $a_c = 0.7580$ and $\nu_t = 2.24$, which yields $z=1.34(10)$ in good agreement with our estimate from $S_{\mathrm{diff}}$.  We summarize the obtained exponents in Table~\ref{tab:exponents}.
+
+
+
+%The exponents we have obtained are consistent with directed percolation (DP) subject to temporal randomness. 
+%The justification for this is shown in the end matter where we perturb the control parameter of a known DP model (Stavskaya’s probabilistic cellular automaton) and preform the scaling analysis shown in~\cite{mendonca2011monte} (see end matter). The results are consistent with our analysis of the spin chain and are summarized in T.~\ref{tab:exponents}. Both models have critical
+%exponents that are consistent with a temporal Harris bound, with $\nu_t > 2.0$ ~\cite{vojta2016harris}~\cite{shkolnik2025ultrafast}.
+
+\begin{figure}[t!]
+   \centering
+%\includegraphics[scale=0.35]{Zoomed_Log_S_diff4_ar0p62_0p76_IC1000_L256_z1p6.png}
+%\includegraphics[scale=0.35]{cherried_s_diff_vs_IC.png}
+\includegraphics[clip, trim=40 45 46 45, width=0.43\textwidth]{Draft2/FinalFigs/main_figs/Fig4/lambda_per_a_N4_AW0p5_z1p34_with_std.png}
+\caption{{\bf Jump in the leading Lyapunov exponent and its fluctuations}: The average Lyapunov exponent $\lambda$ in Eq.~\eqref{eq:lambda} over 1000 samples evaluated at a late time $t_f \sim L^{1.34}$ by averaging over the time window $[\frac{1}{2}t_f, 2t_f]$. As the critical point is approached from the chaotic phase $(a>a_c)$, $\lambda$ approaches a positive value $\lambda \approx 0.35$, while in the control phase $(a<a_c)$ the  $\lambda$ is close to $\ln(a)$ (gray dashed line), but averaging over the random signs in $J_{x,y}(t)$ from Eq.~\eqref{eq:ham} makes this value slightly larger. At the transition $a_c$ our data is consistent with a discontinuous jump in the Lyapunov exponent of an infinite system from its chaotic value to its control value, thus first-order-like behavior.  Note the crossing of the different $L$ curves that occurs roughly at $a = 0.7585 \pm 0.0010 \approx  a_c$ and $\lambda = 0$. The inset shows the standard deviation of $\lambda$ across many runs. Consistent with the jump in the Lyapunov exponent, the standard deviation displays a peak near $a_c$ with its maximum fixed over several $L$ and its width becoming narrower as $L$ increases.
+}
+\label{fig:lambda}
+\end{figure}
+
+Last, we come to the average and standard deviation of the leading Lyapunov exponent, denoted $\lambda$ and $\mathrm{std}(\lambda)$, respectively out to a late time $t_f=L^z\approx L^{1.34}$ and only average over times near $t_f$ from the range $[\frac{1}{2}t_f, 2t_f]$ (see Eq.~\eqref{eq:lambda} and Fig.~\ref{fig:lambda}).  We find that the average Lyapunov exponent jumps from a stable chaotic value close to $0.35$ for $a$ just above $a_c$ to a negative value in the control phase for $a<a_c$ that is slightly above $\ln(a)$ (due to averaging over random signs in $J_{x,y}(t)$ in Eq.~\eqref{eq:ham}). This first-order-like jump is distinct from the behavior of the activity, which goes to zero continuously, as shown in Fig.~\ref{fig:sdiff_vs_a} in the end matter. This produces a sharp peak in $\mathrm{std}(\lambda)$ with a $L$-independent maximum. These data collapse well onto universal scaling functions using the previously obtained critical exponents (Supplemental Material).
+
+The temporal-randomness version of the Harris criterion \cite{PhysRevE.93.032143} tells us that such temporal randomness, as we have in our model, is relevant if $\nu_t<2$, as is the case for 1+1-dimensional directed percolation.  Thus we expect our model's critical point to be instead in a temporally-random universality class, which should have $\nu_t\geq 2$ by the temporal version of Ref. \cite{ccfs1}, as indeed we find.
+
+%The temporal disorder we have introduced in Eq.~\eqref{eq:ham} effect  the universal properties of the critical point due to the spatio-temporal Harris and Chayes–Chayes–Fisher–Spencer (CCFS) criteria that requires the critical exponents to \elisha{satisfy $z\nu_{\perp} = \nu_t \ge 2$} for stability~\cite{ccfs1,PhysRevE.93.032143,Shkolnik-2025}, where $\nu_{\perp}$ is the correlation length exponent along the spatial direction, $\nu_t$ is the correlation length exponent along the temporal direction and $z$ is the dynamic exponent.
+%, which collapses well in the vicinity of the transition with a similar scaling form as depicted in Eq.~(\ref{eq:xi-scaling}) with a different scaling function. This yields $a_c\approx0.7591 \pm 0.001$, $\nu_t=2.4 \pm 0.2$ and $z\approx 1.3 \pm 0.1$.
+
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[clip, trim=10 2 2 2, width=1\columnwidth]{Draft2/FinalFigs/end_matter/broadstav_determining_ac_delta_z.png}
+    \caption{\textbf{Determination of critical exponents for Stavskaya's model with temporal randomness}: 
+    (a) Using $L = 20000$ for $0.25315 \leq \overline{\varepsilon} \leq 0.25435$ to determine $\bar{\varepsilon}_c = 0.253725(5)$ and $\delta = 0.105(5)$;  see end matter for definition of the activity in this model ($\rho$). Left inset (i): Scaling collapse near $\bar{\varepsilon}_c = 0.253725$ to determine $\nu_t = 2.25(5)$, and therefore $\beta = 0.236(5)$.
+    Right inset (ii): Finite-size scaling at $\bar{\varepsilon}_c = 0.253725$ with $L = 4000, \ 8000, \ 16000$ to determine $z = 1.45(5)$.}
+    \label{fig:broad_stav}
+\end{figure}
+
+
+\begin{table}[t!]
+    \centering
+    \begin{tabular}{l|c|c|c}
+        \hline\hline
+        Model & $\beta$ & $\nu_t$ & $z$ \\
+        \hline
+        Spin chain  & $0.23(2)$ & $2.24(15)$ & $1.34(15)$ \\
+        Time-Random Stavskaya  & $0.236(6)$ & $2.25(5)$ & $1.45(5)$\\
+        Directed Percolation (DP) & $0.276$ & $1.734$ & $1.58$\\
+        \hline\hline
+    \end{tabular}
+    \caption{Comparison of critical exponents across the two models with temporal randomness investigated in this work and the standard 1+1-dimensional directed percolation universality class. }
+    %Note the close agreement on $\beta$ between the temporally perturbed models, and the significant deviation from DP values. The estimates of $z$ are in the most disagreement.}
+    \label{tab:exponents}
+\end{table}
+
+{\it Stavskaya's automaton:} The qualitative behavior of individual trajectories at our model's phase transition is reminiscent of directed percolation (DP): the system consists of spacetime regions that are locally either strongly chaotic or fully controlled. However, as detailed in Table~\ref{tab:exponents}, the critical exponents are distinct from standard directed percolation. Since a feature of our dynamics %that clearly differs from directed percolation 
+is the presence of temporal randomness, and the directed percolation transition is indeed unstable to temporal randomness (by the Harris criterion $\nu_t < 2$~\cite{ccfs1,PhysRevE.93.032143,Shkolnik-2025}), a natural conjecture is that adding temporal randomness to directed percolation drives it to the critical point that we have observed. To test this, we have explored the effects of temporal randomness on a standard model of 1+1-dimensional directed percolation, Stavskaya's automaton~\cite{stavskaya1968homogeneous,shnirman1968ergodicity,toom1968family}. The dynamics of this automaton is reviewed in the end matter. 
+%
+In short, each site has two states, which can be regarded as ``infected'' and ``healthy''.  The update consists of two steps, which are repeated: first each infected site deterministically infects its neighbor to the left, then each now-infected site becomes healthy with probability $\varepsilon$.  The configuration with only healthy sites is invariant, but below a certain $\varepsilon_c$ it is unstable to the introduction of infected sites. A typical random initial state then reaches a steady state that has a nonzero density of infected sites; this density is analogous to the ``activity'' we defined above. The transition at $\varepsilon_c$ is in the directed percolation universality class. We have explored a model in which the parameter $\varepsilon$ fluctuates in time (but is constant across the system at any time), considering the average value, $\overline{\varepsilon}$, to be the control parameter (see end matter for the details on randomness used). We analyzed the critical point of this temporally-random model using the same approach as for our spin chain model; the results are shown in Fig.~\ref{fig:broad_stav}: our estimates for critical exponents are consistent with those in the spin chain, see Table~\ref{tab:exponents}. Note that this new critical point satisfies the temporal CCFS bound as $z\nu=\nu_t\approx 2.25>2$, but does not saturate the bound. %(In contrast, in a broad class of spatially random spin chains, as well as in the temporally random measurement-induced phase transition, one finds a disordered critical point that saturates the temporal CCFS bound**.)
+
+{\it Discussion:} We have introduced an absorbing-state transition with a mixed character: the mean activity vanishes continuously at the transition, and spatio-temporal correlations of the activity diverge with critical exponents consistent with temporally-random directed percolation---a universality class that has been little studied %previously \elisha{underdeveloped critical point
+~\cite{IwanDPtemprand}. On the other hand, the leading Lyapunov exponent jumps discontinuously across the transition.  We conjecture, based on our results, that related control transitions without temporal randomness 
+%(in sufficiently chaotic models) 
+would exhibit a directed-percolation transition, and that the Lyapunov exponent would also jump discontinuously across this transition. 
+%
+This discontinuity of the Lyapunov exponent can be understood intuitively: in the control phase or even slightly in the chaotic phase, a configuration that is close \emph{everywhere} to the fixed point contracts to the fixed point at a finite rate (set by $\ln(a)$), so the Lyapunov exponent is negative. However, a typical chaotic configuration is \emph{far} from the fixed point on some sites, which seed chaos. As the transition is approached, chaotic regions become increasingly sparse in space, but remain locally chaotic, so the leading Lyapunov exponent remains positive and does not approach zero at the transition.  We expect that if one obtained the full Lyapunov spectrum, the {\it number density} of positive Lyapunov exponents should approach zero at the transition, while the largest exponent remains positive.  These qualitative features seem likely to persist in chaotic models without temporal randomness, and we conjecture that such models could exhibit a directed percolation transition at which the leading Lyapunov exponent also jumps. 
+
+Our results suggest several avenues for future work: most obviously, exploring other nonequilibrium critical phenomena (e.g., Kardar-Parisi-Zhang universality~\cite{kpz1,kt_review}) in the presence of temporal randomness, and exploring the behavior of the Lyapunov exponent at other classical transitions out of chaos. An interesting family of such transitions are ``synchronization transitions''~\cite{ap2002}, between two sets of spins evolving under identical chaotic maps and also dissipatively coupled to each other. %While some synchronization transitions are in the directed percolation class, others seem to have entirely different critical properties. 
+Whether the Lyapunov exponent jumps at these transitions or exhibits critical scaling is an interesting question for future work. Finally, the extension of our results to semiclassical systems~\cite{ap_review,MP2026,MP2026} with large but finite spins on every site~\cite{DL2014}, remains to be explored. 
+
+\acknowledgments{{\it Acknowledgments}: We thank Sriram Ganeshan, Tom Iadecola, and Justin Wilson for useful discussions.  This work was partially supported by the US-ONR grant No.~N00014-23-1-2357 (J.H.P.),   the Rutgers Global International Collaborative Research Grant (J.H.P, M.K.). This work was performed in part at the Aspen Center for Physics, which is supported by National Science Foundation grant PHY-2210452 (J.H.P., S.G.) and at the Kavli Institute for Theoretical Physics (KITP), which is supported by grant NSF PHY-2309135 (J.H.P., S.G.). M.K. acknowledges support from the Department of Atomic Energy, Government of India, under project no. RTI4001. 
+
+
+%As detailed in Table~\ref{tab:exponents}, we find that these critical exponents are distinct from directed percolation, which is not stable to temporal randomness. Instead, we find that these critical exponents are in good agreement with Stavskaya’s probabilistic cellular automaton model for directed percolation (DP) that is perturbed by temporal disorder, as we detail in the end matter. These exponents are now stable within the spatio-temporal Harris bound as $\nu_{\perp}z=\nu_t\approx 2.25>2$ but it does not saturate the bound.
+
+
+
+%\textbf{Conclusion (needs to be written): Discussion of jump in the Lyapunov  and new universality class}
+
+\bibliography{Draft2/refs}
+%\newpage
+\clearpage
+%\appendix
+
+\section{\underline{End Matter}}
+\setcounter{equation}{0}
+\setcounter{figure}{0}
+\renewcommand{\theequation}{EM\arabic{equation}}
+\renewcommand{\thefigure}{EM\arabic{figure}}
+
+
+%\subsection{The Out of Time Order Correlator}
+
+%From the evolution of two copies of the system $A$ and $B$ that start infinitesimally close together, we evaluate the out of time ordered correlator (OTOC)
+%\begin{equation}
+%D(x,t) = 1- \langle \vec{S}_j^A(t). \vec{S}_j^B(t) \rangle\, ,
+%\label{eq:OTOC}
+%\end{equation}
+%which is related to the leading Lyapunov exponent as it grows like $D(x,t)\sim e^{\lambda(a) t}$, and shows a qualitative change as the system goes through the CIPT.
+%, see Fig.~\ref{fig:model}.
+%
+%Fig.~\ref{fig:modelOTOC} shows the classical OTOC Eq.~\eqref{eq:OTOC} across the transition for $a = 0.72 < a_c$, $a\approx a_c$, and $a=0.8 > a_c$. The data  $a < a_c$ is the controlled regime and so no light cone develops. When $a>a_c$ we are in the critical regime and so the evolution is fully chaotic, shown by the opaque light cone spreading from the perturbation in accordance with $\lambda$. While the OTOC is qualitatively enlightening and clearly shows the chaos when present, in the above we wished to analyze the transition more quantitatively and so we follow \cite{benettin1976kolmogorov} to calculate $\lambda(a)$, as seen above.
+%Technical details to compute $\lambda$ are given in the Supplemental Material.
+
+
+%\begin{figure}[h]
+%\includegraphics[clip, trim=0 12 0 7, width=0.45\textwidth]{Draft2/FinalFigs/main_figs/Fig1/Fig1OTOC.png}
+%\includegraphics[scale=0.35]{stds_with_inset.png}
+%\includegraphics[scale=0.55]{tausdiff-shorttime_vs_a.pdf}
+%\includegraphics[scale=0.55]{tausdiff-loglog-shorttime_vs_a.pdf}
+%\includegraphics[scale=0.8]{logS_vs_t_a_L=256.pdf}
+%\caption{Classical ``out-of-time-order'' correlation (OTOC) function $O(x,t)$ across the phase transition. All plots are for 
+%$L=512$ and show an average over $2000$ samples. ($a$), ($b$) and ($c$) show data for $a=0.72$, $a=0.758\cong a_c$, and $a=0.8$, respectively.}
+%\label{fig:modelOTOC}
+%\end{figure}
+
+\subsection{Activity across the Transition}
+
+
+
+Using the estimate of $z=1.34$ we consider the activity out to final times $t_f=L^z$ as shown in Fig.~\ref{fig:Sdiff_vs_t}. In the chaotic phase, the activity saturates to a finite value in the thermodynamic limit at late times, where as in the control phase it goes to zero. The activity demonstrates a smooth transition from $0$ to positive finite value across the transition. Near the transition $a_c$, it follows the scaling ansatz.
+\begin{equation}
+    S_{\mathrm{diff}}(t,L,a)\sim \frac{1}{L^{\beta z/\nu_t}}g\left[(a-a_c)L^{z/\nu_t},t/L^z\right].
+    \label{eqn:Sdiffscaling}
+\end{equation}
+Using the critical exponent values obtained in the main text, we preform this collapse [Fig.~\ref{fig:sdiff_vs_a} (inset)]. We find values for the critical exponents that agree well with what we obtain in the main text.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[clip, trim=43 35 22 31, width=1\linewidth]{Draft2/FinalFigs/main_figs/Fig3/solo_inset_fss_S_diff_N4_IC1000_z1p34.png}
+    \caption{The activity at $t=L^{z=1.34}$ as a function of $a$. Note the smooth transition from $0$ to positive finite value across the transition. The inset shows FSS of the activity, using values obtained in Fig.~\ref{fig:Sdiff_vs_t}: $a_c = 0.758$, $\nu_t = 2.24$, $z = 1.34$, and $\beta = 0.23$.}
+    \label{fig:sdiff_vs_a}
+\end{figure}
+
+
+
+\subsection{Analysis of Stavskaya’s model}
+
+
+
+
+In this section of the end matter, we present an analysis of a conventional model for directed percolation that is subjected to temporal disorder. As directed percolation is unstable to temporal disorder, here we uncover the critical point that this flows to. As this agrees well with critical exponents found in the main text, our data implies, to our numerical precision, that these are in the same universality class.
+
+%Table~\ref{tab:exponents} shows that the critical exponents associated with the phase transition of our spin chain is incompatible with the directed percolation (DP) universality class. 
+%We hypothesize that the phase transition is instead DP subject to temporal randomness (recall $J_x, \ J_y$ are random in time), realizing a seemingly unnoticed universality class. 
+%To test this hypothesis, we apply a temporaly random perturbation to a known DP model, 
+To begin, we review Stavskaya's model, a well known model for directed percolation (DP). This  is a one-dimensional lattice of binary variables $\eta_i \in \{0, 1\}$~\cite{mendonca2011monte}. At every discrete time step, each site is updated according to the following:  
+\begin{equation}
+\eta_i(t+1) =
+\begin{cases}
+1, & \text{with probability } \varepsilon, \\
+\eta_i(t)\,\eta_{i-1}(t), & \text{with probability } 1 - \varepsilon.
+\end{cases}
+\end{equation}
+% At every discrete time step, each site is updated according to the following: With probability $\varepsilon$, the site,  $\eta_i$, is set to state $1$. With probability $1-\varepsilon$ the sight assumes the value $\eta_i \eta_{i-1}$. 
+The model has a DP transition as $\varepsilon$ is tuned.
+%\begin{equation}
+%    \eta_i \eta_{i-1},
+%\end{equation}
+%with periodic B.C.. 
+%Naturally $\varepsilon$ is the control parameter and we consider
+%
+The order parameter for the transition is known to be the activity
+\begin{equation}
+    1-\rho(t,L;\varepsilon) = 1-\frac{1}{L}\sum_{i=1}^L\eta_i(t).
+\end{equation}
+
+%to be the order parameter.
+
+There exists a critical $\varepsilon_c$ such that $1-\rho \to 0$ for $\varepsilon > \varepsilon_c$ but if $\varepsilon < \varepsilon_c$, then  $1-\rho$ goes to a finite value. By assuming the scaling ansatz near the critical point
+
+\begin{equation}
+    1-\rho(t,L; \varepsilon) \sim t^{-\beta/\nu_t} \Phi(\Delta_{\varepsilon} t^{1/\nu_t}, t/L^z) \,,
+\end{equation}
+we reproduce the work in \cite{mendonca2011monte} which yields critical exponents $\beta = 0.27(1)$, $\nu_t = 1.73(5)$, and $z = 1.60(5)$ showing that the phase transition belongs to the DP universality class (see Fig.~\ref{fig:stav_rep}).
+
+We now introduce temporal disorder by replacing $\varepsilon$ with $\varepsilon(t) = 0.5(X(t))^n$, where $n$ is fixed at the beginning of a run to determine the average strength of the control, $X(t)$ chosen at each time step is uniformly distributed in $[0, 1]$. Now, we parameterize the strength of $\varepsilon(t)$ through its average value $\bar{\varepsilon} = a/(n+1)$.
+
+Near the critical point, we use  the same scaling ansatz
+\begin{equation}
+    1-\rho(t,L; \bar{\varepsilon}) \sim t^{-\beta/\nu_t} \Phi(\Delta_{\bar{\varepsilon}} t^{1/\nu_t}, t/L^z) 
+\end{equation}
+where $\Delta_{\bar{\varepsilon}}=(\bar{\varepsilon}-\bar{\varepsilon}_c)/\bar{\varepsilon}_c
+$ and we perform the same finite-size scaling procedure as we did in the main text on the spin chain to determine the critical exponents (see Fig.~\ref{fig:broad_stav}), the results of which are shown in Table~\ref{tab:exponents}. We see good agreement between these two vastly different models, providing good evidence for the hypothesis that our spin chain transition belongs to a temporally random DP universality class.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[clip, trim=6 25 30 30, width=0.9\columnwidth]{Draft2/FinalFigs/end_matter/reproducing/determining_ac_delta_nupar.png}
+    \includegraphics[clip, trim=22 22 30 30, width=0.9\columnwidth]{Draft2/FinalFigs/end_matter/reproducing/determining_z.png}
+    \caption{\textbf{Determination of critical exponents for Stavskaya's model} 
+    (a) Using $L = 20000$ at $\varepsilon \in \{0.2943, 0.2944, 0.2945, 0.2946, 0.2947\}$ to determine $\varepsilon_c = 0.29450(5)$ and $\delta = 0.155(5)$. Inset shows scaling collapse near $\varepsilon_c = 0.29450$ to determine $\nu_t = 1.735(5)$, and therefore $\beta = 0.27(1)$.
+    (b) Finite-size scaling with $L = 4000, \ 8000, \ 16000$ at $\varepsilon_c = 0.29451$ to determine $z = 1.60(5)$.
+    }
+    \label{fig:stav_rep}
+\end{figure}
+
+\clearpage
+\onecolumngrid
+\section{\underline{Supplemental Material}\\ ``Control transition in a temporally random classical spin chain"}
+
+
+\setcounter{equation}{0}
+\setcounter{figure}{0}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+%\section{Fits to the late time decay}
+
+%\begin{figure}[t!]
+%   \centering
+%\includegraphics[scale=0.42]{logS_vs_t_a=0.5_L=32.pdf}
+%\includegraphics[scale=0.42]{logS_vs_t_a=0.58_L=32.pdf}
+%\includegraphics[scale=0.42]{logS_vs_t_a=0.68_L=32.pdf}
+%\includegraphics[scale=0.25]{figures-for-notes/sdifffit_L=256_a=0.64.pdf}
+%\includegraphics[scale=0.25]{figures-for-notes/sdifffit_L=256_a=0.66.pdf}
+%\includegraphics[scale=0.25]{figures-for-notes/sdifffit_L=256_a=0.68.pdf}
+%\includegraphics[scale=0.4]{figures-for-notes/sdifffit_L=256_a=0.7.pdf}
+%\includegraphics[scale=0.42]{tausdiff-latetime_vs_a.pdf}
+%\caption{
+%Fits to extract the late time dynamics in the control phase, comparisons are made  for $a=0.5,0.58,0.68$ on a system size $L=32$. For $a>0.7$ the exponential regime is gone and can be accessed by limiting the range of initial conditions to a range $\epsilon_{\mathrm{init}}=10^{-5}$. Bottom right shows the time scale $\tau_C$ extracted from the two sets of initial conditions at which the secon exponential decay $S_{\mathrm{diff}}(t)\sim e^{-t/\tau_C}$ sets in. The red dashed line is a plot of $1/\log(a)$.
+%}
+%%}
+%\label{fig:control-exp}
+%\end{figure}
+
+%\appendix
+
+%\newpage
+
+\section{Computing the leading Lyapunov Exponent}
+%
+%$
+In this section, we discuss the computation of the leading Lyapunov exponent. 
+We discretize our evolution following Ref.~\cite{benettin1976kolmogorov} and define the leading Lyapunov exponent as
+\begin{equation}
+\lambda = \frac{1}{n\tau} \sum_{j=1}^{n}\ln\bigg(\frac{|d_j|}{\epsilon} \bigg). 
+\label{eq:lambda}
+%$
+\end{equation}
+We take $\epsilon=0.01$ and $\tau$ is a discretization with time $t_j=nj$ (here we take $\tau=1/J$). 
+
+The final time is given by $t_f=n \tau$ where $n$ is the number of steps. Initial times that are affected by the initial state are dropped from the sum to obtain a more accurate estimate of $\lambda$. We initialize our system of interest, call it system $A$, in a random initial state and we then construct a copy of the system $B$ that is very close to system $A$, where ${\bf S}_i^B={\bf S}_i^A$ for all $i$ expect $i=L/2$ (i.e., the middle site). Here, we randomize each direction of the middle site within the window of $\epsilon^{\alpha}\in [-\epsilon,\epsilon]$ defining the vector $\bm{\epsilon}$ such that ${\bf S}^B_{L/2}=({\bf S}_{L/2}^A+\bm{\epsilon})/|({\bf S}_{L/2}^A+\bm{\epsilon})|$. After a short period of time, such that the deviation between spins in copy $A$ and $B$ have spread across the chain, we evaluate the quantity 
+\begin{equation}
+    |d_j|=\sqrt{\sum_{i=1}^L({\bf S}^A_i(t_j)-{\bf S}^B_i(t_j))\cdot ({\bf S}^A_i(t_j)-{\bf S}^B_i(t_j))}.
+\end{equation}
+Last,  we  reset copy $B$ to be within $\epsilon/L$ of copy $A$ via~\cite{benettin1976kolmogorov}
+\begin{equation}
+\label{eq:sbsa}
+{\bf S}_i^{B,\rm{reset}} = \frac{{\bf S}_i^A + \frac{\epsilon}{|d_i|} ({\bf S}_i^B-{\bf S}_i^A)}{|{\bf S}_i^A + \frac{\epsilon}{|d_i|} ({\bf S}_i^B-{\bf S}_i^A)|}.
+\end{equation}
+
+We verify our approach by examining the uncontrolled a=1.0 case where we calculate $\lambda(a=1.0, L=512) = $ as predicted by~\cite{WijnLargestLyapExpClassicalSpin}.
+
+%In the following we take $\epsilon=0.1$.
+Another estimate of $z$ can be obtained by analyzing the standard deviation of $\lambda(t)$ across many runs (see Fig.~\ref{fig:fss_std_lambda_t}).
+%\begin{equation}
+$
+    \mathrm{Std}\left(\lambda(t, L, a=a_c)\right),
+$
+%\end{equation}
+where 
+%\begin{equation}
+$
+    \lambda(t) \equiv \frac{1}{\tau}\ln(\frac{|d_{j=t}|}{\epsilon}).
+$
+    %\label{eq:lambda_of_time}
+%\end{equation}
+%and $d(t)$ is $d_j$ in %Eq.~\eqref{eq:lambda}. 
+
+
+\begin{figure}[h]%[t!]
+    \centering
+    \includegraphics[clip, trim=30 30 30 33, width=0.5\linewidth]{Draft2/FinalFigs/supplemental/std_lambda_per_t_N4_a0p7588_IC1000_z1p7_col.png}
+    \caption{FSS of $\mathrm{Std}(\lambda(t))$ at $a_c = 0.7588$ which gives $z \approx 1.38 \pm 0.1$.
+    }
+    \label{fig:fss_std_lambda_t}
+\end{figure}
+
+\begin{figure}[h]%[t!]
+    \centering
+    \includegraphics[trim={10 20 20 10}, clip, scale=0.4]{Draft2/FinalFigs/supplemental/cherried_s_diff_vs_IC.png}
+    \caption{$\log(S_{\mathrm{diff}}(t))$ as a function of time for fixed $L = 256$ and increasing $N_{\mathrm{samples}}$. The samples for $N_{\mathrm{samples}} = 10, 100$ were picked by hand as outlier long lived samples can dominate and give the impression that $t^*$ occurs at a later time. The data shows clearly that $t^*$ increases when $N_{\mathrm{samples}}$ increases.}
+    \label{fig:cherried_s_diff_vs_IC}
+\end{figure}
+
+\begin{figure*}%[t!]
+\includegraphics[trim={10 0 20 10}, clip, scale=0.25]{Draft2/FinalFigs/supplemental/SDiffVsL.png}
+\caption{(a) $\log(S_{\mathrm{diff}}(t,a=0.68))$ for different $L$ values showing a clear correlation between $t^*$ and $L$. (b) Same as (a), but for $a = 0.72$. (c) $t^*$ as a function of $\log(L)$ showing that the relationship between $t^*$ and $\log(L)$ is indeed linear when $N_{samples}$ is held fixed, as per Eq.~\eqref{eq:t*_vs_N_and_L}.}
+\label{fig:log_s_diff_vs_L}
+\end{figure*}
+
+\section{Estimate of $t^*$}
+
+As stated in the main text, we expect 
+
+\begin{equation}
+    t^*\sim \log(LN_{\mathrm{samples}}) = \log(L) + \log (N_{\mathrm{samples}})
+    \label{eq:t*_vs_N_and_L}
+\end{equation} 
+We verify this by taking $L$ constant and allowing the number of samples to vary (Fig.~\ref{fig:cherried_s_diff_vs_IC}) and by holding $N_{\mathrm{samples}}$ constant while allowing 
+$L$ to vary (Fig.~\ref{fig:log_s_diff_vs_L}). Fig.~\ref{fig:cherried_s_diff_vs_IC} only to shows that the relationship holds qualitatively, while Fig.~\ref{fig:log_s_diff_vs_L} goes further and shows a clear linear relationship between $t^*$ and $\log(L)$.
+
+\section{Control Phase Dynamics}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[trim={10 20 20 10}, clip, scale=0.391]{Draft2/FinalFigs/supplemental/s_diff_at_const_dists_inset_L128.png}
+    \caption{Showing an average over 1000 initial conditions of $\log(S_{\mathrm{diff}})$ as a function of time when we start the initial conditions at a fixed $S_{\mathrm{diff}}(t=0) = \epsilon = 10^{-5}$ and $L = 128$. The main figure shows linear fits of the data and the inset plots the slopes of the fits as a function of the corresponding $a$ value against $\log(a)$ shown as a red dashed line (not a fit), which agrees well with the data.}
+    \label{fig:control_epsilon_exp}
+\end{figure}
+
+
+In order to separately estimate $\tau_C$, instead of taking random initial conditions we take a random initial spin configuration that is $\epsilon$ away from the unstable fixed point, in particular we take
+%given by 
+${\bf S}_j^{\mathrm{init}}=({\bf S}_j^0+\epsilon {\bf S}_j^r)/|({\bf S}_j^0+\epsilon {\bf S}_j^r)|$ 
+where  
+%${\bf S}_j^r$ denotes a random configuration of the spin and 
+$\epsilon \ll 1$ and ${\bf S}_j^r$ is randomly distributed on the unit sphere. In the following we take $\epsilon = 10^{-5}$ and the results for $0<a<1$ are shown in Fig.~\ref{fig:control_epsilon_exp}. When restricting the initial conditions to an $\epsilon$ away from the unstable fixed point the model does not become chaotic and is always controlled. Here, we always work in the limit $\epsilon \rightarrow 0$, such that as we take $t\rightarrow \infty$ and $L\rightarrow \infty$ we can always take $\epsilon$ sufficiently small. From this we are able to estimate the decay into the control state directly. We  find excellent agreement for $\tau_C$ when the model is  deep in the control phase between fully random initial conditions   and those that are $\epsilon$ away from the unstable fixed point as shown in Fig.~\ref{fig:control_epsilon_exp} allowing us to conclude that
+\begin{equation}
+%\fbox{
+    1/t_C=\log(1/a)\,. 
+    %\leftrightarrow a=\exp(-1/\tau_C),
+%}
+\end{equation}
+This shows that the action of the control map when close to the unstable fixed point is to push it exponentially closer, larger $a$ pushes it faster. Importantly, $t_C$ is smooth through the transition once we take limited initial conditions near the unstable fixed point. Lastly, we also plot the cross over time scale $t^*$, which marks the cross over between the early and late times exponential decay (Fig.\ref{fig:log_s_diff_vs_L}.c).
+
+\section{Removing Solitons}
+\begin{figure}%[t!]
+   \centering
+\includegraphics[trim={5 0 20 10}, clip,scale=0.22]{Draft2/FinalFigs/supplemental/soliton_figure.png}
+\caption{
+Activity dynamics revealed through space-time plots of $\delta \mathcal{S}_i(t)$ using the spin chain model in Eq.~\eqref{eq:EOM}. As we approach the chaotic phase we find ``soliton like'' excitations (shown as a non-dispersing line in (a)) within patterns of activity that look like  directed percolation. These soliton's proliferate as we exit the control phase and could introduce an intermediate phase between chaos and control. (a) is for $a = 0.5675$ and (b) is for $a = 0.6275$. The fact that these disturbances can exist for such small $a$ makes it difficult to define a control and chaotic regime.
+}
+\label{fig:solitons}
+\end{figure}
+When we run the dynamics with time independent $J_x(t)=J_y(t)=J$ we find effective solitons (i.e. moving with velocity $v_{\mathrm{soliton}}\approx \pm 1$ with a random sign without changing its shape) near the transition out of the control phase as shown the activity dynamics of $\mathcal{S}_x(t)$ in Fig.~\ref{fig:solitons}.
+These solitons modify the phase diagram and potentially place an intervening phase between chaos and control, which is a further detail beyond our current intentions of studying a many-body chaos to control phase transition. Therefore, in the following we remove these solitons by making the dynamics more chaotic by making the sign of $J_x(t)$ and $J_y(t)$ in Eqs.~\eqref{eq:ham} and \eqref{eq:EOM} random at each application of the Hamiltonian dynamics. This is a simple way to remove the soliton like features completely as shown in Fig.~\ref{fig:model}  without strongly changing any of the energy scales of the problem. In the following all of the data shown is for  the dynamical model with random signs for $J_x(t)$ and $J_y(t)$, which is averaged over in each sample.
+
+
+
+\section{Linear instability analysis around the $\pi/4$-spiral state}
+Here we present a simple analytic theory that demonstrates the modularity of this system near the $N=4$ unstable spiral fixed point. We use the parameterization of Ref.~\cite{das2020} slightly modified
+\begin{equation}
+    S_j^x = s_j, \,\, S_j^y=f(s_j)\cos(\phi_j), \,\,
+    S_j^z=f(s_j)\sin(\phi_j)
+\end{equation}
+where $f(x)=\sqrt{1-x^2}$. In these variables the equations of motion are derived from the Hamilton equations of motion $-d\phi_j/dt=\partial H/\partial s_j$ and $d s_j/dt = \partial H/\partial \phi_j$  (using $J\rightarrow -J$).
+For uniform exchange $J=J_x=J_y=J_z$ we obtain
+\begin{equation}
+    \begin{aligned}
+    \frac{d s_j}{dt}=Jf(s_j)f(s_{j+1})\sin(\phi_{j+1}-\phi_j) 
+-Jf(s_j)f(s_{j-1})\sin(\phi_{j}-\phi_{j-1})
+\end{aligned}
+\label{eq:expanded_sj}
+\end{equation}
+
+and
+
+\begin{equation}
+    \begin{aligned}
+         \frac{d \phi_j}{dt}=-J\bigg[f'(s_j)f(s_{j+1})\cos(\phi_{j+1}-\phi_j)
+     +f'(s_j)f(s_{j-1})\cos(\phi_{j}-\phi_{j-1})\bigg] 
+         -J(s_{j-1}+s_{j+1}).
+    \end{aligned}
+    \label{eq:expanded_phij}
+\end{equation}
+
+If we expand the parameters about our classical $N=4$ spiral fixed point
+
+\begin{align}
+    s_j^0 = 0\,, \quad \quad
+    \phi_j^0 &= \frac{\pi}{2}j
+\end{align}
+such that $s_j = s_j^0+\delta s_j$, $\phi_j=\phi_j^0+\delta \phi_j$, Eq.~\eqref{eq:expanded_sj} and Eq.~\eqref{eq:expanded_phij} become
+
+\begin{eqnarray}
+    \frac{d \delta s_j}{d t} = 0\,, \quad
+    \frac{d \delta \phi_j}{d t} &=& -J_x(\delta s_{i-1}+\delta s_{i+1}).
+\end{eqnarray}
+
+This has the in time solution 
+
+\begin{equation}
+    \phi_j(t)=-(\delta s_{j-1}+\delta s_{j+1})\,t+\pi j/2,
+\end{equation}
+with $\delta s_j(t)=\delta s_j(0)$ is fixed by the initial condition. Therefore, we see that the phase perturbations $\delta \phi_j$ grow linearly with time and the spin evolves periodically in time, not exponentially, hence this perturbation around the fixed point is marginal for the period 4 spiral. 
+
+
+
+\end{document}
+
