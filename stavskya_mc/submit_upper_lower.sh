@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --partition=main-redhat            # Partition (job queue)
+#SBATCH --partition=main          # Partition (job queue)
 
 #SBATCH --requeue                   # Return job to the queue if preempted
 
