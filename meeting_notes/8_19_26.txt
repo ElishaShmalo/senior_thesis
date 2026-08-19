@@ -1,0 +1,6 @@
+- New randomness for stavskays
+    - each timestep choose from [ep_lower, ep_upper] with p = 0.5 to see the PT
+    - Use this and varry p as the control parameter to analyze the PT
+- Spin chain: 
+    - Look for capture times of the lyoponove --> ln(a) for diffrent samples
+    - Generate a distribution from that should poisson distribution
