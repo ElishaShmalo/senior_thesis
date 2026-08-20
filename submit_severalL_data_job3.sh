@@ -24,5 +24,5 @@ module load openmpi
 
 export OMP_NUM_THREADS=1
 
- ~/.juliaup/bin/julia heisen_spin_chain/lyapunov_exponents/get_good_data_severalL3.jl
+ ~/julia-1.11.6/bin/julia heisen_spin_chain/lyapunov_exponents/get_good_data_severalL3.jl
 
