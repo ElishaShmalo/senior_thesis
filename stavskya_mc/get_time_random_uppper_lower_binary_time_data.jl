@@ -18,11 +18,12 @@ addprocs(SlurmManager())
     average_epsilon_c = 0.223
     average_epsilon_rate = 0.00005
     p_val = 1 / 2
+    lower_div = 10
     # epsilon_bar = (epsilon_u + epsilon_l) / 2 = 0.55 * epsilon_u.
     upper_epsilon_c = average_epsilon_c / 0.55
     upper_epsilon_rate = average_epsilon_rate / 0.55
     upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -3:3]
-    lower_epsilons = [round(upper_ep / 10, digits=6) for upper_ep in upper_epsilons]
+    lower_epsilons = [round(upper_ep / lower_div, digits=6) for upper_ep in upper_epsilons]
     p_vals = fill(p_val, length(upper_epsilons))
 
     time_prefact = 100

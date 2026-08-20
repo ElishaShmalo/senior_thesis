@@ -1,0 +1,7 @@
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_slidding_p/
+
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_window_binary && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_window_binary/
