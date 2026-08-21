@@ -3,12 +3,18 @@ rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis/dat
 
 rsync --bwlimit=8M -avP es1074@amarel.rutgers.edu:/home/es1074/senior_thesis2/senior_thesis/data/delta_evolved_spins/ /Users/elishashmalo/PycharmProjects/senior_thesis/data/delta_evolved_spins/
 
-ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/data/spin_dists_per_time/ && tar czf - N4/a0p62/ ." | pv | tar xzf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/data_temp 
+ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis/data/spin_dists_per_time/ && tar czf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/PycharmProjects/senior_thesis/data/data_temp 
+
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/data/spin_dists_per_time && tar czf - ." \
+| pv -brt \
+| tar xf - -C /Volumes/ExternalData/spin_dists_per_time/
 
 ssh es1074@amarel.rutgers.edu \
-"cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar czf - ." \
+"cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar cf - ." \
 | pv -brt \
-| tar xzf - -C /Volumes/ExternalData/stavskya_mc/data_temp/
+| tar xf - -C /Volumes/ExternalData/stavskya_mc/data_temp/
 
 ssh es1074@amarel.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/data && tar czf - ." | pv -brt | tar xzf - -C /Volumes/ExternalData/stavskya_mc/data/
 
