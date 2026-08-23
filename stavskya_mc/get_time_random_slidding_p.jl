@@ -26,11 +26,11 @@ addprocs(SlurmManager())
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [1000, 2000, 4000, 8000]
     
-    upper_val = 0.41
+    upper_val = 0.42
     lower_div = 10
     lower_val = round(upper_val / lower_div, digits=6)
 
-    p_vals = sort(union([round(i, digits=6) for i in 0.0:0.1:0.9], [round(i, digits=6) for i in 0.45:0.01:0.55], [round(i, digits=6) for i in 0.49:0.001:0.51]))
+    p_vals = sort(union([round(i, digits=6) for i in 0.0:0.1:0.9], [round(i, digits=6) for i in 0.45:0.01:0.55], [round(i, digits=6) for i in 0.46:0.004:0.54]))
     upper_epsilons = [upper_val for _ in 1:length(p_vals)]
     lower_epsilons = [lower_val for _ in 1:length(p_vals)]
     

@@ -1,142 +1,47 @@
-L_val: 1024 | a_val: 0.7525 | IC: 1432 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 640 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1695 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1503 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 88 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 392 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 280 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1152 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 935 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 128 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 671 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1743 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 287 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1270 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1055 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 408 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1800 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 760 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 743 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1207 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1480 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1719 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1159 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 888 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1400 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 992 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 710 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1191 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 159 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 919 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1024 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1367 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1511 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1912 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 64 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 792 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1119 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 71 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 80 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1647 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1102 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 471 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 623 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1231 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1744 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1240 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1920 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 136 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 168 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1712 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 543 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1271 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1070 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1360 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1976 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 784 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 984 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 343 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1215 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 455 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1167 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1088 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 664 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 175 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 247 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1056 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1192 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1048 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1655 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 207 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1760 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 439 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 304 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1336 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1872 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 831 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 336 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 896 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 96 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1222 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1568 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1376 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1143 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 486 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 615 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1592 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1663 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1071 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1415 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 544 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1039 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 951 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1079 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 176 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1648 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 55 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 479 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1864 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1720 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1463 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1494 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 248 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 624 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1216 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1160 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 711 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1351 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 472 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 672 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 504 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 416 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1696 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1487 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1664 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 151 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1144 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1208 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 56 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1312 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1352 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1504 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 199 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1072 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1512 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 936 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 832 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1168 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1279 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 952 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 192 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1103 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 744 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 288 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1495 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 920 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 480 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 440 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1656 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 160 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1368 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 1120 / 2000
-L_val: 1024 | a_val: 0.7525 | IC: 712 / 2000
+# a_vals = [0.62, 0.64, 0.66, 0.68]
+
+for L_val in np.array(num_unit_cells_vals) * N_val:
+    fig, axs = plt.subplots(
+        1, len(a_vals),
+        figsize=(4 * len(a_vals), 4)
+    )
+
+    # Handles the case where there is only one a_val
+    axs = np.atleast_1d(axs)
+
+    for ax, a_val in zip(axs, a_vals):
+
+        t_stars = np.array(
+            find_t_star_lyp(L_val, a_val, [], show=False, skip_init=3, threshold=1/10)
+        )
+
+        # Poisson fit
+        # lam = np.mean(t_stars)
+        lam = poisson_fit(t_stars)
+
+        xs = np.arange(0, t_stars.max() + 1)
+        pmf = poisson.pmf(xs, lam)
+
+        bins = np.arange(-0.5, t_stars.max() + 1.5, 1)
+
+        ax.hist(
+            t_stars,
+            bins=bins,
+            alpha=0.3,
+            density=True
+        )
+
+        ax.plot(
+            xs,
+            pmf,
+            "--",
+            label=fr"$\mu={lam:.3f}$"
+        )
+        ax.set_title(rf"a = {a_val}")
+
+    # plt.legend()
+    axs[0].set_ylabel("Probability")
+    fig.suptitle(fr"$L={L_val}$")
+
+    plt.tight_layout()
+    plt.show()
