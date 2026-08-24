@@ -17,7 +17,7 @@ addprocs(SlurmManager())
     L_vals = [20000]
     upper_val = 0.42
     lower_div = 10
-    lower_val = upper_val / lower_div
+    lower_val = round(upper_val / lower_div, digits=6)
     p_c = 0.492
     p_rate = 0.00005
     p_vals = [round(p_c + i * p_rate, digits=6) for i in -3:3]
