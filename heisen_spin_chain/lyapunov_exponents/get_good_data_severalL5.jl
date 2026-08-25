@@ -35,8 +35,8 @@ end
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 500 # We are avraging over x initial conditions
-@everywhere init_cond_name_offset = 0
-a_vals = [0.55] # general a_vals
+@everywhere init_cond_name_offset = 1000
+a_vals = [0.55, 0,58, 0.6, 0.62] # general a_vals
 # a_vals = [0.7] # general a_vals
 
 @everywhere epsilon = 0.01
