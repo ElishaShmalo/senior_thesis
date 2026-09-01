@@ -6,6 +6,10 @@ ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc
 | pv -brt \
 | tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_window_binary/
 
-ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p && tar cf - ." \
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_time && tar cf - ." \
 | pv -brt \
-| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_slidding_p/
+| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_slidding_p/rho_per_time/
+
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_epsilon && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_slidding_p/rho_per_epsilon/

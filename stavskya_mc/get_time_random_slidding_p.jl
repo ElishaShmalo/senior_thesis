@@ -27,7 +27,7 @@ addprocs(SlurmManager())
     L_vals = [1000, 2000, 4000, 8000]
     
     upper_val = 0.44
-    lower_div = 10
+    lower_div = 20
     lower_val = round(upper_val / lower_div, digits=6)
 
     p_vals = sort(union([round(i, digits=6) for i in 0.1:0.05:0.9], [round(i, digits=6) for i in 0.4:0.02:0.6]))
