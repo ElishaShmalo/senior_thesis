@@ -26,7 +26,7 @@ addprocs(SlurmManager())
     # L_vals = [8000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000]
     L_vals = [1000, 2000, 4000, 8000]
     
-    upper_val = 0.44
+    upper_val = 0.43
     lower_div = 20
     lower_val = round(upper_val / lower_div, digits=6)
 

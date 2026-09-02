@@ -26,8 +26,8 @@ addprocs(SlurmManager())
 
     time_prefact = 100
     time_step = 2000
-    num_initial_conds = 2000
-    num_init_conds_offset = 0
+    num_initial_conds = 4000
+    num_init_conds_offset = 2000
     initial_state_prob = 0.5
 end
 
