@@ -14,7 +14,7 @@ addprocs(SlurmManager())
 
     float_str(f) = replace("$f", "." => "p")
 
-    L_vals = [25000, 5000, 10000, 20000, 25000]
+    L_vals = [2500, 5000, 10000, 20000, 25000]
     upper_val = 0.42
     lower_div = 10
     lower_val = round(upper_val / lower_div, digits=6)
