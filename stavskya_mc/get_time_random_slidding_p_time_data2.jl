@@ -14,18 +14,18 @@ addprocs(SlurmManager())
 
     float_str(f) = replace("$f", "." => "p")
 
-    L_vals = [25000, 5000, 10000, 20000, 25000]
-    upper_val = 0.42
-    lower_div = 10
+    L_vals = [20000, 25000]
+    upper_val = 0.43
+    lower_div = 20
     lower_val = round(upper_val / lower_div, digits=6)
-    p_c = 0.4928
-    p_rate = 0.00005
+    p_c = 0.5
+    p_rate = 0.0003 * 2
     p_vals = [round(p_c + i * p_rate, digits=6) for i in -3:3]
     upper_epsilons = fill(upper_val, length(p_vals))
     lower_epsilons = fill(lower_val, length(p_vals))
 
-    time_prefact = 10000
-    time_step = 150000
+    time_prefact = 100
+    time_step = 2000
     num_initial_conds = 2000
     num_init_conds_offset = 0
     initial_state_prob = 0.5
