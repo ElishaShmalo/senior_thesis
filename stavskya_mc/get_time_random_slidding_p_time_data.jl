@@ -15,12 +15,13 @@ addprocs(SlurmManager())
     float_str(f) = replace("$f", "." => "p")
 
     L_vals = [2500, 5000, 10000, 20000, 25000]
+    L_vals = [10000, 20000, 25000]
     upper_val = 0.42
     lower_div = 10
     lower_val = round(upper_val / lower_div, digits=6)
     p_c = 0.4928
     p_rate = 0.00005
-    p_vals = [round(p_c + i * p_rate, digits=6) for i in -3:3]
+    p_vals = [round(p_c + i * p_rate, digits=6) for i in -1:1]
     upper_epsilons = fill(upper_val, length(p_vals))
     lower_epsilons = fill(lower_val, length(p_vals))
 
