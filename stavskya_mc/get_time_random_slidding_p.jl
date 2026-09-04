@@ -31,6 +31,7 @@ addprocs(SlurmManager())
     lower_val = round(upper_val / lower_div, digits=6)
 
     p_vals = sort(union([round(i, digits=6) for i in 0.1:0.05:0.9], [round(i, digits=6) for i in 0.45:0.01:0.65]))
+    p_vals = sort(union([round(i, digits=6) for i in 0.465:0.002:0.505]))
     upper_epsilons = [upper_val for _ in 1:length(p_vals)]
     lower_epsilons = [lower_val for _ in 1:length(p_vals)]
     

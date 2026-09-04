@@ -14,15 +14,11 @@ ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc
 | pv -brt \
 | tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_slidding_p/rho_per_epsilon/
 
-
-
-
-
-# Only L=20000
-ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_time/IC1/L20000 && tar cf - ." \
+# 2 for time_rand_slidding_p
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_time && tar cf - ." \
 | pv -brt \
-| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_slidding_p/rho_per_time/IC1/L20000/
+| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_slidding_p/rho_per_time/
 
-ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_time/IC1/L25000 && tar cf - ." \
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis2/senior_thesis/stavskya_mc/stavskya_mc/data/time_rand_slidding_p/rho_per_epsilon && tar cf - ." \
 | pv -brt \
-| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_rand_slidding_p/rho_per_time/IC1/L25000/
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/time_rand_slidding_p/rho_per_epsilon/
