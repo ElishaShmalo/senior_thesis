@@ -18,7 +18,7 @@ addprocs(SlurmManager())
     upper_val = 0.43
     lower_div = 20
     lower_val = round(upper_val / lower_div, digits=6)
-    p_c = 0.4791
+    p_c = 0.479
     p_rate = 0.0003
     p_vals = [round(p_c + i * p_rate, digits=6) for i in -3:3]
     upper_epsilons = fill(upper_val, length(p_vals))
