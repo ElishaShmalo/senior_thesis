@@ -22,7 +22,7 @@ end
 @time begin
     
 # General Variables
-@everywhere num_unit_cells_vals = [256, 512]
+@everywhere num_unit_cells_vals = [2000]
 # @everywhere num_unit_cells_vals = [128]
 # @everywhere num_unit_cells_vals = [64]
 @everywhere J = 1    # energy factor
@@ -36,13 +36,16 @@ end
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 2000 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
-a_vals = [0.7525, 0.755, 0.7575, 0.76, 0.7625] # general a_vals
+
+a_c = 0.758
+rate = 0.0002
+a_vals = [round(a_c + i *rate, digits=6) for i in -3:3] # general a_vals
 # a_vals = [0.7] # general a_vals
 
 @everywhere N_val = 4
 
-time_prefact = 5
-step_size = 1
+time_prefact = 10
+step_size = 200
 
 # --- geting spin dists ---
 
