@@ -15,14 +15,14 @@ addprocs(SlurmManager())
     float_str(f) = replace("$f", "." => "p")
 
     L_vals = [20000]
-    average_epsilon_c = 0.27
-    average_epsilon_rate = 0.0001
+    average_epsilon_c = 0.27035
+    average_epsilon_rate = 0.0003
     p_val = 0.8
     lower_div = 20
     # epsilon_bar = (epsilon_u + epsilon_l) / 2 = 0.55 * epsilon_u.
     upper_epsilon_c = average_epsilon_c / (p_val + (1-p_val)/lower_div)
     upper_epsilon_rate = average_epsilon_rate / (p_val + (1-p_val)/lower_div)
-    upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -5:5]
+    upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -3:3]
     lower_epsilons = [round(upper_ep / lower_div, digits=6) for upper_ep in upper_epsilons]
     p_vals = fill(p_val, length(upper_epsilons))
 
