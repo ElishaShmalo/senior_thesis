@@ -15,8 +15,8 @@ addprocs(SlurmManager())
     float_str(f) = replace("$f", "." => "p")
 
     L_vals = [20000]
-    average_epsilon_c = 0.27035
-    average_epsilon_rate = 0.0003
+    average_epsilon_c =    0.27033
+    average_epsilon_rate = 0.0001
     p_val = 0.8
     lower_div = 20
     # epsilon_bar = (epsilon_u + epsilon_l) / 2 = 0.55 * epsilon_u.
