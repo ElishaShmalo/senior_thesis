@@ -10,7 +10,7 @@ addprocs(SlurmManager())
 end
 
 # Imports
-@everywhere using Random, LinearAlgebra, DifferentialEquations, Serialization, Statistics, DelimitedFiles, SharedArrays, CSV, DataFrames
+@everywhere using Random, LinearAlgebra, DifferentialEquations, Serialization, Statistics, DelimitedFiles, CSV, DataFrames
 
 # Other files   
 @everywhere include("../utils/make_spins.jl")
@@ -72,14 +72,14 @@ for num_unit_cells in num_unit_cells_vals
 
                 spin_chain_A = make_random_state(L) # our S_A
 
-                evolved_results = states_evolve_func(J_vec, spin_chain_A, a_val, n, J, S_NAUGHT)
+                evolved_results = states_evolve_func(J_vec, spin_chain_A, a_val, n, J, S_NAUGHT)[1:step_size:n]
 
                 current_sdiffs = weighted_spin_difference_vs_time(evolved_results, S_NAUGHT)
 
                 sample_filepath = "data/s_diff_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_timepref$(time_prefact)_timestep$(step_size)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
                 idx = 1:step_size:min(n, length(current_sdiffs))
-                df = DataFrame(t = idx, s_diff = current_sdiffs[idx])
+                df = DataFrame(t = idx, s_diff = current_sdiffs)
                 CSV.write(sample_filepath, df)
             end
         end

@@ -6,7 +6,7 @@ addprocs(SlurmManager())
 
 @everywhere begin
     using Random, LinearAlgebra, Plots, Serialization, Statistics
-    using DelimitedFiles, SharedArrays, CSV, DataFrames
+    using DelimitedFiles, CSV, DataFrames
 
     include("utils/general.jl")
     include("utils/calculations.jl")
