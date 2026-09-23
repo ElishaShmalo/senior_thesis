@@ -22,7 +22,7 @@ end
 @time begin
     
 # General Variables
-@everywhere num_unit_cells_vals = [1000]
+@everywhere num_unit_cells_vals = [500]
 # @everywhere num_unit_cells_vals = [128]
 # @everywhere num_unit_cells_vals = [64]
 @everywhere J = 1    # energy factor
@@ -34,7 +34,7 @@ end
 @everywhere tau = 1 * J
 
 # --- Trying to Replecate Results ---
-@everywhere num_initial_conds = 2000 # We are avraging over x initial conditions
+@everywhere num_initial_conds = 500 # We are avraging over x initial conditions
 @everywhere init_cond_name_offset = 0
 
 a_c = 0.758
@@ -78,7 +78,7 @@ for num_unit_cells in num_unit_cells_vals
 
                 sample_filepath = "data/s_diff_per_time/N$N_val/a$a_val_name/IC1/L$L/N$(N_val)_a$(a_val_name)_IC1_L$(L)_timepref$(time_prefact)_timestep$(step_size)_sample$(init_cond+init_cond_name_offset).csv"
                 make_path_exist(sample_filepath)
-                idx = 1:step_size:min(n, length(current_sdiffs))
+                idx = 1:step_size:n
                 df = DataFrame(t = idx, s_diff = current_sdiffs)
                 CSV.write(sample_filepath, df)
             end
