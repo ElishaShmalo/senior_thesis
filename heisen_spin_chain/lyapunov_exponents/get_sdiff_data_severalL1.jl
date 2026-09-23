@@ -35,7 +35,7 @@ end
 
 # --- Trying to Replecate Results ---
 @everywhere num_initial_conds = 500 # We are avraging over x initial conditions
-@everywhere init_cond_name_offset = 0
+@everywhere init_cond_name_offset = 500
 
 a_c = 0.758
 rate = 0.0003
