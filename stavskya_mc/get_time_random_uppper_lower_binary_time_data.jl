@@ -19,7 +19,7 @@ addprocs(SlurmManager())
     average_epsilon_rate = 0.00005
     p_val = 0.8
     lower_div = 20
-    # epsilon_bar = (epsilon_u + epsilon_l) / 2 = 0.55 * epsilon_u.
+    # epsilon_bar = p*epsilon_u + (1-p)*epsilon_l = (p + (1-p)/lower_div) * epsilon_u = 0.81 epsilon_u for p = 0.8, lower_div = 20
     upper_epsilon_c = average_epsilon_c / (p_val + (1-p_val)/lower_div)
     upper_epsilon_rate = average_epsilon_rate / (p_val + (1-p_val)/lower_div)
     upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -3:3]

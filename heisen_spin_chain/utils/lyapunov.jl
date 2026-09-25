@@ -43,3 +43,55 @@ end
 
 #     return S_A .+ thing_to_add
 # end
+
+
+"""
+    benettin_lambda_sdiff(L_J_vec, spin_chain_A, a_val, n_steps, tau, t_step, s_0, epsilon; record_every=1)
+
+One sample of the Benettin run that get_good_data_severalL*.jl used to do inline (moved here
+2026-09 so it can be tested). B is a copy of A with its middle spin kicked by
+`make_random_spin(epsilon)`. Then, n_steps times:
+- evolve A and B together (`random_evolve_spins_to_time`, same random J_x, J_y signs, control push);
+- record ln(|d|/epsilon) and S_diff(A);
+- push B back to distance epsilon from A.
+
+Recording (the new record_every knob):
+- `times[j]  = j*record_every*tau`, for j = 1, ..., div(n_steps, record_every);
+- `lambda[j]` is the MEAN of ln(|d|/epsilon) over the record_every steps ending at times[j], so
+  any time-window average of lambda is the same as with record_every = 1;
+- `s_diff[j]` is S_diff(A) at times[j];
+- if record_every does not divide n_steps, the last partial block is dropped.
+
+As before, lambda is ln(|d|/epsilon) per step and is NOT divided by tau; the notebooks do that.
+With record_every = 1 the output is bit-identical to the old inline loop (same random numbers,
+same order). `L_J_vec` is copied, so the caller's vector (the global J_vec) is not modified.
+"""
+function benettin_lambda_sdiff(L_J_vec, spin_chain_A, a_val, n_steps::Integer, tau, t_step, s_0, epsilon;
+                               record_every::Integer=1)
+    record_every >= 1 || throw(ArgumentError("record_every must be >= 1, got $record_every"))
+    J_work = copy(L_J_vec)
+    A = spin_chain_A
+    B = copy(A)
+    mid = div(length(B), 2)
+    B[mid] = normalize(B[mid] + make_random_spin(epsilon))
+
+    n_rec = div(n_steps, record_every)
+    times = [j * record_every * tau for j in 1:n_rec]
+    lambda = zeros(n_rec)
+    s_diff = zeros(n_rec)
+    acc = 0.0
+    for step in 1:(n_rec * record_every)
+        evolved = random_evolve_spins_to_time(J_work, A, B, a_val, tau, t_step, s_0)
+        A = evolved[1][end]
+        B = evolved[2][end]
+        acc += log(calculate_spin_distence(A, B) / epsilon)
+        B = push_back(A, B, epsilon)
+        if step % record_every == 0
+            j = div(step, record_every)
+            lambda[j] = acc / record_every
+            s_diff[j] = weighted_spin_difference(A, s_0)
+            acc = 0.0
+        end
+    end
+    return times, lambda, s_diff
+end
