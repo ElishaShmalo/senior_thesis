@@ -5,7 +5,7 @@ using SymPy
 
 # Random spin state
 function make_random_state(n::Int=L)
-    return [normalize(rand(3)) for _ in 1:n]
+    return [normalize(randn(3)) for _ in 1:n]
 end
 
 # Uniform spin state along z
@@ -30,7 +30,7 @@ end
 # end
 
 function make_random_spin(size = 1)
-    return size * normalize(rand(3))
+    return size * normalize(randn(3))
 end
 
 function f_coff(x)

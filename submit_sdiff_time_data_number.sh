@@ -38,4 +38,4 @@ fi
 echo "Running Julia script number $digit"
 
 ~/julia-1.11.6/bin/julia \
-    heisen_spin_chain/lyapunov_exponents/get_sdiff_data_severalL_${digit}.jl
+    heisen_spin_chain/lyapunov_exponents/get_sdiff_data_severalL${digit}.jl
