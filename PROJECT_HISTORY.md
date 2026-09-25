@@ -698,3 +698,10 @@ You ran `bash stavskya_mc/block_disorder/tests/run_all_tests.sh` (Julia 1.12.6, 
 
 This closes the last test task; the new Stavskaya pipeline is cleared for production runs.
 
+
+### 7.13 Cluster launch timeout (2026-09-25)
+
+Your first cluster submission of `get_sdiff_data_severalL1.jl` (Julia 1.11.6) failed inside `addprocs(SlurmManager())` with `launch_timeout exceeded`.
+- **What failed:** SlurmClusterManager waits a default 60 s for all srun'd workers to report back, and 250 workers did not report in time. This happened before any project code ran on the workers.
+- **What didn't cause it:** the call is unchanged from the old scripts. The cluster tests (`test_spin_refactor.jl` and the local run on 1.11.6) passed.
+- **Change:** the ten spin generators and `stavskya_mc/block_disorder/generators/setup_workers.jl` now use `SlurmManager(launch_timeout=600.0)`. `check_spin_local_output.py` still passes, since the scripts still differ only in settings. The older Stavskaya scripts were not changed.

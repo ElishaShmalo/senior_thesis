@@ -25,7 +25,7 @@ else
     @eval using SlurmClusterManager
     Base.invokelatest() do
         println("We are adding $(SlurmManager()) workers")
-        addprocs(SlurmManager())
+        addprocs(SlurmManager(launch_timeout=600.0))   # 2026-09: default 60 s timed out while 250 workers started
     end
 end
 
