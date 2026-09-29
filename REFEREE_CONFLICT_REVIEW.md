@@ -52,22 +52,47 @@
      - choose λ averaging windows that are multiples of `record_every`;
      - capture times t\* will come out exactly one step later than in the old results (the old code returned the row index).
 
-2. **Stavskaya log-time production runs** (`stavskya_mc/block_disorder/submit/*.sh`).
+2. **BVH reproduction with the Stavskaya model: ready to run** (details H §7.14). These are copies of your upper/lower generators with only the knobs changed, plus new spreading generators.
+   - **Local test on your Mac first:** `bash stavskya_mc/block_disorder/tests/run_all_tests.sh`. It now also runs `test_spreading.jl` and every new copy at tiny sizes.
+   - **Cluster**, after `git pull`. Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. `--chdir` runs each job inside the submit folder, as the scripts require:
+     ```bash
+     cd ~/senior_thesis2/senior_thesis/stavskya_mc
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_clean.sh
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_bvh_b1.sh
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_bvh_b6.sh
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_clean.sh
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_bvh_b1.sh
+     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_bvh_b6.sh
+     ```
+     - clean: DP control, ε = 0.2942–0.2948
+     - bvh_b1: p = 0.2, ε_u = 0.585–0.615, block_len 1
+     - bvh_b6: p = 0.2, ε_u = 0.445–0.475, block_len 6
+     - The three spreading scripts use the same models, starting from one active site.
+     - Later, once `bvh_b1` has pinned ε_u,c, set `average_epsilon_c` in `get_upper_lower_binary_time_log_fss_bvh_b1.jl` to 0.24 × ε_u,c and run `sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_fss_bvh_b1.sh`.
+   - **Data** (from `stavskya_mc/`):
+     - decay: `data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/epsilonu<u>/epsilonl<l>/pval0p2/blocklen<b>/`; the clean run uses `pval1p0`.
+     - spreading: `data/spreading/time_rand_window_binary/spreading/tmax100000/epsilonu<u>/epsilonl<l>/pval<p>/blocklen<b>/`
+   - **Analysis:**
+     - `analyze_time_log.ipynb` with `MODEL = "window_binary"`, `L = 100000`, `TIME_PREFACT = 1.0`, `AVG_EPS_C` / `AVG_EPS_RATE` / `P_VAL` / `BLOCK_LEN` / `N_SAMPLES` set to the generator's knobs;
+     - `analyze_spreading.ipynb` (same knob names). It is written as a guide: the model, the observables, the DP and BVH predictions with formulas, what to look for in each figure, and a closing verdict table.
+     - `analyze_time_log_fss.ipynb` for the FSS copy.
+
+3. **Stavskaya log-time production runs** (`stavskya_mc/block_disorder/submit/*.sh`).
    - Start with `block_len = 1`.
    - The critical control values in the generators were found for `block_len = 1` only. Rescan them with the `*_rho_per_ep_block` generators before using `block_len > 1`.
 
-3. **Decide which late times to trust.**
+4. **Decide which late times to trust.**
    - Keep `time_prefact = 100` (H §7.10).
    - Run the `*_time_log_fss` generators at $L$ and $L/2$ (or $L/4$).
    - Use only the times where the sizes agree within errors. `analyze_time_log_fss.ipynb` has the light-cone/agreement check built in.
 
-4. **Run the BVH tests on the new data.** The notebooks already contain all of these: `analyze_time_log.ipynb`, plus the BVH cells appended to the two `rho_per_time` notebooks and `analyze_sdiff_per_time3`.
+5. **Run the BVH tests on the new data.** The notebooks already contain all of these: `analyze_time_log.ipynb`, plus the BVH cells appended to the two `rho_per_time` notebooks and `analyze_sdiff_per_time3`.
    - $1/A$ against $\ln t$ is a straight line at infinite-noise criticality; the local slope $d(1/A)/d\ln t$ is flat.
    - Running $\delta_{\rm eff}$ drifts toward 0 (it is constant at a power-law point); $1/\delta_{\rm eff}$ against $\ln t$ is linear.
    - Crossing times off criticality: $\ln t_x\propto r^{-1/2}$ (BVH) vs $\nu_t\ln(1/r)$ (power law).
    - Width of $P(\ln A)$ over disorder realizations: it grows linearly in $\ln t$ under BVH and saturates at a finite-disorder fixed point. This can already be tried on the existing per-sample Stavskaya CSVs.
 
-5. **Re-run the edited old Stavskaya notebooks** to refresh their saved outputs. These are the upper/lower and sliding-p `rho_per_time` notebooks, the `_z` notebooks and `rho_per_ep` (list in H §7.5, §7.11).
+6. **Re-run the edited old Stavskaya notebooks** to refresh their saved outputs. These are the upper/lower and sliding-p `rho_per_time` notebooks, the `_z` notebooks and `rho_per_ep` (list in H §7.5, §7.11).
 
 ---
 

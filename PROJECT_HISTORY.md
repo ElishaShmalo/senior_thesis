@@ -705,3 +705,48 @@ Your first cluster submission of `get_sdiff_data_severalL1.jl` (Julia 1.11.6) fa
 - **What failed:** SlurmClusterManager waits a default 60 s for all srun'd workers to report back, and 250 workers did not report in time. This happened before any project code ran on the workers.
 - **What didn't cause it:** the call is unchanged from the old scripts. The cluster tests (`test_spin_refactor.jl` and the local run on 1.11.6) passed.
 - **Change:** the ten spin generators and `stavskya_mc/block_disorder/generators/setup_workers.jl` now use `SlurmManager(launch_timeout=600.0)`. `check_spin_local_output.py` still passes, since the scripts still differ only in settings. The older Stavskaya scripts were not changed.
+
+### 7.14 BVH reproduction with the Stavskaya model (2026-09-29)
+
+**Parameters and where they come from.**
+- **BVH 1D strong disorder.** The active rate is used with probability 0.8, the inactive rate is the active rate/20, and disorder is held for Δt = 6 (and 3). Decay runs used L = 200,000 with 50,000 realizations; spreading runs used 5×10⁴–10⁶ runs up to t ≈ 10⁵.
+- **Mendonça (arXiv:1011.1489), clean Stavskaya.** ε* = 0.29450(5), δ = 0.155(5), z = 1.6.
+- **Pilot scan** (`review_2026_09/pilot_bvh_scan.py`, NumPy port, L = 2000, t ≤ 2000, 300 samples). With p = 0.2 and ε_l = ε_u/20, ε_u,c ≈ 0.60 at block_len 1 and ≈ 0.46 at block_len 6. With ε_l = ε_u/10 the critical point barely moves. In this model the disorder strength is set by p and by how far ε_u lies above ε*, so your existing p = 0.8 (upper/lower) and sliding-p models are the weaker rungs.
+
+**First version, then stripped back.** The first version used a presets file (`bvh_presets.toml`), preset-driven generators and an overview notebook. You asked for plain knob copies in your usual style, so all of that was deleted. `analyze_time_log.ipynb`, `analyze_time_log_fss.ipynb`, `time_log_tools.py` and `.gitignore` were restored to their committed versions.
+
+**What remains.**
+
+Decay runs are copies of your generators with only the knobs and header changed. Each has its own submit script. Data go to the usual `data/time_log/time_rand_window_binary/...`, told apart by `pval`, `L100000` and `timepref1p0`.
+
+| copy of `get_upper_lower_binary_time_log*.jl` | p_val | average_epsilon_c / rate | ε_u values | block_len | L, time_prefact | samples |
+|---|---|---|---|---|---|---|
+| `_bvh_b1` | 0.2 | 0.144 / 0.0012 | 0.585–0.615 (7) | 1 | 10⁵, 1.0 | 20,000 |
+| `_bvh_b6` | 0.2 | 0.1104 / 0.0012 | 0.445–0.475 (7) | 6 | 10⁵, 1.0 | 20,000 |
+| `_clean` | 1.0 | 0.2945 / 0.0001 | 0.2942–0.2948 (7) | 1 | 10⁵, 1.0 | 5,000 |
+| `_fss_bvh_b1` | 0.2 | 0.144 (0:0) | 0.6 (set after bvh_b1) | 1 | 1000–16000, 100 | 5,000 |
+
+ε_l = ε_u/20 throughout, and ε̄ = 0.24 ε_u at p = 0.2. With `time_prefact = 1` every output time is t ≤ L, where the periodic chain is statistically identical to the infinite one, so there are no finite-size effects.
+
+The spreading runs are the only genuinely new code. The existing generators always start from a random half-filled chain and record only ρ, so they cannot give single-seed survival P_s(t), number of active sites N(t) or radius R(t).
+- `utils/dynamics.jl` gained two functions:
+  - `time_random_spreading` runs one seed on the infinite chain, updating only the active window. Active sites stay within x0 ≤ i ≤ x0 + t, centred on x0 + t/2.
+  - `spreading_chunk` sums over many runs.
+- `generators/get_upper_lower_binary_spreading_{bvh_b1,bvh_b6,clean}.jl` use knob style like the time-log generators. Each has 5 ε values, t_max = 10⁵, and 200 chunks × 500 runs per value; each chunk writes one CSV of sums, and all chunks share one `pmap` queue. `naming.jl` gained `spreading_chunk_path`. Submit scripts: `submit_upper_lower_spreading_*.sh`.
+- `analysis/spreading_tools.py` loads the chunks and computes P_s, N and R² with bootstrap errors, local slopes, and `best_log_exponent`.
+- `analysis/analyze_spreading.ipynb` reproduces BVH Figs. 4–7: 1/P_s vs ln t, 1/δ_eff, (N/t)^(−1/y_N) and (R/t)^(−1/y_R), and crossing times. It overlays the clean run, and its parameters use the generator's knob names. It was rewritten on 2026-09-29 as an explanatory notebook: the model and light cone, the stored sums and the observables built from them, DP scaling, the Harris/Kinzel criterion and crossover time, the BVH predictions with their finite-time forms (1/δ_eff = ln t + a/B has slope 1; θ_eff ≈ 1 − y_N/ln t; 1/z_eff ≈ 1 − y_R/ln t), how to read each figure, sanity checks (P_s(0) = N(0) = 1, R ≤ t/2), and a closing verdict table. On synthetic clean data it gave θ_eff = 0.322 and 1/z_eff = 0.640 (DP: 0.314, 0.633).
+
+Tests: `tests/test_spreading.jl` and `tests/test_spreading_tools.py`. `check_local_test_output.py` now covers the 7 new generators (200 files), and `run_all_tests.sh` runs everything.
+
+**Verified here** (no Julia in the sandbox):
+- every `.jl` file parses;
+- a Python port of the spreading kernel matches a full-lattice simulation (|z| < 1) and the exact cases;
+- the checker passes on emulated local output (200/200) and catches a missing or misnamed file;
+- Python tests: 12/12;
+- `analyze_spreading.ipynb`, and your unmodified `analyze_time_log.ipynb` pointed at the `_bvh_b1` knobs, both ran end to end on small synthetic data.
+
+No production-size simulation was run.
+
+**Cost estimate:**
+- each p = 0.2 decay copy takes a few hours on 500 tasks (the clean copy about a quarter of that) and writes ~140k small CSVs (~0.4 GB);
+- each spreading copy takes ~1–2 h and writes 1000 chunk files.

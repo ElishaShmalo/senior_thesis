@@ -39,3 +39,20 @@ function block_rho_per_ep_path(root, model_dir, L, upper_ep, lower_ep, p_val, bl
     return joinpath(root, model_dir, "rho_per_epsilon", "IC1", "L$(L)",
                     "IC$(n_ic)_L$(L)_epsilonu$(u)_epsilonl$(l)_pval$(p)_blocklen$(block_len)_z$(z).csv")
 end
+
+"""
+One CSV per chunk of spreading runs (added 2026-09-29, get_bvh_spreading.jl). Columns: `time`,
+`runs`, `surv`, `sum_n`, `sum_n2`, `sum_x2`, `sum_r2`, `sum_r2sq` (see `spreading_chunk` in
+utils/dynamics.jl).
+
+    <root>/<model_dir>/spreading/tmax<T>/epsilonu<u>/epsilonl<l>/pval<p>/blocklen<b>/
+        spreading_tmax<T>_epsilonu<u>_epsilonl<l>_pval<p>_blocklen<b>_ppd<ppd>_runs<R>_chunk<k>.csv
+"""
+function spreading_chunk_path(root, model_dir, t_max, upper_ep, lower_ep, p_val, block_len, ppd,
+                              runs_per_chunk, chunk)
+    u, l, p = float_str(upper_ep), float_str(lower_ep), float_str(p_val)
+    dir = joinpath(root, model_dir, "spreading", "tmax$(t_max)", "epsilonu$(u)", "epsilonl$(l)",
+                   "pval$(p)", "blocklen$(block_len)")
+    name = "spreading_tmax$(t_max)_epsilonu$(u)_epsilonl$(l)_pval$(p)_blocklen$(block_len)_ppd$(ppd)_runs$(runs_per_chunk)_chunk$(chunk).csv"
+    return joinpath(dir, name)
+end

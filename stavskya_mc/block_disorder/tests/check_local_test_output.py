@@ -11,8 +11,13 @@ the analysis notebooks rebuild. It checks:
   * rho is in [0, 1] with no NaN, and once rho == 1 (absorbed) it stays 1;
   * the rho-per-epsilon files have 4 samples each.
 
-The expected parameter sets below mirror the `if LOCAL_TEST ... end` blocks of the six
+The expected parameter sets below mirror the `if LOCAL_TEST ... end` blocks of the
 generators. If you change those blocks, change this file too.
+
+Added 2026-09-29: the BVH copies (get_upper_lower_binary_time_log_{bvh_b1,bvh_b6,clean,fss_bvh_b1}.jl)
+and the spreading generators (get_upper_lower_binary_spreading_{bvh_b1,bvh_b6,clean}.jl). For the
+spreading chunk files it checks the columns, the time grid, runs = runs_per_chunk, surv in
+[0, runs] and never increasing, every run alive at t = 0, and sum_n >= surv.
 
 Run:  python3 stavskya_mc/block_disorder/tests/check_local_test_output.py
 (run_all_tests.sh runs it after the local generator runs.)
@@ -26,6 +31,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "analysis"))
 import time_log_tools as tl  # noqa: E402
+import spreading_tools as st  # noqa: E402
 
 OUT = HERE.parent / "_local_test_output"
 N_SAMPLES, PPD, BLOCKS = 4, 20, (1, 3)
@@ -38,9 +44,8 @@ def make_log_times(t_max, ppd=20):
     return np.array(list(dict.fromkeys([0, *ts, t_max])))
 
 
-def upper_lower_sets(steps):
+def upper_lower_sets(steps, c=0.27033, rate=0.00005, p=0.8, div=20):
     # same arithmetic as the Julia generators (and analyze_time_log.ipynb)
-    c, rate, p, div = 0.27033, 0.00005, 0.8, 20
     f = p + (1 - p) / div
     out = []
     for i in steps:
@@ -58,6 +63,16 @@ TIME_LOG = [  # (model_dir, L list, time_prefact, parameter sets)
     ("time_rand_window_binary", [32, 64], 4.0, upper_lower_sets([0])),              # ..._time_log_fss.jl
     ("time_rand_slidding_p", [64], 4.0, sliding_sets([round(0.479 + i * 0.0003, 6) for i in (-1, 0, 1)])),  # get_slidding_p_time_log.jl
     ("time_rand_slidding_p", [32, 64], 4.0, sliding_sets([0.47882])),               # ..._time_log_fss.jl
+    # BVH copies (2026-09-29); their LOCAL_TEST blocks keep the 3 middle values like the originals
+    ("time_rand_window_binary", [64], 4.0, upper_lower_sets([-1, 0, 1], 0.144, 0.0012, 0.2)),    # _time_log_bvh_b1.jl
+    ("time_rand_window_binary", [64], 4.0, upper_lower_sets([-1, 0, 1], 0.1104, 0.0012, 0.2)),   # _time_log_bvh_b6.jl
+    ("time_rand_window_binary", [64], 4.0, upper_lower_sets([-1, 0, 1], 0.2945, 0.0001, 1.0)),   # _time_log_clean.jl
+    ("time_rand_window_binary", [32, 64], 4.0, upper_lower_sets([0], 0.144, 0.0012, 0.2)),       # _time_log_fss_bvh_b1.jl
+]
+SPREAD = [  # (parameter sets, t_max, chunks, runs per chunk) of the spreading generators' LOCAL_TEST blocks
+    (upper_lower_sets([-1, 0], 0.144, 0.0012, 0.2), 200, 2, 5),    # get_upper_lower_binary_spreading_bvh_b1.jl
+    (upper_lower_sets([-1, 0], 0.1104, 0.0012, 0.2), 200, 2, 5),   # ..._spreading_bvh_b6.jl
+    (upper_lower_sets([-1, 0], 0.2945, 0.0001, 1.0), 200, 2, 5),   # ..._spreading_clean.jl
 ]
 PER_EP = [  # (model_dir, L list, z, parameter sets)
     ("time_rand_window_binary", [16, 32], 1.45,
@@ -107,6 +122,28 @@ for model, Ls, z, sets in PER_EP:
                 df = pd.read_csv(f)
                 check(list(df.columns) == ["sample", "rho"], f"{f.name}: columns {list(df.columns)}")
                 check(len(df) == N_SAMPLES and df["rho"].between(0, 1).all(), f"{f.name}: bad content")
+
+# ---- spreading runs -----------------------------------------------------------------------
+for sets, t_max, n_chunks, R in SPREAD:
+    grid = make_log_times(t_max, PPD)
+    for u, l, p in sets:
+        for b in BLOCKS:
+            for c in range(1, n_chunks + 1):
+                f = st.spreading_chunk_path(OUT / "spreading", "time_rand_window_binary", t_max, u, l, p, b, PPD, R, c)
+                expected_files.add(f.resolve())
+                if not f.exists():
+                    check(False, f"missing {f}")
+                    continue
+                df = pd.read_csv(f)
+                tag = f"spreading {f.name}"
+                if list(df.columns) != st.COLUMNS:
+                    check(False, f"{tag}: columns {list(df.columns)}")
+                    continue
+                check(np.array_equal(df["time"].to_numpy(), grid), f"{tag}: time grid != make_log_times")
+                check((df["runs"] == R).all(), f"{tag}: runs != {R}")
+                check(df["surv"].between(0, R).all() and (np.diff(df["surv"]) <= 0).all(), f"{tag}: bad surv column")
+                check(df["surv"].iloc[0] == R and df["sum_n"].iloc[0] == R, f"{tag}: not every run starts with one active site")
+                check((df["sum_n"] >= df["surv"]).all() and (df["sum_x2"] >= 0).all(), f"{tag}: inconsistent sums")
 
 # ---- nothing unexpected on disk --------------------------------------------------------
 on_disk = {p.resolve() for p in OUT.rglob("*.csv")} if OUT.exists() else set()

@@ -1,6 +1,10 @@
 # Log-time decay runs for the upper/lower binary time-random Stavskaya model:
 # several control values at one (or a few) system sizes.
 #
+# COPY (2026-09-29) for the BVH reproduction: the CLEAN control run (p_val = 1, so epsilon = epsilon_u
+# every step) around Mendonca's epsilon* = 0.29450 (arXiv:1011.1489): epsilon = 0.2942 ... 0.2948.
+# The running delta must settle at the DP value 0.159 here.
+#
 # 2026-09 successor of stavskya_mc/get_time_random_uppper_lower_binary_time_data.jl.
 # The parameters mean the same thing as there. Differences:
 #   * output times are log spaced (make_log_times) from t = 0 up to
@@ -17,8 +21,8 @@
 # NOTE: the critical point depends on block_len. The values below were found for
 # block_len = 1; rescan them before using block_len > 1.
 #
-# Cluster:          cd stavskya_mc/block_disorder/submit && sbatch submit_upper_lower_time_log.sh
-# Local smoke test: STAV_LOCAL_TEST=1 julia stavskya_mc/block_disorder/generators/get_upper_lower_binary_time_log.jl
+# Cluster:          cd stavskya_mc/block_disorder/submit && sbatch submit_upper_lower_time_log_clean.sh
+# Local smoke test: STAV_LOCAL_TEST=1 julia stavskya_mc/block_disorder/generators/get_upper_lower_binary_time_log_clean.jl
 
 const GEN_DIR = @__DIR__
 include(joinpath(GEN_DIR, "setup_workers.jl"))
@@ -33,23 +37,23 @@ include(joinpath(GEN_DIR, "setup_workers.jl"))
                              normpath(joinpath($GEN_DIR, "..", "..", "data", "time_log"))
 
     # ---- knobs --------------------------------------------------------------
-    L_vals = [35000]
-    block_len_vals = [6]                 # NEW: steps per disorder block (1 = old model)
+    L_vals = [100000]
+    block_len_vals = [1]                 # NEW: steps per disorder block (1 = old model)
 
-    average_epsilon_c    = 0.27033
-    average_epsilon_rate = 0.00005
-    p_val     = 0.8
+    average_epsilon_c    = 0.2945
+    average_epsilon_rate = 0.0001
+    p_val     = 1.0
     lower_div = 20
-    # epsilon_bar = p*epsilon_u + (1-p)*epsilon_l = (p + (1-p)/lower_div) * epsilon_u = 0.81 epsilon_u
+    # epsilon_bar = p*epsilon_u + (1-p)*epsilon_l = (p + (1-p)/lower_div) * epsilon_u = epsilon_u  (p = 1)
     upper_epsilon_c    = average_epsilon_c    / (p_val + (1-p_val)/lower_div)
     upper_epsilon_rate = average_epsilon_rate / (p_val + (1-p_val)/lower_div)
     upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -3:3]
     lower_epsilons = [round(upper_ep / lower_div, digits=6) for upper_ep in upper_epsilons]
     p_vals = fill(p_val, length(upper_epsilons))
 
-    time_prefact      = 100.0            # T_f = round(Int, L * time_prefact); see review 4.2.3 before choosing
+    time_prefact      = 1.0              # t <= L: no finite-size effects at all (light cone)
     points_per_decade = 20
-    num_initial_conds = 3000
+    num_initial_conds = 5000
     num_init_conds_offset = 0
     initial_state_prob = 0.5
 

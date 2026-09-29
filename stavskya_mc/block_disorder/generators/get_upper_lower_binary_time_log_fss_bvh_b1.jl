@@ -1,7 +1,12 @@
 # Log-time decay runs for the upper/lower binary time-random Stavskaya model:
-# several control values at one (or a few) system sizes.
+# one control value (the critical estimate) at several system sizes, for finite-size
+# scaling / z / lifetime analysis.
 #
-# 2026-09 successor of stavskya_mc/get_time_random_uppper_lower_binary_time_data.jl.
+# COPY (2026-09-29) for the BVH reproduction: strong disorder (p = 0.2, block_len = 1) at one
+# control value, several L: lifetime ~ L (z = 1) and temporal Griffiths. Set average_epsilon_c to
+# 0.24 x (critical epsilon_u from the _bvh_b1 run) before submitting; 0.144 = epsilon_u 0.6 is the pilot value.
+#
+# 2026-09 successor of stavskya_mc/get_time_random_uppper_lower_binary_time_data2.jl.
 # The parameters mean the same thing as there. Differences:
 #   * output times are log spaced (make_log_times) from t = 0 up to
 #     T_f = round(L * time_prefact), with `points_per_decade` points per decade;
@@ -17,8 +22,8 @@
 # NOTE: the critical point depends on block_len. The values below were found for
 # block_len = 1; rescan them before using block_len > 1.
 #
-# Cluster:          cd stavskya_mc/block_disorder/submit && sbatch submit_upper_lower_time_log.sh
-# Local smoke test: STAV_LOCAL_TEST=1 julia stavskya_mc/block_disorder/generators/get_upper_lower_binary_time_log.jl
+# Cluster:          cd stavskya_mc/block_disorder/submit && sbatch submit_upper_lower_time_log_fss_bvh_b1.sh
+# Local smoke test: STAV_LOCAL_TEST=1 julia stavskya_mc/block_disorder/generators/get_upper_lower_binary_time_log_fss_bvh_b1.jl
 
 const GEN_DIR = @__DIR__
 include(joinpath(GEN_DIR, "setup_workers.jl"))
@@ -33,30 +38,29 @@ include(joinpath(GEN_DIR, "setup_workers.jl"))
                              normpath(joinpath($GEN_DIR, "..", "..", "data", "time_log"))
 
     # ---- knobs --------------------------------------------------------------
-    L_vals = [35000]
-    block_len_vals = [6]                 # NEW: steps per disorder block (1 = old model)
+    L_vals = [1000, 2000, 4000, 8000, 16000]
+    block_len_vals = [1]                 # NEW: steps per disorder block (1 = old model)
 
-    average_epsilon_c    = 0.27033
-    average_epsilon_rate = 0.00005
-    p_val     = 0.8
+    average_epsilon_c    = 0.144         # 0.24 * epsilon_u,c  (pilot: epsilon_u,c ~ 0.6)
+    average_epsilon_rate = 0.0012
+    p_val     = 0.2
     lower_div = 20
     # epsilon_bar = p*epsilon_u + (1-p)*epsilon_l = (p + (1-p)/lower_div) * epsilon_u = 0.81 epsilon_u
     upper_epsilon_c    = average_epsilon_c    / (p_val + (1-p_val)/lower_div)
     upper_epsilon_rate = average_epsilon_rate / (p_val + (1-p_val)/lower_div)
-    upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in -3:3]
+    upper_epsilons = [round(upper_epsilon_c + i * upper_epsilon_rate, digits=6) for i in 0:0]
     lower_epsilons = [round(upper_ep / lower_div, digits=6) for upper_ep in upper_epsilons]
     p_vals = fill(p_val, length(upper_epsilons))
 
-    time_prefact      = 100.0            # T_f = round(Int, L * time_prefact); see review 4.2.3 before choosing
+    time_prefact      = 100.0            # up to 100 L: long enough to see every sample's lifetime
     points_per_decade = 20
-    num_initial_conds = 3000
+    num_initial_conds = 5000
     num_init_conds_offset = 0
     initial_state_prob = 0.5
 
     if LOCAL_TEST                        # tiny sizes for a quick check
-        L_vals = [64]; block_len_vals = [1, 3]; time_prefact = 4.0
-        num_initial_conds = 4; upper_epsilons = upper_epsilons[3:5]
-        lower_epsilons = lower_epsilons[3:5]; p_vals = p_vals[3:5]
+        L_vals = [32, 64]; block_len_vals = [1, 3]; time_prefact = 4.0
+        num_initial_conds = 4
     end
 end
 

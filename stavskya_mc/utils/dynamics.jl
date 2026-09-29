@@ -166,3 +166,123 @@ function time_random_p_record_rho(state, record_times::AbstractVector{<:Integer}
     end
     return rho
 end
+
+# =============================================================================
+# Spreading (single-seed) runs, added 2026-09-29 for the BVH reproduction
+# (block_disorder/generators/get_bvh_spreading.jl).
+# =============================================================================
+
+"""
+    time_random_spreading(record_times, upper_ep, lower_ep, p_val; block_len=1) -> (n, x2)
+
+One spreading run on the infinite chain: at t = 0 a single site x0 is active (0) and
+all others are healthy (1). Same dynamics and same disorder as
+`time_random_p_record_rho`: epsilon = `draw_upper_lower(upper_ep, lower_ep, p_val)`,
+redrawn at the start of every block of `block_len` steps.
+
+Returns, at every time in `record_times` (sorted, unique, >= 0):
+  * `n[k]`  = number of active sites N(t);
+  * `x2[k]` = sum over active sites of (i - x0 - t/2)^2.
+
+Site i only looks at i-1 and i, so active sites stay inside the light cone
+x0 <= i <= x0 + t, whose axis is x0 + t/2 (Stavskaya's one-sided coordinates of the
+directed-percolation lattice). A window of t_max + 3 sites therefore represents the
+infinite chain exactly, and only the sites from the leftmost active site to one past
+the rightmost one are updated. Once no site is active the run is over (n = 0 from
+then on).
+"""
+function time_random_spreading(record_times::AbstractVector{<:Integer}, upper_ep, lower_ep, p_val;
+                               block_len::Integer=1)
+    block_len >= 1 || throw(ArgumentError("block_len must be >= 1, got $block_len"))
+    issorted(record_times) && allunique(record_times) && (isempty(record_times) || first(record_times) >= 0) ||
+        throw(ArgumentError("record_times must be sorted, unique and >= 0"))
+    nrec = length(record_times)
+    n_out = zeros(Int, nrec)
+    x2_out = zeros(Float64, nrec)
+    nrec == 0 && return n_out, x2_out
+    t_max = last(record_times)
+    x0 = 2                                  # cur[x0 - 1] = cur[1] stays healthy forever
+    cur = ones(Int8, t_max + 3)
+    nxt = ones(Int8, t_max + 3)
+    cur[x0] = 0
+    lo, hi = x0, x0                         # active sites of cur lie in lo:hi
+    plo, phi = 1, 0                         # sites of nxt that may still hold 0s (none yet)
+    k = 1
+    while k <= nrec && record_times[k] == 0
+        n_out[k] = 1                        # x2 = 0 at t = 0
+        k += 1
+    end
+    epsilon = 0.0
+    for t in 1:t_max
+        if (t - 1) % block_len == 0
+            epsilon = draw_upper_lower(upper_ep, lower_ep, p_val)
+        end
+        @inbounds for i in plo:phi          # clear the state from two steps ago
+            nxt[i] = one(Int8)
+        end
+        c = x0 + t / 2
+        n = 0
+        x2 = 0.0
+        nlo, nhi = 0, -1
+        @inbounds for i in lo:(hi + 1)
+            v = rand() < epsilon ? one(Int8) : cur[i-1] * cur[i]
+            nxt[i] = v
+            if v == 0
+                n += 1
+                d = i - c
+                x2 += d * d
+                nlo == 0 && (nlo = i)
+                nhi = i
+            end
+        end
+        cur, nxt = nxt, cur
+        plo, phi = lo, hi                   # nxt now holds time t-1, active only in lo:hi
+        if n == 0
+            break                           # died: n_out, x2_out stay 0 from here on
+        end
+        lo, hi = nlo, nhi
+        if k <= nrec && record_times[k] == t
+            n_out[k] = n
+            x2_out[k] = x2
+            k += 1
+            k > nrec && break
+        end
+    end
+    return n_out, x2_out
+end
+
+"""
+    spreading_chunk(record_times, upper_ep, lower_ep, p_val, n_runs; block_len=1)
+
+`n_runs` independent spreading runs, each with its own disorder sequence (one run per
+disorder realization, as in BVH). Returns a named tuple of sums at every record time,
+ready for a DataFrame:
+  * `runs`     = n_runs;
+  * `surv`     = number of runs with N(t) > 0;
+  * `sum_n`, `sum_n2` = sums of N and N^2 over all runs (dead runs count 0);
+  * `sum_x2`   = sum over all runs of sum_i (i - x0 - t/2)^2;
+  * `sum_r2`, `sum_r2sq` = sums over surviving runs of R^2 = x2/N and of (R^2)^2.
+Then P_s = surv/runs, <N> = sum_n/runs, R^2 = sum_x2/sum_n (or sum_r2/surv).
+"""
+function spreading_chunk(record_times, upper_ep, lower_ep, p_val, n_runs::Integer; block_len::Integer=1)
+    m = length(record_times)
+    surv = zeros(Int, m)
+    sum_n = zeros(Float64, m); sum_n2 = zeros(Float64, m); sum_x2 = zeros(Float64, m)
+    sum_r2 = zeros(Float64, m); sum_r2sq = zeros(Float64, m)
+    for _ in 1:n_runs
+        n, x2 = time_random_spreading(record_times, upper_ep, lower_ep, p_val; block_len=block_len)
+        @inbounds for j in 1:m
+            n[j] > 0 || continue
+            nj = Float64(n[j])
+            r2 = x2[j] / nj
+            surv[j] += 1
+            sum_n[j] += nj
+            sum_n2[j] += nj * nj
+            sum_x2[j] += x2[j]
+            sum_r2[j] += r2
+            sum_r2sq[j] += r2 * r2
+        end
+    end
+    return (time=collect(record_times), runs=fill(Int(n_runs), m), surv=surv, sum_n=sum_n, sum_n2=sum_n2,
+            sum_x2=sum_x2, sum_r2=sum_r2, sum_r2sq=sum_r2sq)
+end

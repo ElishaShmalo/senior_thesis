@@ -7,10 +7,11 @@
 #
 # What it runs:
 #   1. test_dynamics.jl: kernel refactor, block_len, recorder, log grid (+ speed print)
-#   2. every generator in local test mode (STAV_LOCAL_TEST=1), writing to
+#   2. test_spreading.jl: spreading kernel vs a full-lattice simulation (added 2026-09-29)
+#   3. every generator in local test mode (STAV_LOCAL_TEST=1), writing to
 #      block_disorder/_local_test_output/ (cleared first; git-ignored)
-#   3. check_local_test_output.py: Python loaders must find exactly the files Julia wrote
-#   4. test_time_log_tools.py (only if pytest is installed)
+#   4. check_local_test_output.py: Python loaders must find exactly the files Julia wrote
+#   5. test_time_log_tools.py and test_spreading_tools.py (only if pytest is installed)
 # Override the interpreters with JULIA=/path/to/julia or PYTHON=/path/to/python if needed.
 # Exit status is 0 only if everything passed.
 
@@ -40,6 +41,7 @@ run () {
 }
 
 run "julia: test_dynamics.jl" "$JULIA" --startup-file=no --project="$REPO" "$HERE/test_dynamics.jl"
+run "julia: test_spreading.jl" "$JULIA" --startup-file=no --project="$REPO" "$HERE/test_spreading.jl"
 
 rm -rf "$BD/_local_test_output"
 for g in "$BD"/generators/get_*.jl; do
@@ -49,9 +51,9 @@ done
 run "python: check_local_test_output.py" "$PYTHON" "$HERE/check_local_test_output.py"
 
 if "$PYTHON" -c "import pytest" 2>/dev/null; then
-    run "python: test_time_log_tools.py" "$PYTHON" -m pytest -q "$HERE/test_time_log_tools.py"
+    run "python: test_time_log_tools.py + test_spreading_tools.py" "$PYTHON" -m pytest -q "$HERE/test_time_log_tools.py" "$HERE/test_spreading_tools.py"
 else
-    echo; echo "(pytest not installed for $PYTHON: skipped test_time_log_tools.py; 'pip install pytest' to include it)"
+    echo; echo "(pytest not installed for $PYTHON: skipped test_time_log_tools.py and test_spreading_tools.py; 'pip install pytest' to include them)"
 fi
 
 echo
