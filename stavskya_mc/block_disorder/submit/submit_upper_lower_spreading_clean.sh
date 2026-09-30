@@ -20,13 +20,17 @@
 
 #SBATCH --error=slurm.%N.%j.err     # STDERR output file (optional)
 
-# Submit from this directory:  cd stavskya_mc/block_disorder/submit && sbatch submit_upper_lower_spreading_clean.sh
-# (same idea as the old stavskya_mc/submit_*.sh, which were submitted from stavskya_mc/).
+# Submit from stavskya_mc/:  sbatch block_disorder/submit/submit_upper_lower_spreading_clean.sh
+# (also works from this folder; Slurm logs land in the folder you submit from).
 # The generator writes to stavskya_mc/data/spreading/... no matter where it is launched from.
 
-GEN=../generators/get_upper_lower_binary_spreading_clean.jl
-if [ ! -f "$GEN" ]; then
-    echo "Cannot find $GEN - submit this script from stavskya_mc/block_disorder/submit" >&2
+NAME=get_upper_lower_binary_spreading_clean.jl
+GEN=""
+for d in block_disorder/generators ../generators stavskya_mc/block_disorder/generators; do
+    if [ -f "$d/$NAME" ]; then GEN="$d/$NAME"; break; fi
+done
+if [ -z "$GEN" ]; then
+    echo "Cannot find $NAME - submit from stavskya_mc/:  sbatch block_disorder/submit/submit_upper_lower_spreading_clean.sh" >&2
     exit 1
 fi
 

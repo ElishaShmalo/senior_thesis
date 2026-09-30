@@ -54,21 +54,21 @@
 
 2. **BVH reproduction with the Stavskaya model: ready to run** (details H §7.14). These are copies of your upper/lower generators with only the knobs changed, plus new spreading generators.
    - **Local test on your Mac first:** `bash stavskya_mc/block_disorder/tests/run_all_tests.sh`. It now also runs `test_spreading.jl` and every new copy at tiny sizes.
-   - **Cluster**, after `git pull`. Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. `--chdir` runs each job inside the submit folder, as the scripts require:
+   - **Cluster**, after `git pull`. Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. The Slurm logs land in `stavskya_mc/`:
      ```bash
      cd ~/senior_thesis2/senior_thesis/stavskya_mc
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_clean.sh
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_bvh_b1.sh
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_bvh_b6.sh
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_clean.sh
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_bvh_b1.sh
-     sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_spreading_bvh_b6.sh
+     sbatch block_disorder/submit/submit_upper_lower_time_log_clean.sh
+     sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b1.sh
+     sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b6.sh
+     sbatch block_disorder/submit/submit_upper_lower_spreading_clean.sh
+     sbatch block_disorder/submit/submit_upper_lower_spreading_bvh_b1.sh
+     sbatch block_disorder/submit/submit_upper_lower_spreading_bvh_b6.sh
      ```
      - clean: DP control, ε = 0.2942–0.2948
      - bvh_b1: p = 0.2, ε_u = 0.585–0.615, block_len 1
      - bvh_b6: p = 0.2, ε_u = 0.445–0.475, block_len 6
      - The three spreading scripts use the same models, starting from one active site.
-     - Later, once `bvh_b1` has pinned ε_u,c, set `average_epsilon_c` in `get_upper_lower_binary_time_log_fss_bvh_b1.jl` to 0.24 × ε_u,c and run `sbatch --chdir=block_disorder/submit block_disorder/submit/submit_upper_lower_time_log_fss_bvh_b1.sh`.
+     - Later, once `bvh_b1` has pinned ε_u,c, set `average_epsilon_c` in `get_upper_lower_binary_time_log_fss_bvh_b1.jl` to 0.24 × ε_u,c and run `sbatch block_disorder/submit/submit_upper_lower_time_log_fss_bvh_b1.sh`.
    - **Data** (from `stavskya_mc/`):
      - decay: `data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/epsilonu<u>/epsilonl<l>/pval0p2/blocklen<b>/`; the clean run uses `pval1p0`.
      - spreading: `data/spreading/time_rand_window_binary/spreading/tmax100000/epsilonu<u>/epsilonl<l>/pval<p>/blocklen<b>/`
