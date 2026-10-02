@@ -1,0 +1,62 @@
+# Getting the block_disorder data (generators in stavskya_mc/block_disorder/generators) from Amarel.
+#
+# On the cluster these generators write to <repo>/stavskya_mc/data/... (an absolute path built from the
+# script's location). That is NOT the doubled stavskya_mc/stavskya_mc/data of the old generators.
+# Cluster repo used below: /home/es1074/senior_thesis3/senior_thesis  (the Stavskaya clone; the spin chain lives in senior_thesis/ and senior_thesis2/)
+#
+# Where each data group goes (rule: a group that will grow to GBs goes on the external drive):
+#   time_log/          decay runs, one csv per sample (~0.4 GB per L=10^5 generator)  -> /Volumes/ExternalData/stavskya_mc/data/time_log/
+#   spreading/         spreading chunks (~10 MB per generator)                         -> repo: stavskya_mc/data/spreading/
+#   block_rho_per_ep/  rho(t=L^z) scans, one csv per parameter set (small)             -> repo: stavskya_mc/data/block_rho_per_ep/
+# The repo's stavskya_mc/data is git-ignored. The notebooks in block_disorder/analysis read from these places:
+# analyze_time_log*.ipynb use TESTING = False -> external drive, TESTING = True -> repo stavskya_mc/data/time_log (small test data).
+#
+# tar | pv | tar streams many small files fast (good for a first copy). rsync only moves files you don't have yet
+# (good for topping up while jobs are still writing).
+
+
+# ---- decay runs (time_log) -> external drive -----------------------------------------------------------------
+
+# everything in time_log (BVH copies _bvh_b1/_bvh_b6/_clean/_fss_bvh_b1 and the other log-time generators)
+mkdir -p /Volumes/ExternalData/stavskya_mc/data/time_log
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data/time_log && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_log/
+
+# only the L = 10^5 BVH runs (_bvh_b1, _bvh_b6, _clean)
+mkdir -p /Volumes/ExternalData/stavskya_mc/data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000 && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Volumes/ExternalData/stavskya_mc/data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/
+
+# top up (only new files) while jobs are still running
+rsync --bwlimit=20M -avP es1074@amarel-new.hpc.rutgers.edu:/home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data/time_log/ /Volumes/ExternalData/stavskya_mc/data/time_log/
+
+
+# ---- spreading runs -> repo ---------------------------------------------------------------------------------------
+mkdir -p /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/spreading
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data/spreading && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/spreading/
+
+
+# ---- rho(t=L^z) block scans (*_rho_per_ep_block.jl) -> repo -------------------------------------------------------
+# (only exists after you have run get_*_rho_per_ep_block.jl; none of the BVH jobs write it)
+mkdir -p /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/block_rho_per_ep
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data/block_rho_per_ep && tar cf - ." \
+| pv -brt \
+| tar xf - -C /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/block_rho_per_ep/
+
+
+# ---- on the cluster, before copying: are the runs complete? (run from .../senior_thesis3/senior_thesis/stavskya_mc) -------
+# expected: 20000 files in every pval0p2 folder (_bvh_b1, _bvh_b6), 5000 in every pval1p0 folder (_clean),
+# 200 chunk files in every spreading folder
+for d in data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/*/*/*/*/; do echo "$(ls $d | wc -l) $d"; done
+for d in data/spreading/time_rand_window_binary/spreading/tmax100000/*/*/*/*/; do echo "$(ls $d | wc -l) $d"; done
+
+
+# ---- check that everything arrived: file counts on the cluster vs here ----------------------------------------------
+ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_thesis/stavskya_mc/data && for d in time_log spreading block_rho_per_ep; do echo \$d \$(find \$d -name '*.csv' 2>/dev/null | wc -l); done"
+echo time_log $(find /Volumes/ExternalData/stavskya_mc/data/time_log -name '*.csv' | wc -l)
+echo spreading $(find /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/spreading -name '*.csv' | wc -l)
+echo block_rho_per_ep $(find /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/block_rho_per_ep -name '*.csv' | wc -l)

@@ -54,9 +54,9 @@
 
 2. **BVH reproduction with the Stavskaya model: ready to run** (details H §7.14). These are copies of your upper/lower generators with only the knobs changed, plus new spreading generators.
    - **Local test on your Mac first:** `bash stavskya_mc/block_disorder/tests/run_all_tests.sh`. It now also runs `test_spreading.jl` and every new copy at tiny sizes.
-   - **Cluster**, after `git pull`. Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. The Slurm logs land in `stavskya_mc/`:
+   - **Cluster**, after `git pull` in `~/senior_thesis3/senior_thesis` (the Stavskaya clone). Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. The Slurm logs land in `stavskya_mc/`:
      ```bash
-     cd ~/senior_thesis2/senior_thesis/stavskya_mc
+     cd ~/senior_thesis3/senior_thesis/stavskya_mc
      sbatch block_disorder/submit/submit_upper_lower_time_log_clean.sh
      sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b1.sh
      sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b6.sh
@@ -72,6 +72,7 @@
    - **Data** (from `stavskya_mc/`):
      - decay: `data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/epsilonu<u>/epsilonl<l>/pval0p2/blocklen<b>/`; the clean run uses `pval1p0`.
      - spreading: `data/spreading/time_rand_window_binary/spreading/tmax100000/epsilonu<u>/epsilonl<l>/pval<p>/blocklen<b>/`
+   - **Getting the data home:** `stavskya_mc/block_disorder/ssh_transfer.txt`. `time_log/` (GB-sized) goes to `/Volumes/ExternalData/stavskya_mc/data/time_log/`; `spreading/` and `block_rho_per_ep/` (small) go to the repo's git-ignored `stavskya_mc/data/`. The `analyze_time_log*.ipynb` notebooks read the external drive unless `TESTING = True`.
    - **Analysis:**
      - `analyze_time_log.ipynb` with `MODEL = "window_binary"`, `L = 100000`, `TIME_PREFACT = 1.0`, `AVG_EPS_C` / `AVG_EPS_RATE` / `P_VAL` / `BLOCK_LEN` / `N_SAMPLES` set to the generator's knobs;
      - `analyze_spreading.ipynb` (same knob names). It is written as a guide: the model, the observables, the DP and BVH predictions with formulas, what to look for in each figure, and a closing verdict table.
