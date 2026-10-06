@@ -1,131 +1,122 @@
 # Referee conflict: active tasks and plans
 
-*This is the working file: current status, open tasks and future plans only. Everything already done is in **`PROJECT_HISTORY.md`**: the original review, the code review, every fix, and all test results. References like "H §7.9" point to sections there. Last updated 2026-09-25.*
+*Working file: current status, open tasks and plans only. Everything done so far is in **`PROJECT_HISTORY.md`** ("H §…"). Archived verbatim in H:*
+- *the task list as it stood until 2026-10-05, with all the run instructions: H §7.15;*
+- *the first BVH-reproduction results: H §7.16–7.17;*
+- *the status and next-steps proposal as they stood before the assessment: H §7.18;*
+- *the spin-chain lessons as they stood before the joint plan: H §7.20;*
+- *the Stavskaya status and next steps as they stood before the figure plan: H §7.21;*
+- *the figure plan, the N1-S/N1-C/P1 runs and the spin-chain joint plan before the simplification: H §7.23.*
+
+*Last updated 2026-10-05 (plan simplified to one knob-copy run, H §7.23; final takeaway, H §7.21).*
 
 ---
 
 ## Where things stand
 
-- **The question.** Are the measured exponents ($\delta\approx0.11$, $z\approx1.35$–$1.45$, $\nu_t\approx2.25$) a new fixed point? Or are they effective exponents crossing over toward the infinite-noise point of Barghathi–Vojta–Hoyos (BVH)?
-  - Working hypothesis: crossover. Every exponent sits between clean DP and the infinite-noise limit.
-  - A pure $1/\ln t$ decay gives the running estimate $\delta_{\rm eff}=0.114\to0.075$ over the paper's window, so the Stavskaya δ alone cannot decide (H §0, §3).
-- **Stavskaya code.** Done and tested: 678/678 checks, all six generators run locally, 96/96 files found by the Python loaders (H §7.7, §7.12):
-  - kernel refactor, bit-identical to the old one;
-  - `block_len` disorder blocks;
-  - log-time generators, submit scripts and analysis notebooks in `stavskya_mc/block_disorder/`.
-- **Spin-chain code.** Done and tested (187/187 checks, local runs and file checks all pass, H §7.9, §7.11):
-  - initial-condition bug fixed;
-  - new `random_global_control_sdiff` and `benettin_lambda_sdiff`;
-  - `record_every` knob;
-  - output to `_v2` folders, with the analysis notebooks updated.
-
-  **All old spin data are superseded.**
-- **Notebook fixes.** All annotated fixes are done, including the α/δ-ratio divide-by-zero mask. Only cell sources changed, so the saved outputs are stale until you re-run them.
-- **Git.** Nothing has been committed. About 33 changed or new paths are sitting uncommitted in the working tree.
+- **The question.** Are the measured exponents (δ ≈ 0.11, z ≈ 1.35–1.45, ν_t ≈ 2.25) a new fixed point? Or are they effective exponents crossing over toward the infinite-noise point of Barghathi–Vojta–Hoyos (BVH)?
+- **Stavskaya: final takeaway** (results H §7.16–7.17; checks H §7.19–7.21; script `stavskya_mc/block_disorder/analysis/_claude_scratch/review_checks_2026_10_05.py`). **Regime:** the critical region at t = 10²–10⁵ (ln t ≈ 4.6–11.5), a crossover, not yet ln t ≫ c. Each item says whether it is measured or still interpolated.
+  1. **Clean = DP on every test** [measured]:
+     - P_s, N, R and the decay are power laws at one ε̄_c = 0.29450;
+     - the ε-response gives 1/ν = 0.53–0.62 at all times (DP: 0.577).
+  2. **Disorder makes the exponents depend on disorder strength** [measured]. Early 1/z_eff (t = 50–400) is 0.638 (clean), 0.73–0.76 (block_len 1) and 0.82–0.84 (block_len 6), at every ε of each grid; θ_eff behaves the same way. So there is no single universality class.
+  3. **No conventional critical point describes 10³–10⁵.** In each disordered rung, P_s, N and R become power laws at different ε̄ (P_s, N, R: block_len 1 0.14306, 0.14332, 0.14388; block_len 6 0.11043, 0.11061, 0.11108; clean 0.29450–0.29452).
+     - **Measured at block_len 6, ε̄ = 0.1104:** between the decades 10³–10⁴ and 10⁴–10⁵, P_s's exponent drifts +0.004 ± 0.001, while N's and R's drift +0.034 ± 0.003 and +0.024 ± 0.001. Clean at ε* drifts ≤ 0.005 in all three.
+     - **Interpolated at block_len 1:** all three points lie between the measured 0.1428 and 0.1440. Measured at 0.1440: R is a power law (1/z = 0.745, drift −0.007 ± 0.002) while P_s and N bend down strongly (drifts −0.11 and −0.16).
+     - N1-S removes the interpolation.
+  4. **At block_len 6, BVH's logarithmic forms fit all three observables at one ε̄** [partly interpolated]:
+     - 1/P_s is nearly linear in ln t over ln t ≈ 3–11.5 (slope 0.11–0.125);
+     - at the measured 0.1104, the straightest log exponents are y_N ≈ 4.3 and y_R ≈ 2.5;
+     - interpolated to the BVH point, y_R ≈ 1.6–2.0 (BVH: 1.7).
+  5. **ν_eff ≈ 2.1–2.5 in both disordered rungs at t = 10³–10⁵** [model-dependent]. 1/ν_eff falls from ≈ 0.55 at 3×10² to 0.39–0.48, and is not yet seen falling further (section [11]).
+     - **This corrects the earlier "ν_eff passes 2.25 and is still moving".**
+     - It means the paper's ν_t ≈ 2.25 is what this crossover gives in this window, including at BVH's own parameters. So ν_t ≈ 2.25 is not evidence of a new fixed point.
+     - The estimate is a quadratic in ε across 0.0024, nonlinear at late times; quote ν as an effective value with its window.
+  6. **Decay mean = spreading survival** (exact for block_len 1; within 2% from t = 10²). So no new decay runs are needed.
+  7. **Not tested:** the paper's own model (ε = 0.5Xⁿ, Fig. 4). Its spreading run would need new kernel code, so it was dropped in the simplification (H §7.23); the paper can use the binary ladder instead.
+- **Spin chain:** regenerating v2 data. The earlier cluster failures were the account running out of memory, now fixed. Run instructions are in H §7.15, item 1.
+  - Its J-sign randomness is exactly a sequence of random symmetry kicks that fix the target (H §7.20 item 2), so it is weak temporal disorder.
+  - The old data give an a-response 1/ν_eff ≈ 0.4–0.5 at t = 10³–10⁴, close to block_len 1's, with errors too large to decide (H §7.20 item 4).
 
 ---
 
-## Active tasks (rough order)
+## Active tasks
 
-1. **Regenerate the spin-chain data (v2).**
-   - **Before submitting:**
-     - The new code is not committed yet. Commit and push it, then `git pull` in the cluster copy (`~/senior_thesis2/senior_thesis`).
-     - The tests ran on Julia 1.12.6, but the cluster uses 1.11.6. Do a one-minute check there first:
-       ```bash
-       ~/julia-1.11.6/bin/julia heisen_spin_chain/tests/test_spin_refactor.jl
-       SPIN_LOCAL_TEST=1 ~/julia-1.11.6/bin/julia heisen_spin_chain/lyapunov_exponents/get_good_data_severalL.jl
-       ```
-     - The notebooks' parameter cells (L, a values, number of ICs, and for `analyze_sdiff_per_time3` also `time_prefact` and `time_step`) still hold the old runs' values. Match them to what you submit.
-     - The transfer commands in `ssh_transfer.txt` point at the old folders. Use `data/spin_dists_per_time_v2` and `data/s_diff_per_time_v2`.
-   - Lyapunov/S_diff runs:
-     - set `@everywhere record_every = …` in `heisen_spin_chain/lyapunov_exponents/get_good_data_severalL{,2..6}.jl`; it appears in file names as `_timestep<k>`;
-     - submit with `sbatch submit_severalL_data_job{,2..6}.sh`;
-     - output goes to `data/spin_dists_per_time_v2/`.
-   - S_diff-per-time runs:
-     - submit with `sbatch submit_sdiff_time_data_number.sh <0–3>`;
-     - output goes to `data/s_diff_per_time_v2/`.
-     - Note: the older `submit_sdiff_time_data.sh` calls `get_sdiff_data_severalL.jl`, which no longer exists. Use the `_number` version.
-   - **Then re-run the analysis notebooks:**
-     - `analysis_lyapunov_fixed`, `s_diff_analysis_python`, `s_diff_analysis_logsdiff_plot`, `capture_time_distrabution`: set `RECORD_EVERY` to match the generator;
-     - `analyze_sdiff_per_time3`.
-   - Tips:
-     - choose λ averaging windows that are multiples of `record_every`;
-     - capture times t\* will come out exactly one step later than in the old results (the old code returned the row index).
+1. **Finish the spin-chain v2 runs**, then re-run the spin notebooks (instructions: H §7.15, item 1).
+2. **Submit the two fine spreading runs** (below; tested locally). Nothing has been submitted or committed.
+3. **Spin chain:** effective exponents from the v2 data with the Stavskaya estimators (below).
 
-2. **BVH reproduction with the Stavskaya model: ready to run** (details H §7.14). These are copies of your upper/lower generators with only the knobs changed, plus new spreading generators.
-   - **Local test on your Mac first:** `bash stavskya_mc/block_disorder/tests/run_all_tests.sh`. It now also runs `test_spreading.jl` and every new copy at tiny sizes.
-   - **Cluster**, after `git pull` in `~/senior_thesis3/senior_thesis` (the Stavskaya clone). Run these from `stavskya_mc/`, where both `block_disorder/submit/` and `data/` are visible. The Slurm logs land in `stavskya_mc/`:
-     ```bash
-     cd ~/senior_thesis3/senior_thesis/stavskya_mc
-     sbatch block_disorder/submit/submit_upper_lower_time_log_clean.sh
-     sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b1.sh
-     sbatch block_disorder/submit/submit_upper_lower_time_log_bvh_b6.sh
-     sbatch block_disorder/submit/submit_upper_lower_spreading_clean.sh
-     sbatch block_disorder/submit/submit_upper_lower_spreading_bvh_b1.sh
-     sbatch block_disorder/submit/submit_upper_lower_spreading_bvh_b6.sh
-     ```
-     - clean: DP control, ε = 0.2942–0.2948
-     - bvh_b1: p = 0.2, ε_u = 0.585–0.615, block_len 1
-     - bvh_b6: p = 0.2, ε_u = 0.445–0.475, block_len 6
-     - The three spreading scripts use the same models, starting from one active site.
-     - Later, once `bvh_b1` has pinned ε_u,c, set `average_epsilon_c` in `get_upper_lower_binary_time_log_fss_bvh_b1.jl` to 0.24 × ε_u,c and run `sbatch block_disorder/submit/submit_upper_lower_time_log_fss_bvh_b1.sh`.
-   - **Data** (from `stavskya_mc/`):
-     - decay: `data/time_log/time_rand_window_binary/rho_per_time/IC1/L100000/epsilonu<u>/epsilonl<l>/pval0p2/blocklen<b>/`; the clean run uses `pval1p0`.
-     - spreading: `data/spreading/time_rand_window_binary/spreading/tmax100000/epsilonu<u>/epsilonl<l>/pval<p>/blocklen<b>/`
-   - **Getting the data home:** `stavskya_mc/block_disorder/ssh_transfer.txt`. `time_log/` (GB-sized) goes to `/Volumes/ExternalData/stavskya_mc/data/time_log/`; `spreading/` and `block_rho_per_ep/` (small) go to the repo's git-ignored `stavskya_mc/data/`. The `analyze_time_log*.ipynb` notebooks read the external drive unless `TESTING = True`.
-   - **Analysis:**
-     - `analyze_time_log.ipynb` with `MODEL = "window_binary"`, `L = 100000`, `TIME_PREFACT = 1.0`, `AVG_EPS_C` / `AVG_EPS_RATE` / `P_VAL` / `BLOCK_LEN` / `N_SAMPLES` set to the generator's knobs;
-     - `analyze_spreading.ipynb` (same knob names). It is written as a guide: the model, the observables, the DP and BVH predictions with formulas, what to look for in each figure, and a closing verdict table.
-     - `analyze_time_log_fss.ipynb` for the FSS copy.
+---
 
-3. **Stavskaya log-time production runs** (`stavskya_mc/block_disorder/submit/*.sh`).
-   - Start with `block_len = 1`.
-   - The critical control values in the generators were found for `block_len = 1` only. Rescan them with the `*_rho_per_ep_block` generators before using `block_len > 1`.
+## Stavskaya: the remaining run (simplified 2026-10-05; details H §7.23)
 
-4. **Decide which late times to trust.**
-   - Keep `time_prefact = 100` (H §7.10).
-   - Run the `*_time_log_fss` generators at $L$ and $L/2$ (or $L/4$).
-   - Use only the times where the sizes agree within errors. `analyze_time_log_fss.ipynb` has the light-cone/agreement check built in.
+**Goal (yours):** show that Stavskaya is consistent with BVH (we are not blind to it), give reasonable effective-exponent estimates, and get effective exponents for the spin chain in the crossover.
 
-5. **Run the BVH tests on the new data.** The notebooks already contain all of these: `analyze_time_log.ipynb`, plus the BVH cells appended to the two `rho_per_time` notebooks and `analyze_sdiff_per_time3`.
-   - $1/A$ against $\ln t$ is a straight line at infinite-noise criticality; the local slope $d(1/A)/d\ln t$ is flat.
-   - Running $\delta_{\rm eff}$ drifts toward 0 (it is constant at a power-law point); $1/\delta_{\rm eff}$ against $\ln t$ is linear.
-   - Crossing times off criticality: $\ln t_x\propto r^{-1/2}$ (BVH) vs $\nu_t\ln(1/r)$ (power law).
-   - Width of $P(\ln A)$ over disorder realizations: it grows linearly in $\ln t$ under BVH and saturates at a finite-disorder fixed point. This can already be tried on the existing per-sample Stavskaya CSVs.
+**One run: fine spreading grids.** Knob copies of the bvh spreading generators; only `average_epsilon_c`, `average_epsilon_rate` and `i in -4:4` differ.
+- Why: on the coarse grids the three power-law points of the joint test (item 3) sit inside one grid interval, so their positions were interpolated. With 9 values, measured curves fall inside the split.
+- If the three zeros merge on the fine grid, item 3 is wrong; that makes it a real test.
 
-6. **Re-run the edited old Stavskaya notebooks** to refresh their saved outputs. These are the upper/lower and sliding-p `rho_per_time` notebooks, the `_z` notebooks and `rho_per_ep` (list in H §7.5, §7.11).
+| generator (`block_disorder/generators/`) | `average_epsilon_c`, rate | ε̄ (9 values) | ε_u |
+|---|---|---|---|
+| `get_upper_lower_binary_spreading_fine_b1.jl` | 0.143664, 0.000192 | 0.142896–0.144432 | 0.5954–0.6018 |
+| `get_upper_lower_binary_spreading_fine_b6.jl` | 0.110784, 0.000216 | 0.10992–0.111648 | 0.458–0.4652 |
+
+- Every ε_u is a multiple of 0.00002, so ε_l = ε_u/20 is never a rounding tie that Julia and Python name differently. No existing chunk file is overwritten.
+- Cost: about 2× an earlier spreading copy each. Data: ~15 MB each, to the repo's `data/spreading`.
+- Commands: `stavskya_mc/block_disorder/ssh_transfer.txt`, last section.
+
+**Analysis:** `analyze_spreading4.ipynb` (block_len 1) and `analyze_spreading5.ipynb` (block_len 6).
+- They are copies of `analyze_spreading2/3` with three knobs changed (`AVG_EPS_C`, `AVG_EPS_RATE`, `EPS_STEPS`) and one new last cell, the joint test. That cell takes the drift of the log-log slope of P_s, N and R between [10³,10⁴] and [10⁴,10⁵], and the ε̄ where each crosses zero.
+- **Exponents to quote:** the existing cells give the effective exponents at a chosen ε̄, each with its window and regime:
+  - δ_eff, θ_eff and 1/z_eff, early (t ≈ 50–400) and late (10⁴–10⁵);
+  - y_N and y_R where 1/P_s is straightest;
+  - ν_eff from the crossing-time cell, stated as effective (the coarse-grid estimate was ν_eff ≈ 2.1–2.5, H §7.21).
+
+---
+
+## Spin chain (when the v2 data arrive; no new code planned)
+
+- **Effective exponents:** use the same estimators and the same time windows as Stavskaya, then compare with block_len 1 and 6 at equal t:
+  - δ_eff per decade, with early times from the L = 256/512 Lyapunov runs, which record every step (the v2 S_diff copy records every 200 steps);
+  - z from finite-size scaling, as in the paper;
+  - ν from the collapse.
+- **Block length on the J signs is not a disorder-strength knob.** Each sign pair is the same Heisenberg step up to a symmetry that leaves the target fixed (H §7.20), so longer blocks mean less scrambling and the solitons come back. The closest Stavskaya counterpart is block_len 1.
+- **Stronger disorder in the chain:** if ever wanted, a time-random push strength a(t) (Plans for later).
 
 ---
 
 ## Plans for later
 
-- **Disorder-strength scans.**
-  - Stavskaya: vary `block_len` and the contrast $\varepsilon_u/\varepsilon_l$.
-  - If the "exponents" move with disorder strength, they are crossover values. If strong disorder gives clean log scaling sooner, that is BVH directly.
-  - Spin chain: this needs a new knob (not implemented yet). Options are J-signs held fixed over blocks $\Delta t>1$, or a binary-random $a(t)$.
-- **Spreading runs from a single seed** ($P_s(t)$, $N_s(t)$, $R(t)$): the cleanest test of $z=1$ with log corrections, free of finite-size effects. Not implemented yet.
-- **Temporal Griffiths:** lifetime $\tau(L)$ on the active/chaotic side. BVH predict $\tau\sim L^{1/\kappa}$ with $\kappa$ varying continuously.
-- **Rewrite the paper's claim** (H §5 item 7). Keep the Hamiltonian control transition and the discontinuous Lyapunov exponent, drop "new universality class", cite BVH and show the crossover analysis.
-- **Optional, "Option A":** allowlist `julialang-s3.julialang.org`, `pkg.julialang.org` and `*.pkg.julialang.org` so I can run the Julia tests myself before handing code to you (H §7.7).
+- **Disorder-strength ladder:** vary `block_len` and the contrast ε_u/ε_l (a weaker rung, e.g. p = 0.8, only if the paper needs one).
+- **Spin chain disorder-strength knob:** a binary time-random push strength a(t), held for block_len steps, with the J signs still redrawn every step. Not J-sign blocks: they reduce the kicks and bring back the solitons (H §7.20 item 2).
+- **Temporal Griffiths: deprioritized.**
+  - Temporal Griffiths phases appear for any relevant temporal disorder (Vazquez et al., PRL 106, 235702 (2011)), so they don't discriminate.
+  - At ε_c the test reduces to N4.
+- **Rewrite the paper's claim** (H §5 item 7):
+  - keep the Hamiltonian control transition and the discontinuous Lyapunov exponent;
+  - drop "new universality class";
+  - cite BVH;
+  - show the crossover analysis: the J1 table, ν_eff(t) and the 1/z ladder. What each piece supplies is listed under "Bringing the two models together".
 
 ---
 
-## Known issues deliberately left alone
+## Housekeeping
 
-- **`find_t_star_dist` (capture-time line matching).** It is kept for bookkeeping only. The Lyapunov-exponent fitting is the method of record, so the suspected missing parentheses there don't matter.
-- **Pre-existing notebook failures.**
-  - `s_diff_analysis_python` cell 29: KeyError, because a = 0.69 is not in `a_vals`.
-  - `s_diff_analysis_python` cell 14: needs Python ≥ 3.12, which your Mac has.
-- **log(S_diff) fit intercepts.** They are relative to `t_min`, hence the hand-tuned `+0.2` shift in the zoomed figures. Say if you want absolute intercepts.
-- **DataCollapse and the other items marked DC** in H §4.
+- **Untracked files to decide on:**
+  - `heisen_spin_chain/tests/cluster_launch_test.{sh,jl}`: the launch diagnostic, no longer needed;
+  - `stavskya_mc/block_disorder/analysis/_claude_scratch/`, three files:
+    - `summary.json`: aggregated decay means, read by the review checks;
+    - `review_checks_2026_10_05.py`: the H §7.19 checks, plus sections [9] (H §7.20) and [10]–[11] (H §7.21), about 15 s;
+    - `coupling_pilot_2026_10_05.jl`: the coupling pilot, about 40 s.
 
----
-
-## How to run the tests
-
-```bash
-cd ~/research/senior_thesis
-bash stavskya_mc/block_disorder/tests/run_all_tests.sh   # Stavskaya: kernel tests, 6 local generator runs, file-name check, pytest
-bash heisen_spin_chain/tests/run_spin_tests.sh           # spin chain: refactor tests, 2 local runs, file/script check
-```
-Each writes `last_test_run.log` next to itself, ending in `OVERALL: PASS/FAIL`. Tell me you ran one and I'll read the log from your folder. Local test output goes to git-ignored folders (`_local_test_output/`).
+    Both scripts write nothing.
+  - `heisen_spin_chain/_claude_scratch/spin_checks_2026_10_05.py`: the H §7.20 spin-chain checks (a-response from the old means, sample spread, J-sign symmetry), under 1 s; writes nothing.
+- **New files of 2026-10-05 (untracked):** the two fine generators, their submit scripts, `analyze_spreading4/5.ipynb`; plus two lines in `tests/check_local_test_output.py` and a section in `block_disorder/ssh_transfer.txt`.
+- **Your local edit:** `time_log_tools.load_time_log_run` now prints and skips unreadable sample files (try/except).
+- **Known issues left alone:** `find_t_star_dist` (bookkeeping only); `s_diff_analysis_python` cells 29 and 14; log(S_diff) intercepts relative to `t_min`; DC items in H §4. Details in H §7.15.
+- **Tests:**
+  ```bash
+  cd ~/research/senior_thesis
+  bash stavskya_mc/block_disorder/tests/run_all_tests.sh
+  bash heisen_spin_chain/tests/run_spin_tests.sh
+  ```

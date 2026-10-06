@@ -60,3 +60,15 @@ ssh es1074@amarel-new.hpc.rutgers.edu "cd /home/es1074/senior_thesis3/senior_the
 echo time_log $(find /Volumes/ExternalData/stavskya_mc/data/time_log -name '*.csv' | wc -l)
 echo spreading $(find /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/spreading -name '*.csv' | wc -l)
 echo block_rho_per_ep $(find /Users/elishashmalo/research/senior_thesis/stavskya_mc/data/block_rho_per_ep -name '*.csv' | wc -l)
+
+
+# ---- 2026-10-05: fine-grid spreading runs (get_upper_lower_binary_spreading_fine_b{1,6}.jl) ---------------------------
+# 1. put the two generators and the two submit scripts on the cluster (paths relative to the repo root)
+cd /Users/elishashmalo/research/senior_thesis && rsync -avR stavskya_mc/block_disorder/generators/get_upper_lower_binary_spreading_fine_b1.jl stavskya_mc/block_disorder/generators/get_upper_lower_binary_spreading_fine_b6.jl stavskya_mc/block_disorder/submit/submit_upper_lower_spreading_fine_b1.sh stavskya_mc/block_disorder/submit/submit_upper_lower_spreading_fine_b6.sh es1074@amarel-new.hpc.rutgers.edu:/home/es1074/senior_thesis3/senior_thesis/
+# 2. submit (on the cluster, from stavskya_mc/)
+sbatch block_disorder/submit/submit_upper_lower_spreading_fine_b1.sh
+sbatch block_disorder/submit/submit_upper_lower_spreading_fine_b6.sh
+# 3. complete? 200 chunk files in each of the 18 new folders (same loop as above):
+for d in data/spreading/time_rand_window_binary/spreading/tmax100000/*/*/*/*/; do echo "$(ls $d | wc -l) $d"; done
+# 4. copy back with the "spreading runs -> repo" command above (~15 MB per generator), then run
+#    analysis/analyze_spreading4.ipynb (block_len 1) and analyze_spreading5.ipynb (block_len 6)

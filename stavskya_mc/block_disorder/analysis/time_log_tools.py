@@ -94,16 +94,19 @@ def load_time_log_run(root, model_dir, L, upper_ep, lower_ep, p_val, block_len, 
     times, rows, missing = None, [], 0
     for k in range(offset + 1, offset + n_samples + 1):
         f = time_log_sample_path(root, model_dir, L, upper_ep, lower_ep, p_val, block_len, time_prefact, ppd, k)
-        if not f.exists():
-            missing += 1
-            continue
-        df = pd.read_csv(f)
-        t = df["time"].to_numpy()
-        if times is None:
-            times = t
-        elif not np.array_equal(times, t):
-            raise ValueError(f"time grid of {f} differs from the first sample's")
-        rows.append(df["rho"].to_numpy(dtype=float))
+        try:
+            if not f.exists():
+                missing += 1
+                continue
+            df = pd.read_csv(f)
+            t = df["time"].to_numpy()
+            if times is None:
+                times = t
+            elif not np.array_equal(times, t):
+                raise ValueError(f"time grid of {f} differs from the first sample's")
+            rows.append(df["rho"].to_numpy(dtype=float))
+        except Exception as e:
+            print(f, e)
     if len(rows) < min_samples:
         raise FileNotFoundError(
             f"only {len(rows)} samples found for L={L}, eps_u={upper_ep}, eps_l={lower_ep}, p={p_val}, "

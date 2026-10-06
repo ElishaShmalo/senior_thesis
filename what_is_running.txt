@@ -1,2 +1,21 @@
-/Volumes/ExternalData/stavskya_mc/data/time_rand_window_binary/rho_per_time/IC1/L20000/epsilonu0p33321/epsilonl0p016661/pval0p8/IC1_L20000_epsilonu0p33321_epsilonl0p016661_pval0p8_timepref100_timestep20000_sample3000.csv
-/Volumes/ExternalData/stavskya_mc/data/time_rand_window_binary/rho_per_time/IC1/L20000/epsilonu0p33321/epsilonl0p01666/pval0p8/IC1_L20000_epsilonu0p33321_epsilonl0p01666_pval0p8_timepref100_timestep20000_sample3000.csv 
+The spreading analysis:
+
+Clean DP (reviewed in analyze_spreading.ipynb) obeys the predicted relationsips (though I am not sure how many cells matter for it)
+
+The bvh 6 (reviewed in  analyze_spreading3.ipynb): log(t) vs log(1/Ps) seems to show a linear behaviour between epsilon_bar = 0.1116 and 0.1104
+
+It just seems like even for the bvh experiments I could find values that seem to be like the DP criticality point (though the linear relationship between 1/Ps and ln(t) at epsilon_bar = 0.1104 is much stronger)
+
+The 1/delta_eff vs ln t matches perfectly with the theory at roughly epsilon_bar = 0.1104 (though even that peels off at late times and goes down, so we might more likley find criticallity at 0.1107).
+
+For cell 7: Our data doesnt seem to be matching the predictions, but I admit I do not fully understand what is supposed to be ploted
+
+Cell 9 is usless without more data. How is cell 10 constructed.
+
+The bvh 1 (seen in analyze_spreading2.ipynb) looks qualitativly diffrent than both DP and bvh.
+
+Cell 6: The 1/theta_eff vs lnt doesnt have an example sticking to the clean bvh line with slope of 1. If such a value did exist, it might be bw 0.1104 and 0.1428. Why does the dashed bvh line look diffrent from analyze_spreading2.ipynb and analyze_spreading3.ipynb - how are you calculating it?
+
+Im not sure how to interpret cell 7.
+
+Please do your own revieew of the spreading data and make your own interpretations. Respond to mine, correcting them where necessary.

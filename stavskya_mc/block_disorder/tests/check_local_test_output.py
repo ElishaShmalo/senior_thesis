@@ -73,6 +73,8 @@ SPREAD = [  # (parameter sets, t_max, chunks, runs per chunk) of the spreading g
     (upper_lower_sets([-1, 0], 0.144, 0.0012, 0.2), 200, 2, 5),    # get_upper_lower_binary_spreading_bvh_b1.jl
     (upper_lower_sets([-1, 0], 0.1104, 0.0012, 0.2), 200, 2, 5),   # ..._spreading_bvh_b6.jl
     (upper_lower_sets([-1, 0], 0.2945, 0.0001, 1.0), 200, 2, 5),   # ..._spreading_clean.jl
+    (upper_lower_sets([-3, -2], 0.143664, 0.000192, 0.2), 200, 2, 5),   # ..._spreading_fine_b1.jl (2026-10-05)
+    (upper_lower_sets([-3, -2], 0.110784, 0.000216, 0.2), 200, 2, 5),   # ..._spreading_fine_b6.jl (2026-10-05)
 ]
 PER_EP = [  # (model_dir, L list, z, parameter sets)
     ("time_rand_window_binary", [16, 32], 1.45,
